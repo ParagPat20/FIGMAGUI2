@@ -1,0 +1,62 @@
+SWARM DRONE COMMAND PROTOCOL STRUCTURE
+
+COMMAND FORMAT:
+[SENDER]:[TARGET]:[COMMAND_TYPE]:[PAYLOAD]:[CHECKSUM]
+
+COMMAND TYPES:
+1. SYSTEM COMMANDS
+   - SYS_PING: Network connectivity check
+   - SYS_STATUS: Request system status
+   - SYS_CONFIG: System configuration
+   - SYS_ERROR: Error reporting
+
+2. DRONE CONTROL COMMANDS
+   - DRONE_ARM: Arm drone
+   - DRONE_DISARM: Disarm drone
+   - DRONE_TAKEOFF: Initiate takeoff
+   - DRONE_LAND: Initiate landing
+   - DRONE_GOTO: Navigate to coordinates
+   - DRONE_VELOCITY: Set velocity
+   - DRONE_MODE: Change flight mode
+
+3. SWARM COMMANDS
+   - SWARM_FORMATION: Create geometric formation
+   - SWARM_LEADER_SET: Assign leader drone
+   - SWARM_SYNC: Synchronize drone positions
+   - SWARM_MISSION: Start/stop mission
+
+4. SENSOR COMMANDS
+   - SENSOR_UWB_DIST: UWB distance measurement
+   - SENSOR_GPS_UPDATE: GPS location update
+   - SENSOR_BATTERY: Battery status
+   - SENSOR_CAMERA: Camera control
+
+EXAMPLE COMMANDS:
+1. Takeoff Command:
+   GCS:DRONE1:DRONE_TAKEOFF:ALT_2M:CHECKSUM
+
+2. Go To Coordinates:
+   GCS:DRONE1:DRONE_GOTO:LAT_12.345:LON_98.765:ALT_10M:CHECKSUM
+
+3. Swarm Formation:
+   GCS:SWARM:SWARM_FORMATION:SQUARE:5DRONES:RADIUS_10M:CHECKSUM
+
+PAYLOAD STRUCTURE GUIDELINES:
+- Use uppercase
+- Use underscores for separation
+- Include units where applicable
+- Always include a checksum for data integrity
+
+COMMUNICATION LAYERS:
+1. GCS → ESP32 (ESP-NOW)
+2. ESP32 → Raspberry Pi (Serial/UART)
+3. Raspberry Pi → Flight Controller (MAVLink)
+
+RECOMMENDED IMPLEMENTATION:
+1. Define command dictionary
+2. Create parsing functions
+3. Implement checksum mechanism
+4. Design error handling
+5. Create logging system
+
+Would you like me to provide a Python implementation template for this protocol?

@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>SWARM CONTROL</title>
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600;700&display=swap" />
+    <link rel="stylesheet" href="index.css" />
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+  </head>
+  <body>
+    <!-- Map as first element, independent of all other components -->
+    <div id="map"></div>
+    
+    <div class="main-container">
+      <div class="top-bar">
+        <div class="leader-pos">
+          <span class="leader-pos-c">Leader Pos</span
+          ><span class="coordinates">33.423232,-54.343434</span>
+        </div>
+        <div class="separation">
+          <span class="separation-text">SEPERATION<br /></span>
+          <div class="select">
+            <div class="measurement">
+              <input type="number" value="2" min="0" max="99" />
+              <span class="unit">m</span>
+            </div>
+            <div class="down-arrow">
+              <button class="vector-d"></button>
+            </div>
+          </div>
+        </div>
+        <div class="operation-altitude">
+          <span class="operation-altitude-e">OPERATING ALT</span>
+          <div class="select-f">
+            <div class="measurement">
+              <input type="number" value="2" min="0" max="99" />
+              <span class="unit">m</span>
+            </div>
+            <div class="down-arrow-10">
+              <button class="vector-11"></button>
+            </div>
+          </div>
+        </div>
+        <div class="program">
+          <span class="program-title">PROGRAM</span>
+          <div class="select-14">
+            <select class="program-select">
+              <option value="square">Square</option>
+              <option value="circle">Circle</option>
+              <option value="triangle">Triangle</option>
+              <option value="line">Line</option>
+            </select>
+            <div class="down-arrow-15">
+              <div class="vector-16"></div>
+            </div>
+          </div>
+        </div>
+        <button class="start"><span class="start-label">START</span></button
+        ><button class="pause"><span class="pause-label">PAUSE</span></button>
+      </div>
+      <div class="serial-frame">
+        <input type="text" class="serial-input" placeholder="Enter command...">
+        <button class="serial-send">Send</button>
+      </div>
+      <div class="esp-gcs">
+        <div class="serial-espn">
+          <div class="esp-now">
+            <span class="esp">ESP<br /></span>
+            <span class="now">NOW</span>
+          </div>
+        </div>
+        <div class="select">
+          <select class="port-select">
+            <option value="" disabled selected>Port</option>
+          </select>
+        </div>
+      </div>
+      <div class="content">
+        <!-- Empty content area -->
+      </div>
+      <div class="sidebar">
+        <div class="sidebar-content">
+          <div class="sidebar-header">
+            <span class="sidebar-title">SWARM CONTROL</span>
+          </div>
+          <nav class="sidebar-menu">
+            <button class="menu-item active" id="menu-home">
+              <div class="menu-icon">
+                <img src="./assets/images/home-icon.png" alt="Home" />
+              </div>
+              <span class="menu-text">Home</span>
+            </button>
+            
+            <button class="menu-item" id="menu-drone-settings">
+              <div class="menu-icon">
+                <img src="./assets/images/dronesettings-icon.png" alt="Drone Settings" />
+              </div>
+              <span class="menu-text">Drone Settings</span>
+            </button>
+            
+            <button class="menu-item" id="menu-missions">
+              <div class="menu-icon">
+                <img src="./assets/images/missions-icon.png" alt="Missions" />
+              </div>
+              <span class="menu-text">Missions</span>
+            </button>
+            
+            <button class="menu-item" id="menu-logbook">
+              <div class="menu-icon">
+                <img src="./assets/images/logbook-icon.png" alt="Logbook" />
+              </div>
+              <span class="menu-text">Logbook</span>
+            </button>
+            
+            <button class="menu-item" id="menu-settings">
+              <div class="menu-icon">
+                <img src="./assets/images/settings-icon.png" alt="Settings" />
+              </div>
+              <span class="menu-text">Settings</span>
+            </button>
+            
+            <button class="menu-item" id="menu-help">
+              <div class="menu-icon">
+                <img src="./assets/images/help-icon.png" alt="Help Center" />
+              </div>
+              <span class="menu-text">Help Center</span>
+            </button>
+          </nav>
+        </div>
+      </div>
+      <div class="down-bar">
+        <div class="drone-selection">
+          <button class="button-drone-mcu">
+            <span class="mcu-26">MCU</span>
+          </button>
+        </div>
+      </div>
+      <div class="modes-dropdown" style="display: none;">
+        <div class="mode-option" data-mode="MANUAL">MANUAL</div>
+        <div class="mode-option" data-mode="STABILIZE">STABILIZE</div>
+        <div class="mode-option" data-mode="ALT_HOLD">ALT HOLD</div>
+        <div class="mode-option" data-mode="LOITER">LOITER</div>
+        <div class="mode-option" data-mode="RTL">RTL</div>
+      </div>
+    </div>
+    <!-- Generated by Codia AI - https://codia.ai/ -->
+    <script src="script.js"></script>
+  </body>
+</html>

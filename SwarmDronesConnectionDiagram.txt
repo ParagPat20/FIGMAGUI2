@@ -1,0 +1,43 @@
+CONNECTION DIAGRAM: SWARM DRONE SYSTEM
+
+[Ground Control Station (GCS) - Laptop]
+    |
+    ├── ESP32 (GCS)
+    │   └── ESP-NOW Communication
+    │       ├── Long-range Communication
+    │       └── Command Transmission
+    |
+    └── UWB DW1000
+        └── Distance Measurement Module
+
+[Drone 1 (Leader/Follower)]
+    |
+    ├── SpeedyBee F405 V4 Flight Controller
+    │   └── ArduPilot Firmware
+    │       ├── MAVLink Protocol
+    │       └── Flight Control
+	    └── GPS (Radiolink TS100 v2 M10)
+        	└── Location Tracking
+    |
+    ├── Raspberry Pi Zero 2 W
+    │   ├── DroneKit Processing
+    │   ├── Command Interpretation
+    │   └── Serial UART Connection to Flight Controller
+    |
+    ├── ESP32
+    │   └── ESP-NOW Communication
+    │       ├── Inter-Drone Communication
+    │       └── Command Reception
+    |
+    └── UWB DW1000
+        └── Precise Distance Measurement
+    
+    
+
+[Drone 2-5: IDENTICAL ARCHITECTURE]
+
+COMMUNICATION FLOW:
+1. GCS (Laptop) → ESP32 (GCS) → ESP-NOW → ESP32 (Drone)
+2. ESP32 (Drone) → Serial UART → Raspberry Pi
+3. Raspberry Pi → MAVLink → Flight Controller
+4. UWB: Continuous Inter-Drone Distance Measurement
