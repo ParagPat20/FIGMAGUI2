@@ -715,24 +715,454 @@ function initializeMap() {
     }
 }
 
-function updateDroneMarker(droneId, position) {
+function updateDroneMarker(droneId, position, heading, altitude, name) {
     const droneIcon = L.divIcon({
         className: 'drone-marker',
-        html: `<div style="
-            width: 12px;
-            height: 12px;
-            background: #70c172;
-            border: 2px solid #ffffff;
-            border-radius: 50%;
-            box-shadow: 0 0 10px rgba(112, 193, 114, 0.5);
-        "></div>`,
-        iconSize: [12, 12]
+        html: `
+            <div class="drone-marker-container">
+                <div class="drone-name">${name}</div>
+                <div class="drone-heading-indicator" style="transform: rotate(${heading}deg)"></div>
+                <div class="drone-altitude">${altitude}m</div>
+            </div>
+        `,
+        iconSize: [40, 40],
+        iconAnchor: [20, 20]
     });
 
     if (!droneMarkers.has(droneId)) {
-        droneMarkers.set(droneId, L.marker(position, { icon: droneIcon }).addTo(map));
+        const marker = L.marker(position, { icon: droneIcon }).addTo(map);
+        droneMarkers.set(droneId, marker);
+        map.setView(position, 18, {
+            animate: true,
+            duration: 1
+        });
     } else {
-        droneMarkers.get(droneId).setLatLng(position);
+        const marker = droneMarkers.get(droneId);
+        marker.setLatLng(position);
+        marker.setIcon(droneIcon);
     }
 }
 
+class DroneCard {
+    constructor(droneId, name) {
+        this.droneId = droneId;
+        this.name = name;
+        this.element = this.createCard();
+        this.updateInterval = null;
+    }
+
+    createCard() {
+        const card = document.createElement('div');
+        card.className = 'drone-card';
+        card.innerHTML = `
+            <div class="drone-card-header">
+                <span class="drone-name">${this.name}</span>
+                <div class="connection-status">
+                    <div class="status-indicator"></div>
+                    <span class="status-text">Connected</span>
+                </div>
+            </div>
+            <div class="flight-container">
+                <div class="attitude-section">
+                    <div class="attitude-indicator">
+                        <div class="attitude-horizon"></div>
+                        <div class="attitude-lines"></div>
+                        <div class="param-overlay heading">
+                            <span data-param="heading">HDG 0°</span>
+                        </div>
+                        <div class="param-overlay battery">
+                            <span data-param="battery">BAT 75%</span>
+                        </div>
+                        <div class="param-overlay distance">
+                            <span data-param="distance">0m</span>
+                        </div>
+                        <div class="param-overlay gps">
+                            <span data-param="gps">3D Fix (8)</span>
+                        </div>
+                        <div class="param-overlay mode">
+                            <span data-param="mode">GUIDE</span>
+                        </div>
+                        <div class="altitude-display">
+                            <span class="altitude-value" data-param="altitude">0.0m</span>
+                        </div>
+                    </div>
+                    <div class="drone-controls">
+                        <button class="drone-control-btn arm-btn" data-drone="${this.droneId}">ARM</button>
+                        <button class="drone-control-btn launch-btn" data-drone="${this.droneId}">LAUNCH</button>
+                        <button class="drone-control-btn mode-btn" data-drone="${this.droneId}">MODE</button>
+                        <button class="drone-control-btn land-btn" data-drone="${this.droneId}">LAND</button>
+                    </div>
+                </div>
+            </div>
+        `;
+
+        this.setupEventListeners(card);
+        return card;
+    }
+
+    setupEventListeners(card) {
+        const armBtn = card.querySelector('.arm-btn');
+        const launchBtn = card.querySelector('.launch-btn');
+        const modeBtn = card.querySelector('.mode-btn');
+        const landBtn = card.querySelector('.land-btn');
+
+        armBtn.addEventListener('click', () => this.handleArm());
+        launchBtn.addEventListener('click', () => this.handleLaunch());
+        modeBtn.addEventListener('click', () => this.handleMode());
+        landBtn.addEventListener('click', () => this.handleLand());
+    }
+
+    async handleArm() {
+        try {
+            const armBtn = this.element.querySelector('.arm-btn');
+            const isArmed = armBtn.classList.contains('armed');
+            
+            const command = JSON.stringify({
+                target: 'MCU',
+                cmd_type: 'CMD',
+                cmd: isArmed ? 'DISARM' : 'ARM'
+            });
+
+            await serialConnection.sendCommand(command);
+            
+            armBtn.classList.toggle('armed');
+            armBtn.textContent = isArmed ? 'ARM' : 'DISARM';
+            
+            customAlert.success(`Drone ${isArmed ? 'disarmed' : 'armed'} successfully`);
+        } catch (error) {
+            handleError(error, 'arming/disarming');
+        }
+    }
+
+    // Add other handler methods similarly...
+
+    updateParams(params) {
+        Object.entries(params).forEach(([key, value]) => {
+            const element = this.element.querySelector(`[data-param="${key}"]`);
+            if (element) {
+                // Update the text content based on the parameter type
+                switch(key) {
+                    case 'heading':
+                        element.textContent = value;
+                        break;
+                    case 'battery':
+                        element.textContent = value;
+                        break;
+                    case 'mode':
+                        element.textContent = value;
+                        break;
+                    case 'gps':
+                        element.textContent = value;
+                        break;
+                    case 'altitude':
+                        element.textContent = value;
+                        break;
+                    case 'distance':
+                        element.textContent = value;
+                        break;
+                    default:
+                        element.textContent = value;
+                }
+                
+                if (key === 'battery' && parseInt(value) < 20) {
+                    element.className = 'param-value error';
+                } else if (key === 'battery' && parseInt(value) < 50) {
+                    element.className = 'param-value warning';
+                }
+            }
+        });
+
+        // Update attitude indicator
+        if (params.roll !== undefined || params.pitch !== undefined) {
+            const horizon = this.element.querySelector('.attitude-horizon');
+            if (horizon) {
+                const roll = params.roll || 0;
+                const pitch = params.pitch || 0;
+                
+                // Update horizon position
+                horizon.style.transform = `rotate(${roll}deg) translateY(${pitch}%)`;
+            }
+        }
+    }
+}
+
+// Drone management
+const droneManager = {
+    drones: new Map(),
+    
+    addDrone(droneId, name) {
+        if (!this.drones.has(droneId)) {
+            const droneCard = new DroneCard(droneId, name);
+            const container = document.querySelector('.drone-cards-container');
+            container.appendChild(droneCard.element);
+            this.drones.set(droneId, droneCard);
+        }
+    },
+    
+    removeDrone(droneId) {
+        const drone = this.drones.get(droneId);
+        if (drone) {
+            drone.element.remove();
+            this.drones.delete(droneId);
+        }
+    },
+    
+    updateDroneParams(droneId, params) {
+        const drone = this.drones.get(droneId);
+        if (drone) {
+            drone.updateParams(params);
+        }
+    }
+};
+
+// Example usage:
+// When new drones connect:
+droneManager.addDrone('drone1', 'MCU-1');
+droneManager.addDrone('drone2', 'MCU-2'); 
+droneManager.addDrone('drone3', 'MCU-3');
+
+// Simulate changing parameters
+setInterval(() => {
+    // Generate random values
+    const altitude = Math.floor(Math.random() * 100);
+    const heading = Math.floor(Math.random() * 360);
+    
+    // Example coordinates (replace with real drone coordinates)
+    const latitude = 28.5383 + (Math.random() - 0.5) * 0.001;  // Small random movement
+    const longitude = 77.3447 + (Math.random() - 0.5) * 0.001; // Small random movement
+
+    // Update drone marker with new position and data
+    updateDroneMarker(
+        'drone1',
+        [latitude, longitude],
+        heading,
+        altitude,
+        'MCU-1'  // Added drone name
+    );
+
+}, 1000); // Update every second
+
+class MissionPlanner {
+    constructor() {
+        this.popup = document.querySelector('.mission-planner-popup');
+        this.canvas2D = document.getElementById('mission-canvas-2d');
+        this.canvas3D = document.getElementById('mission-canvas-3d');
+        this.ctx2D = this.canvas2D.getContext('2d');
+        this.scene = null;
+        this.camera = null;
+        this.renderer = null;
+        this.controls = null;
+        
+        this.waypoints = new Map();
+        this.selectedDrone = null;
+        this.isDragging = false;
+        
+        this.initializeListeners();
+    }
+    
+    show() {
+        this.popup.style.display = 'flex';
+        setTimeout(() => {
+            this.popup.classList.add('active');
+            if (!this.scene) {
+                this.initialize3DScene();
+            }
+            this.updateAvailableDrones();
+            this.resizeCanvases();
+        }, 10);
+    }
+    
+    initialize3DScene() {
+        try {
+            this.scene = new THREE.Scene();
+            this.scene.background = new THREE.Color(0x091930);
+            
+            this.camera = new THREE.PerspectiveCamera(
+                75,
+                this.canvas3D.clientWidth / this.canvas3D.clientHeight,
+                0.1,
+                1000
+            );
+            
+            this.renderer = new THREE.WebGLRenderer({
+                canvas: this.canvas3D,
+                antialias: true,
+                alpha: true
+            });
+            
+            this.controls = new THREE.OrbitControls(this.camera, this.canvas3D);
+            this.controls.enableDamping = true;
+            this.controls.dampingFactor = 0.05;
+            
+            const ambientLight = new THREE.AmbientLight(0xffffff, 0.5);
+            const directionalLight = new THREE.DirectionalLight(0xffffff, 0.5);
+            directionalLight.position.set(10, 10, 10);
+            this.scene.add(ambientLight);
+            this.scene.add(directionalLight);
+            
+            this.camera.position.set(20, 20, 20);
+            this.camera.lookAt(0, 0, 0);
+            
+            const gridHelper = new THREE.GridHelper(100, 100, 0x70c172, 0x1c2b40);
+            this.scene.add(gridHelper);
+            
+            this.animate();
+            this.resizeCanvases();
+        } catch (error) {
+            console.error('Error initializing 3D scene:', error);
+        }
+    }
+    
+    resizeCanvases() {
+        const container = document.querySelector('.view-container');
+        if (!container) return;
+        
+        const width = container.clientWidth;
+        const height = container.clientHeight;
+        
+        if (this.canvas2D) {
+            this.canvas2D.width = width;
+            this.canvas2D.height = height;
+        }
+        
+        if (this.renderer && this.camera) {
+            this.renderer.setSize(width, height);
+            this.camera.aspect = width / height;
+            this.camera.updateProjectionMatrix();
+        }
+        
+        this.update2DView();
+    }
+    
+    animate() {
+        if (!this.renderer || !this.scene || !this.camera) return;
+        
+        requestAnimationFrame(() => this.animate());
+        
+        if (this.controls) {
+            this.controls.update();
+        }
+        
+        this.renderer.render(this.scene, this.camera);
+    }
+    
+    initializeListeners() {
+        // View toggle buttons
+        document.querySelectorAll('.view-toggle').forEach(button => {
+            button.addEventListener('click', () => this.toggleView(button.dataset.view));
+        });
+        
+        // Close button
+        document.querySelector('.close-mission-planner').addEventListener('click', () => this.hide());
+        
+        // Canvas interactions
+        this.canvas2D.addEventListener('mousedown', (e) => this.handleCanvasMouseDown(e));
+        this.canvas2D.addEventListener('mousemove', (e) => this.handleCanvasMouseMove(e));
+        this.canvas2D.addEventListener('mouseup', () => this.handleCanvasMouseUp());
+        
+        // Save and clear buttons
+        document.querySelector('.save-mission').addEventListener('click', () => this.saveMission());
+        document.querySelector('.clear-mission').addEventListener('click', () => this.clearMission());
+        
+        // Window resize
+        window.addEventListener('resize', () => this.resizeCanvases());
+    }
+
+    hide() {
+        this.popup.classList.remove('active');
+        setTimeout(() => this.popup.style.display = 'none', 300);
+    }
+
+    handleCanvasMouseDown(e) {
+        const rect = this.canvas2D.getBoundingClientRect();
+        const x = e.clientX - rect.left;
+        const y = e.clientY - rect.top;
+        this.isDragging = true;
+        // Handle mouse down logic
+    }
+
+    handleCanvasMouseMove(e) {
+        if (!this.isDragging) return;
+        const rect = this.canvas2D.getBoundingClientRect();
+        const x = e.clientX - rect.left;
+        const y = e.clientY - rect.top;
+        // Handle mouse move logic
+    }
+
+    handleCanvasMouseUp() {
+        this.isDragging = false;
+        // Handle mouse up logic
+    }
+
+    saveMission() {
+        // Save mission logic
+        console.log('Saving mission...');
+        // Implement saving waypoints and mission parameters
+    }
+
+    clearMission() {
+        // Clear mission logic
+        console.log('Clearing mission...');
+        this.waypoints.clear();
+        this.update2DView();
+        this.update3DView();
+    }
+
+    toggleView(view) {
+        document.querySelectorAll('.view-toggle').forEach(btn => {
+            btn.classList.toggle('active', btn.dataset.view === view);
+        });
+        
+        this.canvas2D.classList.toggle('active', view === '2d');
+        this.canvas3D.classList.toggle('active', view === '3d');
+        
+        if (view === '3d') {
+            this.update3DView();
+        } else {
+            this.update2DView();
+        }
+    }
+
+    update2DView() {
+        if (!this.ctx2D) return;
+        // Clear canvas
+        this.ctx2D.clearRect(0, 0, this.canvas2D.width, this.canvas2D.height);
+        // Draw waypoints and connections
+        // Implement 2D visualization
+    }
+
+    update3DView() {
+        if (!this.scene) return;
+        // Update 3D visualization
+        // Implement 3D visualization
+    }
+
+    updateAvailableDrones() {
+        const droneList = document.querySelector('.drone-list');
+        droneList.innerHTML = '';
+        
+        // Add connected drones to the list
+        droneManager.drones.forEach((drone, id) => {
+            const droneItem = document.createElement('div');
+            droneItem.className = 'drone-item';
+            droneItem.draggable = true;
+            droneItem.textContent = drone.name;
+            droneItem.dataset.droneId = id;
+            
+            droneItem.addEventListener('dragstart', (e) => {
+                this.selectedDrone = id;
+                e.dataTransfer.setData('text/plain', id);
+            });
+            
+            droneList.appendChild(droneItem);
+        });
+    }
+}
+
+// Initialize mission planner when menu item is clicked
+document.getElementById('menu-missions').addEventListener('click', () => {
+    if (!window.missionPlanner) {
+        window.missionPlanner = new MissionPlanner();
+    }
+    window.missionPlanner.show();
+});

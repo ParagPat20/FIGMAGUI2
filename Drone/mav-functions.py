@@ -5,12 +5,14 @@ import geopy
 import geopy.distance
 from geopy.distance import great_circle
 import math
+import json
 
 class DroneVehicle:
     def __init__(self, connection_string, baud=None):
         self.vehicle = connect(connection_string, baud=baud)
         self.posalt = 2
         self.in_air = False
+        self.start_time = time.time()
         
     def disconnect(self):
         self.vehicle.close()
@@ -168,34 +170,26 @@ class DroneVehicle:
         self.vehicle.send_mavlink(msg)
 
     def get_vehicle_state(self):
-        """Returns comprehensive vehicle state information"""
-        return {
-            'location': {
-                'global': (self.vehicle.location.global_frame.lat,
-                          self.vehicle.location.global_frame.lon,
-                          self.vehicle.location.global_frame.alt),
-                'relative': (self.vehicle.location.global_relative_frame.lat,
-                           self.vehicle.location.global_relative_frame.lon,
-                           self.vehicle.location.global_relative_frame.alt),
-                'local': (self.vehicle.location.local_frame.north,
-                         self.vehicle.location.local_frame.east,
-                         self.vehicle.location.local_frame.down)
-            },
-            'velocity': self.vehicle.velocity,
-            'gps': {
-                'fix_type': self.vehicle.gps_0.fix_type,
-                'satellites_visible': self.vehicle.gps_0.satellites_visible
-            },
-            'battery': {
-                'voltage': self.vehicle.battery.voltage,
-                'current': self.vehicle.battery.current,
-                'level': self.vehicle.battery.level
-            },
-            'heading': self.vehicle.heading,
-            'groundspeed': self.vehicle.groundspeed,
-            'airspeed': self.vehicle.airspeed,
-            'mode': self.vehicle.mode.name
-        }
+        """Returns vehicle state for ESP32 communication"""
+        try:
+            return {
+                'armed': self.vehicle.armed,
+                'mode': self.vehicle.mode.name,
+                'altitude': self.vehicle.location.global_relative_frame.alt,
+                'heading': self.vehicle.heading,
+                'groundspeed': self.vehicle.groundspeed,
+                'airspeed': self.vehicle.airspeed,
+                'battery_voltage': self.vehicle.battery.voltage,
+                'battery_current': self.vehicle.battery.current,
+                'battery_level': self.vehicle.battery.level,
+                'ekf_ok': self.vehicle.ekf_ok,
+                'last_heartbeat': self.vehicle.last_heartbeat,
+                'system_status': self.vehicle.system_status,
+                'uptime': time.time() - self.start_time
+            }
+        except Exception as e:
+            print(f"Error getting vehicle state: {e}")
+            return None
 
     def set_mode(self, mode_name):
         """Changes vehicle mode"""

@@ -1551,7 +1551,7 @@ button:disabled {
   height: 24px;
   background: #1c2b40;
   border: 1px solid #70c172;
-  border-radius: 4px;
+  border-radius: 15px 4px 4px 15px;
   color: #70c172;
   font-family: IBM Plex Mono, var(--default-font-family);
   font-size: 12px;
@@ -1582,4 +1582,839 @@ button:disabled {
   background: #70c172;
   color: #1c2b40;
 }
+
+
+.info-group {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding: 15px;
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 8px;
+}
+
+.info-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.info-label {
+  color: #9ca3af;
+  font-family: IBM Plex Mono, var(--default-font-family);
+  font-size: 14px;
+  font-weight: 500;
+}
+
+.info-value {
+  color: #70c172;
+  font-family: IBM Plex Mono, var(--default-font-family);
+  font-size: 14px;
+  font-weight: 600;
+}
+
+/* Add status-specific colors */
+.info-value.warning {
+  color: #ffab49;
+}
+
+.info-value.error {
+  color: #f05151;
+}
+
+.info-value.success {
+  color: #70c172;
+}
+
+/* Update drone-info styles */
+.drone-info {
+  grid-area: drone-info;
+  width: fit-content;
+  height: fit-content;
+  padding: 0;
+  overflow-y: auto;
+  pointer-events: auto;
+  position: fixed;
+  right: 0;
+  top: 70px;
+  z-index: 1000;
+  background: transparent;
+}
+
+.drone-cards-container {
+  display: flex;
+  flex-direction: column;
+  align-content: flex-end;
+  align-items: flex-end;
+  gap: 10px;
+  padding: 5px 0 5px 5px;
+}
+
+/* Drone Card Styles */
+.drone-card {
+  background: rgba(9, 25, 48, 0.919);
+  backdrop-filter: blur(8px);
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  border: 1px solid rgba(112, 193, 114, 0.3);
+  border-right: none;
+  border-radius: 12px;
+  border-top-right-radius: 0;
+  border-bottom-right-radius: 0;
+  padding: 10px;
+  max-width: 320px;
+  width: 100%;
+  transition: all 0.3s ease;
+}
+
+.drone-card:hover {
+  border-color: rgba(112, 193, 114, 0.6);
+  border-right: none;
+  border-radius: 12px;
+  border-top-right-radius: 12px;
+  border-bottom-right-radius: 12px;
+  transform: translateX(-3px);
+  box-shadow: 0 6px 8px rgba(0, 0, 0, 0.15);
+}
+
+.drone-card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 8px;
+  padding-bottom: 5px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.drone-name {
+  color: #70c172;
+  font-family: IBM Plex Mono, var(--default-font-family);
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.connection-status {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.status-indicator {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: #70c172;
+}
+
+.status-text {
+  color: #70c172;
+  font-size: 12px;
+  font-weight: 500;
+}
+
+.drone-controls {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 8px;
+  margin-bottom: 15px;
+}
+
+.drone-control-btn {
+  padding: 8px;
+  border: none;
+  border-radius: 6px;
+  font-family: IBM Plex Mono, var(--default-font-family);
+  font-size: 12px;
+  font-weight: 600;
+  color: #ffffff;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.arm-btn {
+  background: #70c172;
+}
+
+.arm-btn.armed {
+  background: #f05151;
+}
+
+.launch-btn {
+  background: #2c7bf2;
+}
+
+.mode-btn {
+  background: #ffab49;
+}
+
+.land-btn {
+  background: #f05151;
+}
+
+.drone-control-btn:hover {
+  transform: translateY(-2px);
+  filter: brightness(1.1);
+}
+
+.drone-control-btn:active {
+  transform: translateY(0);
+}
+
+.drone-params {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 5px;
+}
+
+.param-item {
+  background: rgba(255, 255, 255, 0.05);
+  padding: 4px;
+  border-radius: 6px;
+}
+
+.param-label {
+  color: #9ca3af;
+  font-size: 10px;
+  font-weight: 500;
+  margin-bottom: 4px;
+}
+
+.param-value {
+  color: #70c172;
+  font-size: 11px;
+  font-weight: 600;
+}
+
+.param-value.warning {
+  color: #ffab49;
+}
+
+.param-value.error {
+  color: #f05151;
+}
+
+
+
+/* Add parameter overlays inside attitude indicator */
+.param-overlay {
+  position: absolute;
+  z-index: 3;
+  color: #000000;
+  font-size: 11px;
+  font-weight: 600;
+  font-family: IBM Plex Mono, var(--default-font-family);
+  text-shadow: 0 0 2px rgba(255, 255, 255, 0.8);
+}
+
+.param-overlay.top {
+  top: 10px;
+  left: 50%;
+  transform: translateX(-50%);
+}
+
+.param-overlay.bottom {
+  bottom: 10px;
+  left: 50%;
+  transform: translateX(-50%);
+}
+
+.param-overlay.left {
+  left: 10px;
+  top: 50%;
+  transform: translateY(-50%);
+}
+
+.param-overlay.right {
+  right: 10px;
+  top: 50%;
+  transform: translateY(-50%);
+}
+
+.param-overlay.top-left {
+  top: 25%;
+  left: 15%;
+}
+
+.param-overlay.top-right {
+  top: 25%;
+  right: 15%;
+}
+
+.param-overlay.bottom-left {
+  bottom: 25%;
+  left: 15%;
+}
+
+.param-overlay.bottom-right {
+  bottom: 25%;
+  right: 15%;
+}
+
+.attitude-horizon {
+  position: absolute;
+  width: 150%;
+  height: 150%;
+  left: -25%;
+  background: linear-gradient(to bottom, #2c7bf2 50%, #70c172 50%);
+  transform-origin: center;
+  transition: transform 0.2s ease;
+  z-index: 1;
+}
+
+.attitude-lines {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  z-index: 2;
+}
+
+/* Add attitude indicator lines */
+.attitude-lines::before {
+  content: '';
+  position: absolute;
+  left: 50%;
+  top: 0;
+  bottom: 0;
+  width: 2px;
+  background: rgba(255, 255, 255, 0.4);
+  transform: translateX(-50%);
+}
+
+.attitude-lines::after {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 0;
+  right: 0;
+  height: 2px;
+  background: rgba(255, 255, 255, 0.4);
+  transform: translateY(-50%);
+}
+
+.attitude-indicator-container {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 8px;
+}
+
+.attitude-data {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.attitude-value {
+  font-size: 11px;
+  color: #70c172;
+  font-family: IBM Plex Mono, var(--default-font-family);
+}
+
+/* Add altitude display in the center of attitude indicator */
+.altitude-display {
+  position: absolute;
+  z-index: 3;
+  background: rgb(0 0 0 / 80%);
+  padding: 2px 3px;
+  border-radius: 6px;
+  border: 1px solid rgba(112, 193, 114, 0.3);
+}
+
+.altitude-value {
+  color: #000000;
+  font-size: 14px;
+  font-weight: 700;
+  font-family: IBM Plex Mono, var(--default-font-family);
+  text-shadow: 0 0 2px rgba(255, 255, 255, 0.8);
+}
+
+.flight-container {
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+  margin-bottom: 10px;
+}
+
+.attitude-section {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  flex: 1;
+}
+
+.attitude-indicator-container {
+  width: 100%;
+}
+
+.drone-controls {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 6px;
+  width: 100%;
+  max-width: 200px;
+}
+
+.drone-control-btn {
+  padding: 6px;
+  border: none;
+  border-radius: 6px;
+  font-family: IBM Plex Mono, var(--default-font-family);
+  font-size: 11px;
+  font-weight: 600;
+  color: #ffffff;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.param-item {
+  background: rgba(255, 255, 255, 0.05);
+  padding: 4px;
+  border-radius: 6px;
+}
+
+.param-label {
+  color: #9ca3af;
+  font-size: 10px;
+  font-weight: 500;
+}
+
+.param-value {
+  color: #70c172;
+  font-size: 11px;
+  font-weight: 600;
+  margin-left: 4px;
+}
+
+.param-overlay.heading {
+  top: 8px;
+  left: 50%;
+  transform: translateX(-50%);
+}
+
+.param-overlay.battery {
+  top: 8px;
+  right: 8px;
+}
+
+.param-overlay.distance {
+  top: 24px;
+  right: 8px;
+}
+
+.param-overlay.gps {
+  bottom: 8px;
+  left: 8px;
+  display: flex;
+  align-items: center;
+  gap: 2px;
+}
+
+.param-overlay.mode {
+  bottom: 8px;
+  right: 8px;
+}
+
+.altitude-display {
+  position: absolute;
+  z-index: 3;
+  background: rgb(0 0 0 / 80%);
+  padding: 2px 3px;
+  border-radius: 6px;
+  border: 1px solid rgba(112, 193, 114, 0.3);
+}
+
+.altitude-value {
+  color: #000000;
+  font-size: 14px;
+  font-weight: 700;
+  font-family: IBM Plex Mono, var(--default-font-family);
+  text-shadow: 0 0 2px rgba(255, 255, 255, 0.8);
+}
+
+.flight-container {
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+  margin-bottom: 10px;
+}
+
+.attitude-section {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  flex: 1;
+}
+
+.attitude-indicator-container {
+  width: 100%;
+}
+
+.attitude-indicator {
+  position: relative;
+  width: 160px;
+  height: 160px;
+  background: #091930;
+  border: 1px solid rgba(112, 193, 114, 0.3);
+  border-radius: 10%;
+  overflow: hidden;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.drone-controls {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 6px;
+  width: 100%;
+  max-width: 200px;
+}
+
+.drone-control-btn {
+  padding: 6px;
+  border: none;
+  border-radius: 6px;
+  font-family: IBM Plex Mono, var(--default-font-family);
+  font-size: 11px;
+  font-weight: 600;
+  color: #ffffff;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.param-item {
+  background: rgba(255, 255, 255, 0.05);
+  padding: 4px;
+  border-radius: 6px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.param-label {
+  color: #9ca3af;
+  font-size: 10px;
+  font-weight: 500;
+}
+
+.param-value {
+  color: #70c172;
+  font-size: 11px;
+  font-weight: 600;
+  margin-left: 4px;
+}
+
+.drone-marker-container {
+  position: relative;
+  width: 40px;
+  height: 40px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.drone-name {
+  position: absolute;
+  top: -18px;
+  left: 50%;
+  transform: translateX(-50%);
+  padding: 1px 4px;
+  background: rgba(9, 25, 48, 0.9);
+  color: #ffffff;
+  font-size: 10px;
+  font-weight: 600;
+  border-radius: 4px;
+  border: 1px solid rgba(112, 193, 114, 0.3);
+  white-space: nowrap;
+}
+
+.drone-heading-indicator {
+  position: relative;
+  width: 24px;
+  height: 24px;
+  background: #70c172;
+  border: 2px solid #ffffff;
+  transform-origin: center;
+  clip-path: polygon(50% 0%, 100% 100%, 50% 85%, 0% 100%);
+  box-shadow: 0 0 10px rgba(112, 193, 114, 0.5);
+  transition: transform 0.3s ease;
+}
+
+.drone-circle {
+  position: absolute;
+  width: 20px;
+  height: 20px;
+  background: rgba(112, 193, 114, 0.8);
+  border: 2px solid #ffffff;
+  border-radius: 50%;
+  box-shadow: 0 0 10px rgba(112, 193, 114, 0.5);
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
+}
+
+.drone-pointer {
+  position: absolute;
+  width: 2px;
+  height: 12px;
+  background: #ffffff;
+  left: 50%;
+  top: 0;
+  transform: translateX(-50%);
+}
+
+.drone-altitude {
+  position: absolute;
+  bottom: -18px;
+  left: 50%;
+  transform: translateX(-50%);
+  padding: 1px 4px;
+  background: rgba(9, 25, 48, 0.9);
+  color: #70c172;
+  font-size: 10px;
+  font-weight: 600;
+  border-radius: 4px;
+  border: 1px solid rgba(112, 193, 114, 0.3);
+  white-space: nowrap;
+}
+
+/* Mission Planner Popup Styles */
+.mission-planner-popup {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background: rgba(0, 0, 0, 0.8);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 2000;
+  opacity: 0;
+  transition: opacity 0.3s ease;
+  pointer-events: none;
+}
+
+.mission-planner-popup.active {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+.mission-planner-content {
+  width: 90%;
+  height: 90%;
+  background: #091930;
+  border-radius: 12px;
+  border: 1px solid rgba(112, 193, 114, 0.3);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.mission-planner-header {
+  padding: 15px 20px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.mission-planner-header h2 {
+  color: #ffffff;
+  font-family: IBM Plex Mono, var(--default-font-family);
+  font-size: 20px;
+  margin: 0;
+}
+
+.close-mission-planner {
+  background: none;
+  border: none;
+  color: #ffffff;
+  font-size: 24px;
+  cursor: pointer;
+  padding: 0;
+  width: 30px;
+  height: 30px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  transition: background 0.2s;
+}
+
+.close-mission-planner:hover {
+  background: rgba(255, 255, 255, 0.1);
+}
+
+.mission-planner-body {
+  flex: 1;
+  display: flex;
+  gap: 20px;
+  padding: 20px;
+  min-height: 0;
+}
+
+.mission-views {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 8px;
+  padding: 15px;
+}
+
+.view-controls {
+  display: flex;
+  gap: 10px;
+}
+
+.view-toggle {
+  padding: 8px 16px;
+  background: #1c2b40;
+  border: 1px solid rgba(112, 193, 114, 0.3);
+  border-radius: 6px;
+  color: #ffffff;
+  font-family: IBM Plex Mono, var(--default-font-family);
+  font-size: 14px;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.view-toggle.active {
+  background: #70c172;
+  border-color: #70c172;
+}
+
+.view-container {
+  flex: 1;
+  position: relative;
+  min-height: 0;
+  border: 1px solid rgba(112, 193, 114, 0.3);
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+#mission-canvas-2d,
+#mission-canvas-3d {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  display: none;
+}
+
+#mission-canvas-2d.active,
+#mission-canvas-3d.active {
+  display: block;
+}
+
+.mission-controls {
+  width: 300px;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.available-drones,
+.waypoint-settings {
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 8px;
+  padding: 15px;
+}
+
+.available-drones h3,
+.waypoint-settings h3 {
+  color: #ffffff;
+  font-family: IBM Plex Mono, var(--default-font-family);
+  font-size: 16px;
+  margin: 0 0 15px 0;
+}
+
+.drone-list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.drone-item {
+  padding: 10px;
+  background: #1c2b40;
+  border: 1px solid rgba(112, 193, 114, 0.3);
+  border-radius: 6px;
+  color: #ffffff;
+  cursor: move;
+  transition: all 0.2s;
+}
+
+.drone-item:hover {
+  background: #2c3b50;
+}
+
+.waypoint-inputs {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.input-group {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+
+.input-group label {
+  color: #9ca3af;
+  font-size: 12px;
+}
+
+.input-group input {
+  padding: 8px;
+  background: #1c2b40;
+  border: 1px solid rgba(112, 193, 114, 0.3);
+  border-radius: 4px;
+  color: #70c172;
+  font-family: IBM Plex Mono, var(--default-font-family);
+  font-size: 14px;
+}
+
+.mission-planner-footer {
+  padding: 15px 20px;
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+}
+
+.save-mission,
+.clear-mission {
+  padding: 8px 16px;
+  border-radius: 6px;
+  font-family: IBM Plex Mono, var(--default-font-family);
+  font-size: 14px;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.save-mission {
+  background: #70c172;
+  border: none;
+  color: #ffffff;
+}
+
+.clear-mission {
+  background: #1c2b40;
+  border: 1px solid rgba(112, 193, 114, 0.3);
+  color: #ffffff;
+}
+
+.save-mission:hover {
+  background: #5a9d6a;
+}
+
+.clear-mission:hover {
+  background: #2c3b50;
+}
+
 
