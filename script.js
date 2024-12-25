@@ -915,33 +915,6 @@ const droneManager = {
     }
 };
 
-// Example usage:
-// When new drones connect:
-droneManager.addDrone('drone1', 'MCU-1');
-droneManager.addDrone('drone2', 'MCU-2'); 
-droneManager.addDrone('drone3', 'MCU-3');
-
-// Simulate changing parameters
-setInterval(() => {
-    // Generate random values
-    const altitude = Math.floor(Math.random() * 100);
-    const heading = Math.floor(Math.random() * 360);
-    
-    // Example coordinates (replace with real drone coordinates)
-    const latitude = 28.5383 + (Math.random() - 0.5) * 0.001;  // Small random movement
-    const longitude = 77.3447 + (Math.random() - 0.5) * 0.001; // Small random movement
-
-    // Update drone marker with new position and data
-    updateDroneMarker(
-        'drone1',
-        [latitude, longitude],
-        heading,
-        altitude,
-        'MCU-1'  // Added drone name
-    );
-
-}, 1000); // Update every second
-
 class MissionPlanner {
     constructor() {
         this.popup = document.querySelector('.mission-planner-popup');

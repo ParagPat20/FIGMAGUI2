@@ -3,7 +3,7 @@
 #include <ArduinoJson.h>
 
 // MAC address of the devices
-uint8_t gcsMAC[] = {0xA0, 0xB7, 0x65, 0x22, 0xB7, 0x90};     // Replace with actual MAC address
+uint8_t gcsMAC[] = {0xA0, 0xB7, 0x65, 0x07, 0x63, 0x74};     // Replace with actual MAC address
 
 esp_now_peer_info_t peerInfo;
 
@@ -52,6 +52,11 @@ void setup() {
     if (esp_now_add_peer(&peerInfo) != ESP_OK) {
         Serial.println("Failed to add peer GCS");
     }
+    else {
+      Serial.println("ADDED GCS PEER");
+    }
+
+    Serial.println("ESP-MCU Ready");  // Add ready message
 }
 
 void loop() {
@@ -142,6 +147,9 @@ void OnDataSent(const uint8_t* mac_addr, esp_now_send_status_t status) {
 void OnDataRecv(const uint8_t* mac, const uint8_t* incomingData, int len) {
     if (len == sizeof(CommandPacket)) {
         CommandPacket* packet = (CommandPacket*)incomingData;
+          int rssi = WiFi.RSSI();
+          Serial.print("RSSI: ");
+          Serial.println(rssi);
 
         // Verify checksum
         uint8_t calculatedChecksum = calculateChecksum(packet);
