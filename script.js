@@ -76,11 +76,18 @@ function initializeElements() {
         
         // Drone Selection
         droneMcuBtn: document.querySelector('.button-drone-mcu'),
-        
+
         // Add MCU button to the drone container
         mcuButton: document.createElement('button'),
     };
 }
+
+// Function to handle drone selection
+function handleDroneSelect() {
+    // Logic for handling the drone selection
+    console.log("Drone selected");
+}
+
 
 
 // Button Event Handlers
@@ -93,7 +100,8 @@ function initializeEventListeners() {
     elements.programSelect?.addEventListener('change', handleProgramChange);
     elements.startBtn?.addEventListener('click', handleStart);
     elements.pauseBtn?.addEventListener('click', handlePause);
-    
+    elements.droneMcuBtn?.addEventListener('click', handleDroneSelect);
+
     // Sidebar Menu
     elements.menuItems?.forEach(item => {
         item?.addEventListener('click', handleMenuClick);
@@ -111,6 +119,10 @@ document.addEventListener('DOMContentLoaded', () => {
     initializeElements();
     initializeEventListeners();
     initializeMap();
+    initializeTerminalDrag();
+    
+    // Start fetching serial data
+    setInterval(fetchSerialData, 1000);
 });
 
 // Utility Functions
@@ -150,12 +162,6 @@ class SerialConnection {
             this.portSelect?.addEventListener('change', (e) => {
                 console.log(`Port selection changed to: ${e.target.value}`);
                 this.connect(e.target.value);
-            });
-            this.serialSend?.addEventListener('click', () => this.handleSerialSend());
-            this.serialInput?.addEventListener('keypress', (e) => {
-                if (e.key === 'Enter') {
-                    this.handleSerialSend();
-                }
             });
         } catch (error) {
             console.error('Error in initializeListeners:', error);
@@ -211,19 +217,13 @@ class SerialConnection {
             }
             
             console.log(`Attempting to connect to port: ${portName}`);
+            const command = "{T:GCS;C:SERIAL;P:HB}"; // Adjusted command format
             const response = await fetch('http://127.0.0.1:5000/verify_port', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ 
-                    port: portName,
-                    command: JSON.stringify({
-                        target: "GCS",
-                        cmd_type: "HB",
-                        cmd: "ping"
-                    })
-                })
+                body: JSON.stringify({ port: portName, command: command }) // Send port and command
             });
-
+    
             if (!response.ok) throw new Error('Connection failed');
             
             const result = await response.json();
@@ -274,221 +274,11 @@ class SerialConnection {
         }
     }
 
-    async sendHeartbeat() {
-        try {
-            const response = await this.sendCommand(JSON.stringify({
-                to: "GCS",
-                cmd_type: "HB",
-                cmd: "ping"
-            }));
-
-            if (response && response.status === "ok") {
-                // Change ESP NOW text color to green
-                const espText = document.querySelector('.esp-now');
-                if (espText) {
-                    espText.style.color = '#70c172';
-                }
-                this.isConnected = true;
-            } else {
-                throw new Error('No heartbeat response');
-            }
-        } catch (error) {
-            console.error('Heartbeat failed:', error);
-            const espText = document.querySelector('.esp-now');
-            if (espText) {
-                espText.style.color = '#ffffff'; // Reset to white
-            }
-            this.isConnected = false;
-            handleError(error, 'verifying ESP32 connection');
-        }
-    }
-
-    async sendCommand(command) {
-        try {
-            if (!this.isConnected) {
-                console.warn('Attempted to send command while not connected');
-                throw new Error('Not connected to any port');
-            }
-
-            console.log(`Sending command: ${command}`);
-            const response = await fetch('http://127.0.0.1:5000/send_command', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ command })
-            });
-
-            if (!response.ok) throw new Error('Failed to send command');
-            
-            const result = await response.json();
-            console.log('Command response:', result);
-            
-            if (result.status === "ok" || result.response === "OK") {
-                return { status: "ok" };
-            }
-            
-            throw new Error('Invalid response');
-            
-        } catch (error) {
-            console.error('Error sending command:', error);
-            handleError(error, 'sending command');
-            return null;
-        }
-    }
-
-    async handleSerialSend() {
-        if (!this.serialInput || !this.isConnected) return;
-        
-        const command = this.serialInput.value.trim();
-        if (!command) return;
-        
-        try {
-            // Format command as JSON
-            const jsonCommand = JSON.stringify({
-                target: "MCU",
-                cmd_type: "CMD",
-                cmd: command
-            });
-            
-            await this.sendCommand(jsonCommand);
-            this.serialInput.value = '';  // Clear input after sending
-        } catch (error) {
-            console.error('Failed to send serial command:', error);
-            handleError(error, 'sending serial command');
-        }
-    }
 }
 
 // Initialize serial connection
 const serialConnection = new SerialConnection();
 
-// Drone Control Functions
-async function handleArm() {
-    try {
-        const armButton = elements.armBtn;
-        const resetLoading = showButtonLoading(armButton);
-
-        currentDrone.isArmed = !currentDrone.isArmed;
-        
-        await serialConnection.sendCommand(currentDrone.isArmed ? 'ARM' : 'DISARM');
-        
-        resetLoading();
-        
-        if (currentDrone.isArmed) {
-            armButton.style.background = '#f05151';
-            armButton.classList.add('active');
-            customAlert.success('Drone armed successfully');
-        } else {
-            armButton.style.background = '#70c172';
-            armButton.classList.remove('active');
-            customAlert.success('Drone disarmed successfully');
-        }
-        
-        updateDroneStatus();
-    } catch (error) {
-        handleError(error, 'arming/disarming');
-    }
-}
-
-async function handleLaunch() {
-    try {
-        await validateDroneState();
-        
-        await serialConnection.sendCommand('LAUNCH');
-        currentDrone.isFlying = true;
-        
-        const launchButton = elements.launchBtn;
-        const landButton = elements.landBtn;
-        
-        launchButton.style.background = '#70c172';
-        launchButton.disabled = true;
-        
-        landButton.style.background = '#f2d2f2';
-        landButton.disabled = false;
-        
-        customAlert.success('Drone launched successfully');
-        updateDroneStatus();
-        
-    } catch (error) {
-        handleError(error, 'launching');
-    }
-}
-
-async function handleLand() {
-    try {
-        if (!currentDrone.isFlying) {
-            throw new Error('Drone is not flying');
-        }
-        
-        await serialConnection.sendCommand('LAND');
-        currentDrone.isFlying = false;
-        
-        const landButton = elements.landBtn;
-        const launchButton = elements.launchBtn;
-        
-        landButton.style.background = '#f05151';
-        landButton.disabled = true;
-        
-        launchButton.style.background = '#f2f2f2';
-        launchButton.disabled = false;
-        
-        customAlert.success('Drone landing initiated');
-        updateDroneStatus();
-        
-    } catch (error) {
-        handleError(error, 'landing');
-    }
-}
-
-async function handlePosHold() {
-    try {
-        if (!currentDrone.isFlying) {
-            throw new Error('Drone must be flying to use position hold');
-        }
-        
-        currentDrone.isPosHold = !currentDrone.isPosHold;
-        await serialConnection.sendCommand(currentDrone.isPosHold ? 'POSHOLD_ON' : 'POSHOLD_OFF');
-        
-        elements.posholdBtn.style.background = currentDrone.isPosHold ? '#f05151' : '#2c7bf2';
-        
-        customAlert.success(`Position hold ${currentDrone.isPosHold ? 'enabled' : 'disabled'}`);
-        updateDroneStatus();
-        
-    } catch (error) {
-        handleError(error, 'toggling position hold');
-    }
-}
-
-function handleModes() {
-    const modesDropdown = document.querySelector('.modes-dropdown');
-    const modesButton = elements.modesBtn;
-    
-    const isHidden = modesDropdown.style.display === 'none';
-    
-    if (isHidden) {
-        const buttonRect = modesButton.getBoundingClientRect();
-        modesDropdown.style.display = 'block';
-        
-        // Trigger animation
-        setTimeout(() => {
-            modesDropdown.classList.add('show');
-        }, 10);
-        
-        modesButton.style.background = '#2c7bf2';
-        
-        document.querySelectorAll('.mode-option').forEach(opt => {
-            opt.classList.remove('active');
-            if (opt.dataset.mode === currentDrone.currentMode) {
-                opt.classList.add('active');
-            }
-        });
-    } else {
-        modesDropdown.classList.remove('show');
-        setTimeout(() => {
-            modesDropdown.style.display = 'none';
-        }, 200);
-        modesButton.style.background = '#ffab49';
-    }
-}
 
 function handleAddDrone() {
     createDroneList({
@@ -587,27 +377,7 @@ function handleMenuClick(e) {
     }
 }
 
-// Drone Selection Function
-function handleDroneSelect() {
-    const mcuButton = elements.mcuButton;
-    mcuButton.classList.toggle('active');
-    
-    if (mcuButton.classList.contains('active')) {
-        mcuButton.style.background = '#f05151';
-        customAlert.success('MCU selected');
-    } else {
-        mcuButton.style.background = '#0f2951';
-        customAlert.info('MCU deselected');
-    }
-}
 
-// Utility Functions
-function updateDroneStatus() {
-    // Update UI elements with current drone state
-    document.querySelector('.altitude').textContent = `Altitude: ${currentDrone.currentAltitude}m`;
-    document.querySelector('.mode').textContent = `Mode: ${currentDrone.currentMode}`;
-    document.querySelector('.battery').textContent = `Battery: ${currentDrone.batteryLevel}%`;
-}
 
 function updateFormation() {
     // Implementation for updating drone formation
@@ -791,6 +561,7 @@ class DroneCard {
                         <button class="drone-control-btn launch-btn" data-drone="${this.droneId}">LAUNCH</button>
                         <button class="drone-control-btn mode-btn" data-drone="${this.droneId}">MODE</button>
                         <button class="drone-control-btn land-btn" data-drone="${this.droneId}">LAND</button>
+                        <button class="drone-control-btn attitude-btn" data-drone="${this.droneId}">ATTITUDE</button>
                     </div>
                 </div>
             </div>
@@ -805,36 +576,51 @@ class DroneCard {
         const launchBtn = card.querySelector('.launch-btn');
         const modeBtn = card.querySelector('.mode-btn');
         const landBtn = card.querySelector('.land-btn');
+        const attitudeBtn = card.querySelector('.attitude-btn');
 
-        armBtn.addEventListener('click', () => this.handleArm());
-        launchBtn.addEventListener('click', () => this.handleLaunch());
-        modeBtn.addEventListener('click', () => this.handleMode());
-        landBtn.addEventListener('click', () => this.handleLand());
+        armBtn.addEventListener('click', () => this.handleArm(this.droneId));
+        launchBtn.addEventListener('click', () => this.handleLaunch(this.droneId));
+        modeBtn.addEventListener('click', () => this.handleMode(this.droneId));
+        landBtn.addEventListener('click', () => this.handleLand(this.droneId));
+        attitudeBtn.addEventListener('click', () => {
+            this.startSendingAttitudeRequests(this.droneId);
+        });
     }
 
-    async handleArm() {
-        try {
-            const armBtn = this.element.querySelector('.arm-btn');
-            const isArmed = armBtn.classList.contains('armed');
-            
-            const command = JSON.stringify({
-                target: 'MCU',
-                cmd_type: 'CMD',
-                cmd: isArmed ? 'DISARM' : 'ARM'
-            });
-
-            await serialConnection.sendCommand(command);
-            
-            armBtn.classList.toggle('armed');
-            armBtn.textContent = isArmed ? 'ARM' : 'DISARM';
-            
-            customAlert.success(`Drone ${isArmed ? 'disarmed' : 'armed'} successfully`);
-        } catch (error) {
-            handleError(error, 'arming/disarming');
+    toggleSendingAttitudeRequests(droneId) {
+        if (!this.attitudeInterval) {
+            this.attitudeInterval = setInterval(() => {
+                this.handleAttitude(droneId);
+            }, 800);
+            console.log(`Starting to send attitude requests for ${droneId}`);
+        } else {
+            clearInterval(this.attitudeInterval);
+            this.attitudeInterval = null;
+            console.log(`Stopping to send attitude requests for ${droneId}`);
         }
     }
 
-    // Add other handler methods similarly...
+    handleAttitude(droneId) {
+        // Request location data
+        send_command(droneId, 'REQ', 'LOC');
+        console.log(`Requesting location data for ${droneId}`);
+
+        // Request GPS data
+        send_command(droneId, 'REQ', 'GPS');
+        console.log(`Requesting GPS data for ${droneId}`);
+
+        // Request battery data
+        send_command(droneId, 'REQ', 'BATT');
+        console.log(`Requesting battery data for ${droneId}`);
+
+        // Request attitude data
+        send_command(droneId, 'REQ', 'ATTITUDE');
+        console.log(`Requesting attitude data for ${droneId}`);
+
+        // Request speed data
+        send_command(droneId, 'REQ', 'SPEED');
+        console.log(`Requesting speed data for ${droneId}`);
+    }
 
     updateParams(params) {
         Object.entries(params).forEach(([key, value]) => {
@@ -883,6 +669,61 @@ class DroneCard {
                 horizon.style.transform = `rotate(${roll}deg) translateY(${pitch}%)`;
             }
         }
+    }
+
+    handleArm(droneId) {
+        send_command(droneId, 'ARM', 'GUIDED');
+        console.log(`ARM command sent for ${droneId}`);
+    }
+
+    handleLaunch(droneId) {
+        const altitudeInput = this.element.querySelector('.altitude-input');
+        const altitude = altitudeInput ? altitudeInput.value : '2'; // Default to 2 if no value is entered
+        send_command(droneId, 'LAUNCH', altitude);
+        console.log(`LAUNCH command sent for ${droneId} with altitude ${altitude}`);
+    }
+
+    handleLand(droneId) {
+        send_command(droneId, 'LAND', '1');
+        console.log(`LAND command sent for ${droneId}`);
+    }
+
+    handleMode(droneId) {
+        const modeBtn = this.element.querySelector('.mode-btn');
+        const modes = ['GUIDED', 'POSHOLD', 'LOITER', 'STABILIZE', 'RTL', 'LAND', 'SMART_RTL', 'FLIP', 'ALT_HOLD'];
+        let currentModeIndex = 0;
+
+        // Set initial mode text
+        modeBtn.textContent = modes[currentModeIndex];
+
+        // Create a new button with fresh event listeners
+        const updatedModeBtn = modeBtn.cloneNode(true);
+        modeBtn.parentNode.replaceChild(updatedModeBtn, modeBtn);
+
+        // Handle mouse wheel event - only change the displayed mode
+        updatedModeBtn.addEventListener('wheel', (e) => {
+            e.preventDefault();
+            if (e.deltaY < 0) {
+                // Scroll up - go to previous mode
+                currentModeIndex = (currentModeIndex - 1 + modes.length) % modes.length;
+            } else {
+                // Scroll down - go to next mode
+                currentModeIndex = (currentModeIndex + 1) % modes.length;
+            }
+            updatedModeBtn.textContent = modes[currentModeIndex];
+        }, { passive: false });
+
+        // Handle click event - send the command for the currently displayed mode
+        updatedModeBtn.addEventListener('click', () => {
+            const selectedMode = modes[currentModeIndex];
+            send_command(droneId, 'SET_MODE', selectedMode);
+            console.log(`Mode set to ${selectedMode} for ${droneId}`);
+        });
+    }
+
+    startSendingAttitudeRequests(droneId) {
+        // Logic to start sending attitude requests
+        this.toggleSendingAttitudeRequests(droneId);
     }
 }
 
@@ -1139,3 +980,376 @@ document.getElementById('menu-missions').addEventListener('click', () => {
     }
     window.missionPlanner.show();
 });
+
+
+// Function to send command to the drone
+function send_command(target, command, payload) {
+    // Format the command string
+    const commandString = `{T:${target};C:${command};P:${payload}}\n`;
+    console.log('Sending command:', commandString);
+
+    // Send the command string to the server or the appropriate endpoint
+    fetch('http://127.0.0.1:5000/send_command', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'text/plain', // Set to plain text
+        },
+        body: commandString, // Send the command string directly
+    })
+    .then(response => {
+        if (!response.ok) {
+            throw new Error('Network response was not ok');
+        }
+        return response.json();
+    })
+    .then(data => {
+        console.log('Command sent successfully:', data);
+    })
+    .catch(error => {
+        console.error('Error sending command:', error);
+    });
+}
+
+// Function to handle serial input
+function serialInput() {
+    const serialInputField = document.querySelector('.serial-input'); // Assuming there's an input field with this class
+    const inputValue = serialInputField.value; // Get the value from the input field
+
+    // Call the serialSend function with the input value
+    serialSend(inputValue);
+}
+
+// Function to send the command based on the input value
+function serialSend(valueString) {
+    // Split the input string by semicolon
+    const parts = valueString.split(';');
+
+    // Ensure there are exactly three parts
+    if (parts.length !== 3) {
+        console.error('Input must contain exactly three parts separated by semicolons (target;command;payload)');
+        return;
+    }
+
+    const target = parts[0].trim();   // First part as target
+    const command = parts[1].trim();  // Second part as command
+    const payload = parts[2].trim();   // Third part as payload
+
+    // Call the send_command function with the parsed values
+    send_command(target, command, payload);
+}
+
+// Example of adding an event listener to the send button
+const serialSendButton = document.querySelector('.serial-send'); // Assuming there's a button with this class
+serialSendButton.addEventListener('click', serialInput);
+
+// Function to fetch data from /esp-terminal
+async function fetchSerialData() {
+    try {
+        const response = await fetch('http://127.0.0.1:5000/esp-terminal');
+        if (!response.ok) throw new Error('Failed to fetch serial data');
+        
+        const data = await response.json();
+        if (data && data.length > 0) {
+            console.log('Received serial data:', data);
+            displaySerialData(data);
+            data.forEach(line => handleEspTerminalData(line)); // Handle each line of data
+        }
+    } catch (error) {
+        console.error('Error fetching serial data:', error);
+    }
+}
+
+// Function to display serial data in the terminal
+function displaySerialData(data) {
+    const terminal = document.querySelector('.esp-terminal');
+    if (!terminal) {
+        console.error('Terminal element not found');
+        return;
+    }
+
+    if (!Array.isArray(data)) {
+        console.error('Invalid data format received:', data);
+        return;
+    }
+
+    data.forEach(line => {
+        if (!line) return;
+        
+        // Create line element with timestamp
+        const lineElement = document.createElement('div');
+        lineElement.className = 'terminal-line';
+        const timestamp = new Date().toLocaleTimeString();
+        lineElement.textContent = `[${timestamp}] ${line}`;
+        terminal.appendChild(lineElement);
+
+        // Parse and handle message
+        const parsedMsg = parseMessage(line);
+        if (parsedMsg && parsedMsg.S && parsedMsg.C) {
+            console.log(`Processing message from ${parsedMsg.S}:`, parsedMsg);
+            handleDroneMessage(parsedMsg);
+        }
+    });
+
+    // Keep only last 100 lines
+    while (terminal.childNodes.length > 100) {
+        terminal.removeChild(terminal.firstChild);
+    }
+
+    // Scroll to bottom
+    terminal.scrollTop = terminal.scrollHeight;
+}
+
+// Function to parse message format {S:source,C:command,P:payload}
+function parseMessage(message) {
+    try {
+        // Remove curly braces and split by comma
+        const cleanMsg = message.replace(/[{}]/g, '');
+        const parts = cleanMsg.split(',');
+        
+        const parsed = {};
+        parts.forEach(part => {
+            const [key, value] = part.split(':');
+            if (key && value) {
+                parsed[key] = value;
+            }
+        });
+        
+        return parsed;
+    } catch (error) {
+        console.error('Error parsing message:', error);
+        return null;
+    }
+}
+
+// Add drone state management
+const droneStates = {
+    MCU: {
+        isArmed: false,
+        mode: 'STABILIZE',
+        altitude: 0,
+        battery: 0,
+        gps: '0 Sats',
+        heading: 0,
+        distance: '0m',
+        isConnected: false,
+        lastHeartbeat: Date.now()
+    }
+};
+
+// Add dynamic drone state initialization
+function initializeDroneState(droneId) {
+    if (!droneStates[droneId]) {
+        droneStates[droneId] = {
+            isArmed: false,
+            mode: 'STABILIZE',
+            altitude: 0,
+            battery: 0,
+            gps: '0 Sats',
+            heading: 0,
+            distance: '0m',
+            isConnected: false,
+            lastHeartbeat: Date.now()
+        };
+    }
+}
+
+// Update handleDroneMessage to handle any drone
+function handleDroneMessage(parsedMsg) {
+    console.log('Received message:', parsedMsg);
+    const { S: source, C: command, P: payload } = parsedMsg;
+    
+    // Initialize state if this is a new drone
+    initializeDroneState(source);
+    
+    const state = droneStates[source];
+    if (!state) return;
+
+    switch (command) {
+        case 'HB':
+            console.log('Heartbeat command received for:', source);
+            handleDroneHeartbeat(source);
+            break;
+        case 'STATUS':
+            try {
+                const status = JSON.parse(payload);
+                Object.assign(state, status);
+                updateDroneUI(source);
+            } catch (error) {
+                console.error('Error parsing status:', error);
+            }
+            break;
+        case 'MODE':
+            state.mode = payload;
+            updateDroneUI(source);
+            break;
+        case 'ALT':
+            state.altitude = parseFloat(payload);
+            updateDroneUI(source);
+            break;
+        case 'BAT':
+            state.battery = parseInt(payload);
+            updateDroneUI(source);
+            break;
+        case 'GPS':
+            state.gps = payload;
+            updateDroneUI(source);
+            break;
+        case 'HDG':
+            state.heading = parseInt(payload);
+            updateDroneUI(source);
+            break;
+    }
+}
+
+// Replace handleMCUHeartbeat with a generic drone heartbeat handler
+function handleDroneHeartbeat(droneId) {
+    console.log(`${droneId} Heartbeat received`);
+    
+    // Update heartbeat timestamp
+    droneStates[droneId].lastHeartbeat = Date.now();
+    droneStates[droneId].isConnected = true;
+    
+    // Check if drone already exists
+    if (!droneManager.drones.has(droneId)) {
+        console.log(`Adding new drone card for ${droneId}`);
+        // Initialize drone
+        droneManager.addDrone(droneId, droneId);
+        customAlert.success(`${droneId} connected`);
+    } else {
+        console.log(`Drone card for ${droneId} already exists`);
+    }
+}
+
+// Ensure the container exists
+const container = document.querySelector('.drone-cards-container');
+if (!container) {
+    console.error('Drone cards container not found');
+} else {
+    console.log('Drone cards container found');
+}
+
+// Terminal Drag Functionality
+function initializeTerminalDrag() {
+    const terminal = document.querySelector('.esp-terminal');
+    let isDragging = false;
+    let currentX;
+    let currentY;
+    let initialX;
+    let initialY;
+    let xOffset = 0;
+    let yOffset = 0;
+
+    terminal.addEventListener('mousedown', dragStart);
+    document.addEventListener('mousemove', drag);
+    document.addEventListener('mouseup', dragEnd);
+
+    function dragStart(e) {
+        initialX = e.clientX - xOffset;
+        initialY = e.clientY - yOffset;
+
+        if (e.target === terminal) {
+            isDragging = true;
+            terminal.classList.add('dragging');
+        }
+    }
+
+    function drag(e) {
+        if (isDragging) {
+            e.preventDefault();
+            
+            currentX = e.clientX - initialX;
+            currentY = e.clientY - initialY;
+
+            xOffset = currentX;
+            yOffset = currentY;
+
+            setTranslate(currentX, currentY, terminal);
+        }
+    }
+
+    function dragEnd(e) {
+        initialX = currentX;
+        initialY = currentY;
+
+        isDragging = false;
+        terminal.classList.remove('dragging');
+    }
+
+    function setTranslate(xPos, yPos, el) {
+        el.style.transform = `translate(${xPos}px, ${yPos}px)`;
+    }
+}
+
+function handleEspTerminalData(data) {
+    const parsedMsg = parseMessage(data);
+    if (parsedMsg && parsedMsg.C === 'HB' && parsedMsg.P === '1') {
+        // Add drone card using source ID from message
+        const droneId = parsedMsg.S;
+        if (!droneManager.drones.has(droneId)) {
+            droneManager.addDrone(droneId, droneId);
+            setupDroneCardEventListeners(droneId); // Setup event listeners for the new drone card
+        }
+    }
+}
+
+function setupDroneCardEventListeners(droneId) {
+    const armBtn = document.querySelector(`.drone-control-btn.arm-btn[data-drone="${droneId}"]`);
+    const launchBtn = document.querySelector(`.drone-control-btn.launch-btn[data-drone="${droneId}"]`);
+    const landBtn = document.querySelector(`.drone-control-btn.land-btn[data-drone="${droneId}"]`);
+    const modeBtn = document.querySelector(`.drone-control-btn.mode-btn[data-drone="${droneId}"]`);
+
+    if (launchBtn) {
+        launchBtn.addEventListener('click', () => {
+            const defaultAltitude = '2'; // Default altitude value
+            send_command(droneId, 'LAUNCH', defaultAltitude);
+            console.log(`LAUNCH command sent for ${droneId} with altitude ${defaultAltitude}`);
+        });
+    }
+
+    if (armBtn) {
+        armBtn.addEventListener('click', () => {
+            send_command(droneId, 'ARM', 'GUIDED');
+            console.log(`ARM command sent for ${droneId}`);
+        });
+    }
+
+    if (landBtn) {
+        landBtn.addEventListener('click', () => {
+            send_command(droneId, 'LAND', '1');
+            console.log(`LAND command sent for ${droneId}`);
+        });
+    }
+
+    if (modeBtn) {
+        const modes = ['GUIDED', 'POSHOLD', 'LOITER', 'STABILIZE', 'RTL', 'LAND', 'SMART_RTL', 'FLIP', 'ALT_HOLD'];
+        let currentModeIndex = 0;
+
+        // Set initial mode text
+        modeBtn.textContent = modes[currentModeIndex];
+
+        // Create a new button with fresh event listeners
+        const updatedModeBtn = modeBtn.cloneNode(true);
+        modeBtn.parentNode.replaceChild(updatedModeBtn, modeBtn);
+
+        // Handle mouse wheel event - only change the displayed mode
+        updatedModeBtn.addEventListener('wheel', (e) => {
+            e.preventDefault();
+            if (e.deltaY < 0) {
+                // Scroll up - go to previous mode
+                currentModeIndex = (currentModeIndex - 1 + modes.length) % modes.length;
+            } else {
+                // Scroll down - go to next mode
+                currentModeIndex = (currentModeIndex + 1) % modes.length;
+            }
+            updatedModeBtn.textContent = modes[currentModeIndex];
+        }, { passive: false });
+
+        // Handle click event - send the command for the currently displayed mode
+        updatedModeBtn.addEventListener('click', () => {
+            const selectedMode = modes[currentModeIndex];
+            send_command(droneId, 'SET_MODE', selectedMode);
+            console.log(`Mode set to ${selectedMode} for ${droneId}`);
+        });
+    }
+}
+

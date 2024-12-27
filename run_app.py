@@ -2,7 +2,7 @@ import subprocess
 import time
 import serial
 import json
-from threading import Thread
+from threading import Thread, Lock
 from http.server import HTTPServer, SimpleHTTPRequestHandler
 import serial.tools.list_ports
 import os
@@ -15,72 +15,43 @@ def get_esp32_ports():
     print("Scanning for serial ports...")
     ports = []
     for port in serial.tools.list_ports.comports():
-        print(f"Found port: {port.device} ({port.description})")
         ports.append({
             "port": port.device,
             "description": port.description,
             "hwid": port.hwid,
             "is_esp32": False
         })
-    print(f"Found {len(ports)} total ports")
     return ports
 
-def verify_esp32_response(serial_port, timeout=1.0):
-    """Verify if the connected device is the ESP32 GCS by checking for OK response"""
-    try:
-        start_time = time.time()
-        response_lines = []
-        
-        print("Waiting for ESP32 response...")
-        while (time.time() - start_time) < timeout:
-            if serial_port.in_waiting:
-                line = serial_port.readline().decode().strip()
-                print(f"Received line: '{line}'")
-                response_lines.append(line)
-                if line == "OK":
-                    print("Received OK response - Valid ESP32 GCS device")
-                    return True
-                elif "ESP-GCS Ready" in line:
-                    print("ESP32 is still initializing...")
-            time.sleep(0.01)
-                
-        print(f"No OK response received. Got: {response_lines}")
-        return False
-        
-    except Exception as e:
-        print(f"Error verifying ESP32 response: {e}")
-        return False
 
+    
 class DroneSerialHandler(SimpleHTTPRequestHandler):
     serial_port = None
     verified_ports = set()  # Store verified port names
     serial_listener_thread = None
-    
+    serial_data = []
+    serial_data_lock = Lock()
+
     @classmethod
     def start_serial_listener(cls):
         """Start listening on the serial port in a separate thread"""
         if cls.serial_listener_thread and cls.serial_listener_thread.is_alive():
-            print("Serial listener already running")
             return
-            
-        def listener_thread():
-            print("Starting serial listener thread")
-            while cls.serial_port and cls.serial_port.is_open:
-                try:
-                    if cls.serial_port.in_waiting:
+
+        def listen():
+            while True:
+                if cls.serial_port and cls.serial_port.is_open:
+                    try:
                         line = cls.serial_port.readline().decode().strip()
                         if line:
-                            print(f"Serial received: {line}")
-                            # Here you can add any processing for incoming messages
-                except Exception as e:
-                    print(f"Error in serial listener: {e}")
-                    break
-            print("Serial listener thread ended")
-        
-        cls.serial_listener_thread = Thread(target=listener_thread)
-        cls.serial_listener_thread.daemon = True
+                            with cls.serial_data_lock:
+                                cls.serial_data.append(line)
+                    except Exception as e:
+                        print(f"Error reading from serial port: {e}")
+
+        cls.serial_listener_thread = Thread(target=listen, daemon=True)
         cls.serial_listener_thread.start()
-    
+
     def send_cors_headers(self):
         """Add CORS and cache control headers to response"""
         self.send_header('Access-Control-Allow-Origin', '*')
@@ -96,27 +67,113 @@ class DroneSerialHandler(SimpleHTTPRequestHandler):
         self.end_headers()
     
     def do_GET(self):
-        # Handle API endpoints
-        if self.path == '/list_ports':
+        if self.path == '/esp-terminal':
+            with DroneSerialHandler.serial_data_lock:
+                data = DroneSerialHandler.serial_data.copy()
+                DroneSerialHandler.serial_data.clear()
+            self.send_response(200)
+            self.send_header('Content-type', 'application/json')
+            self.send_cors_headers()
+            self.end_headers()
+            self.wfile.write(json.dumps(data).encode())
+        else:
+            # Handle API endpoints
+            if self.path == '/list_ports':
+                try:
+                    ports = get_esp32_ports()
+                    
+                    if not ports:
+                        ports = [{
+                            "port": port.device,
+                            "description": port.description,
+                            "hwid": port.hwid,
+                            "is_esp32": False
+                        } for port in serial.tools.list_ports.comports()]
+                    
+                    self.send_response(200)
+                    self.send_header('Content-type', 'application/json')
+                    self.send_cors_headers()
+                    self.end_headers()
+                    self.wfile.write(json.dumps(ports).encode())
+                    
+                except Exception as e:
+                    print(f"Error listing ports: {e}")
+                    self.send_response(500)
+                    self.send_header('Content-type', 'application/json')
+                    self.send_cors_headers()
+                    self.end_headers()
+                    self.wfile.write(json.dumps({"error": str(e)}).encode())
+                return
+
+            # Handle static files
             try:
-                ports = get_esp32_ports()
+                # Map the requested path to the actual file path
+                if self.path == '/':
+                    file_path = os.path.join(BASE_DIR, 'index.html')
+                else:
+                    # Remove leading slash and join with base directory
+                    clean_path = self.path.lstrip('/')
+                    file_path = os.path.join(BASE_DIR, clean_path)
+
+                # Validate the path is within BASE_DIR
+                if not os.path.abspath(file_path).startswith(BASE_DIR):
+                    raise Exception("Invalid path")
                 
-                if not ports:
-                    ports = [{
-                        "port": port.device,
-                        "description": port.description,
-                        "hwid": port.hwid,
-                        "is_esp32": False
-                    } for port in serial.tools.list_ports.comports()]
+                # Map file extensions to content types
+                content_types = {
+                    '.html': 'text/html',
+                    '.js': 'application/javascript',
+                    '.css': 'text/css',
+                    '.png': 'image/png',
+                    '.jpg': 'image/jpeg',
+                    '.gif': 'image/gif',
+                    '.ico': 'image/x-icon'
+                }
+                
+                ext = os.path.splitext(file_path)[1]
+                
+                with open(file_path, 'rb') as f:
+                    self.send_response(200)
+                    if ext in content_types:
+                        self.send_header('Content-type', content_types[ext])
+                    self.send_cors_headers()
+                    self.end_headers()
+                    self.wfile.write(f.read())
+                    print(f"Served file: {file_path}")
+                    
+            except FileNotFoundError:
+                print(f"File not found: {self.path}")
+                self.send_error(404, f"File not found: {self.path}")
+            except Exception as e:
+                print(f"Error serving file: {e}")
+                self.send_error(500, f"Server error: {str(e)}")
+
+    def do_POST(self):
+        content_length = int(self.headers.get('Content-Length', 0))
+        post_data = self.rfile.read(content_length).decode('utf-8')  # Read the raw body as a string
+
+        print(f"Received POST request on {self.path} with data: {post_data}")
+
+        if self.path == '/send_command':
+            try:
+                command = post_data.strip()  # Use the raw command string directly
+                
+                if not DroneSerialHandler.serial_port or not DroneSerialHandler.serial_port.is_open:
+                    raise Exception("Serial port not connected")
+                    
+                # Add command terminator
+                command += "\n"
+                DroneSerialHandler.serial_port.write(command.encode())
+                DroneSerialHandler.serial_port.flush()
                 
                 self.send_response(200)
                 self.send_header('Content-type', 'application/json')
                 self.send_cors_headers()
                 self.end_headers()
-                self.wfile.write(json.dumps(ports).encode())
+                self.wfile.write(json.dumps({"status": "ok"}).encode())  # Send a simple JSON response
                 
             except Exception as e:
-                print(f"Error listing ports: {e}")
+                print(f"Command error: {e}")
                 self.send_response(500)
                 self.send_header('Content-type', 'application/json')
                 self.send_cors_headers()
@@ -124,96 +181,17 @@ class DroneSerialHandler(SimpleHTTPRequestHandler):
                 self.wfile.write(json.dumps({"error": str(e)}).encode())
             return
 
-        # Handle static files
-        try:
-            # Map the requested path to the actual file path
-            if self.path == '/':
-                file_path = os.path.join(BASE_DIR, 'index.html')
-            else:
-                # Remove leading slash and join with base directory
-                clean_path = self.path.lstrip('/')
-                file_path = os.path.join(BASE_DIR, clean_path)
-
-            # Validate the path is within BASE_DIR
-            if not os.path.abspath(file_path).startswith(BASE_DIR):
-                raise Exception("Invalid path")
-            
-            # Map file extensions to content types
-            content_types = {
-                '.html': 'text/html',
-                '.js': 'application/javascript',
-                '.css': 'text/css',
-                '.png': 'image/png',
-                '.jpg': 'image/jpeg',
-                '.gif': 'image/gif',
-                '.ico': 'image/x-icon'
-            }
-            
-            ext = os.path.splitext(file_path)[1]
-            
-            with open(file_path, 'rb') as f:
-                self.send_response(200)
-                if ext in content_types:
-                    self.send_header('Content-type', content_types[ext])
-                self.send_cors_headers()
-                self.end_headers()
-                self.wfile.write(f.read())
-                print(f"Served file: {file_path}")
-                
-        except FileNotFoundError:
-            print(f"File not found: {self.path}")
-            self.send_error(404, f"File not found: {self.path}")
-        except Exception as e:
-            print(f"Error serving file: {e}")
-            self.send_error(500, f"Server error: {str(e)}")
-
-    def do_POST(self):
-        content_length = int(self.headers.get('Content-Length', 0))
-        post_data = self.rfile.read(content_length)
-        
-        try:
-            data = json.loads(post_data) if content_length > 0 else {}
-        except json.JSONDecodeError:
-            self.send_error(400, "Invalid JSON")
-            return
-        
-        if self.path == '/verify_port':
+        elif self.path == "/verify_port":
             try:
-                port = data.get('port')
-                command = data.get('command')
-                baudrate = data.get('baudrate', 115200)
-                
-                # Check if port is already verified
-                if port in DroneSerialHandler.verified_ports:
-                    print(f"Port {port} already verified, skipping verification")
-                    self.send_response(200)
-                    self.send_header('Content-type', 'application/json')
-                    self.send_cors_headers()
-                    self.end_headers()
-                    self.wfile.write(json.dumps({
-                        "verified": True,
-                        "status": "connected",
-                        "cached": True
-                    }).encode())
-                    return
-                
-                if DroneSerialHandler.serial_port:
-                    DroneSerialHandler.serial_port.close()
-                    
-                # Open new connection
-                DroneSerialHandler.serial_port = serial.Serial(port, baudrate)
-                
-                # Clear any bootloader messages
-                DroneSerialHandler.serial_port.reset_input_buffer()
-                DroneSerialHandler.serial_port.reset_output_buffer()
-                
-                # Send command and wait for response
-                print(f"Sending command to port {port}: {command}")
-                DroneSerialHandler.serial_port.write(f"{command}\n".encode())
-                DroneSerialHandler.serial_port.flush()
-                
-                # Verify response
-                is_verified = verify_esp32_response(DroneSerialHandler.serial_port)
+                data = json.loads(post_data)  # Parse the JSON data
+                port = data.get('port')  # Extract the port from POST data
+                command = data.get('command')  # Extract the command
+
+                if not port:
+                    raise ValueError("Port not specified")
+
+                # Pass the correct port to verify_esp32_response
+                is_verified = self.verify_esp32_response(port, command)
                 
                 if is_verified:
                     DroneSerialHandler.verified_ports.add(port)  # Add to verified ports
@@ -247,69 +225,10 @@ class DroneSerialHandler(SimpleHTTPRequestHandler):
                 self.end_headers()
                 self.wfile.write(json.dumps({"error": str(e)}).encode())
             return
-            
-        elif self.path == '/connect':
-            try:
-                port = data.get('port')
-                baudrate = data.get('baudrate', 115200)
-                
-                if DroneSerialHandler.serial_port:
-                    DroneSerialHandler.serial_port.close()
-                    
-                DroneSerialHandler.serial_port = serial.Serial(port, baudrate)
-                
-                self.send_response(200)
-                self.send_header('Content-type', 'application/json')
-                self.send_cors_headers()
-                self.end_headers()
-                self.wfile.write(json.dumps({"status": "connected"}).encode())
-                
-            except Exception as e:
-                print(f"Connection error: {e}")
-                self.send_response(500)
-                self.send_header('Content-type', 'application/json')
-                self.send_cors_headers()
-                self.end_headers()
-                self.wfile.write(json.dumps({"error": str(e)}).encode())
-            return
-            
-        elif self.path == '/send_command':
-            try:
-                command = data.get('command')
-                
-                if not DroneSerialHandler.serial_port or not DroneSerialHandler.serial_port.is_open:
-                    raise Exception("Serial port not connected")
-                    
-                # Add command terminator
-                command = f"{command}\n"
-                DroneSerialHandler.serial_port.write(command.encode())
-                DroneSerialHandler.serial_port.flush()
-                
-                # Wait for response
-                response = ""
-                while DroneSerialHandler.serial_port.in_waiting:
-                    line = DroneSerialHandler.serial_port.readline().decode().strip()
-                    print(f"Received from ESP: {line}")
-                    if line == "OK":
-                        response = "OK"
-                        break
-                
-                self.send_response(200)
-                self.send_header('Content-type', 'application/json')
-                self.send_cors_headers()
-                self.end_headers()
-                self.wfile.write(json.dumps({"status": "ok", "response": response}).encode())
-                    
-            except Exception as e:
-                print(f"Command error: {e}")
-                self.send_response(500)
-                self.send_header('Content-type', 'application/json')
-                self.send_cors_headers()
-                self.end_headers()
-                self.wfile.write(json.dumps({"error": str(e)}).encode())
-            return
+        
 
-        self.send_error(404)
+        # Add more paths as needed
+        self.send_error(404)  # If the path is not recognized
 
     def read_response(self, timeout=1.0):
         """Read response from serial port for query commands"""
@@ -327,6 +246,44 @@ class DroneSerialHandler(SimpleHTTPRequestHandler):
                     break
                     
         return {"response": response} if response else {"error": "No response"}
+    
+    def verify_esp32_response(self, port, command, timeout=1.0):
+        try:
+            print(f"Attempting to open serial port: {port}")
+            # Open the specified port
+            DroneSerialHandler.serial_port = serial.Serial(port, 115200)
+            
+            if not DroneSerialHandler.serial_port.is_open:
+                raise Exception("Failed to open serial port")
+            
+            # Clear buffers
+            DroneSerialHandler.serial_port.reset_input_buffer()
+            DroneSerialHandler.serial_port.reset_output_buffer()
+            
+            # Send command
+            command += "\n"
+            DroneSerialHandler.serial_port.write(command.encode())
+            start_time = time.time()
+            response_lines = []
+            
+            print("Waiting for ESP32 response...")
+            while (time.time() - start_time) < timeout:
+                if DroneSerialHandler.serial_port.in_waiting:
+                    line = DroneSerialHandler.serial_port.readline().decode().strip()
+                    print(f"Received line: '{line}'")
+                    response_lines.append(line)
+                    if line == "OK":
+                        print("Received OK response - Valid ESP32 GCS device")
+                        return True
+                    elif "ESP-GCS Ready" in line:
+                        print("ESP32 is still initializing...")
+            
+            print(f"No OK response received. Got: {response_lines}")
+            return False
+        except Exception as e:
+            print(f"Error verifying ESP32 response: {e}")
+            return False
+
 
 def start_http_server():
     try:
@@ -409,4 +366,4 @@ def main():
     app.run()
 
 if __name__ == "__main__":
-    main() 
+    main()

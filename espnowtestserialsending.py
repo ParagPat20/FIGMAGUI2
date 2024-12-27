@@ -1,54 +1,50 @@
 import serial
 import time
-import json
+import threading
+import queue
 
-# Define the serial port and baud rate
-serial_port = 'COM11'
-baud_rate = 115200  # Adjust the baud rate as needed
+# Set up the serial ports for communication
+com_port_send = "COM11"  # COM port for sending data
+com_port_receive = "COM12"  # COM port for receiving data
 
-# Create a serial connection
-try:
-    ser = serial.Serial(serial_port, baud_rate, timeout=1)
-    print(f"Connected to {serial_port} at {baud_rate} baud.")
-except serial.SerialException as e:
-    print(f"Error opening serial port: {e}")
-    exit()
+# Open the COM port for sending data
+ser_send = serial.Serial(com_port_send, baudrate=115200, timeout=1)
 
-# Define the message template
-message_template = {
-    "target": "MCU",
-    "cmd_type": "CMD",
-    "cmd": None  # Placeholder for the counter
-}
+# Open the COM port for receiving data
+ser_receive = serial.Serial(com_port_receive, baudrate=115200, timeout=0.1)
 
-# Initialize the counter
-counter = 0
+# Queue for handling received data
+data_queue = queue.Queue()
 
-# Continuously send the message
-try:
+# Function to send data
+def send_data():
     while True:
-        # Update the message with the current counter value
-        message_template["cmd"] = str(counter) 
-        
-        # Convert the message to a JSON string
-        json_message = json.dumps(message_template)
-        
-        # Send the message over the serial port
-        ser.write((json_message + '\n').encode('utf-8'))  # Add newline for better readability
-        
-        # Print the sent message
-        print(f"Sent: {json_message}")
-        
-        # Increment the counter
-        counter += 1
-        
-        # Wait for a short period before sending the next message
-        time.sleep(1)  # Adjust the delay as needed
+        data_to_send = "{T:MCU;C:ARM;P:1}\n"
+        ser_send.write(data_to_send.encode('utf-8'))  # Send data as bytes
+        print(f"Sent: {data_to_send}")
+        time.sleep(0.1)  # Sleep for 0.5 seconds before sending again
 
-except KeyboardInterrupt:
-    print("Stopped by user.")
+# Function to read data
+def read_data():
+    while True:
+        if ser_receive.in_waiting > 0:  # Check if data is available
+            data = ser_receive.read(ser_receive.in_waiting).decode('utf-8')  # Read available bytes
+            print(f"Received: {data}")
+        # No sleep here to avoid unnecessary delays
 
-finally:
-    # Close the serial connection
-    ser.close()
-    print("Serial port closed.")
+# Start reading data in a separate thread
+threading.Thread(target=read_data, daemon=True).start()
+
+if __name__ == "__main__":
+    try:
+        # Start sending data
+        send_data()
+
+    except KeyboardInterrupt:
+        print("Program interrupted.")
+
+    finally:
+        # Close the serial ports
+        ser_send.close()
+        ser_receive.close()
+        print("Serial ports closed.")

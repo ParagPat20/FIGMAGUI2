@@ -6,6 +6,7 @@ import geopy.distance
 from geopy.distance import great_circle
 import math
 import json
+from threading import Lock
 
 class DroneVehicle:
     def __init__(self, connection_string, baud=None):
@@ -13,6 +14,7 @@ class DroneVehicle:
         self.posalt = 2
         self.in_air = False
         self.start_time = time.time()
+        self.attitude_data = {}
         
     def disconnect(self):
         self.vehicle.close()
@@ -217,3 +219,171 @@ class DroneVehicle:
         new_location = vincentyDistance.destination(point=original_point, bearing=bearing)
         
         return (round(new_location.latitude, 7), round(new_location.longitude, 7)) 
+
+    def handle_attitude_request(self, drone_id):
+        """
+        Handles attitude data requests for a specific drone.
+        Sends commands to request location, GPS, battery, and attitude data.
+        
+        Args:
+            drone_id (str): The ID of the drone (e.g., 'MCU', 'CD1', etc.)
+            
+        Returns:
+            dict: A dictionary containing all the requested attitude data
+        """
+        try:
+            # Initialize data dictionary
+            self.attitude_data = {}
+            
+            # Define the data requests based on protocol
+            data_requests = {
+                'LOC': ['lat', 'lon', 'alt'],
+                'GPS': ['type', 'satellites'],
+                'BATT': ['volt', 'amp', 'level'],
+                'ATTITUDE': ['pitch', 'roll', 'yaw', 'heading'],
+                'SPEED': ['airspd', 'gndspd', 'velocity']
+            }
+            
+            # Send commands for each data type
+            for data_type, params in data_requests.items():
+                try:
+                    # Format and send command
+                    command = f"{{T:{drone_id}; C:REQ; P:{data_type}}}\n"
+                    print(f"Sending command: {command}")
+                    
+                    # Store the response in attitude_data
+                    if data_type == 'LOC':
+                        self.attitude_data.update({
+                            'lat': self.vehicle.location.global_relative_frame.lat,
+                            'lon': self.vehicle.location.global_relative_frame.lon,
+                            'alt': self.vehicle.location.global_relative_frame.alt
+                        })
+                    elif data_type == 'GPS':
+                        self.attitude_data.update({
+                            'type': self.vehicle.gps_0.fix_type,
+                            'satellites': self.vehicle.gps_0.satellites_visible
+                        })
+                    elif data_type == 'BATT':
+                        self.attitude_data.update({
+                            'volt': self.vehicle.battery.voltage,
+                            'amp': self.vehicle.battery.current,
+                            'level': self.vehicle.battery.level
+                        })
+                    elif data_type == 'ATTITUDE':
+                        self.attitude_data.update({
+                            'pitch': self.vehicle.attitude.pitch,
+                            'roll': self.vehicle.attitude.roll,
+                            'yaw': self.vehicle.attitude.yaw,
+                            'heading': self.vehicle.heading
+                        })
+                    elif data_type == 'SPEED':
+                        self.attitude_data.update({
+                            'airspd': self.vehicle.airspeed,
+                            'gndspd': self.vehicle.groundspeed,
+                            'velocity': self.vehicle.velocity
+                        })
+                        
+                except Exception as e:
+                    print(f"Error requesting {data_type} data: {e}")
+                    self.attitude_data[data_type] = f"Error: {str(e)}"
+                    
+            return self.attitude_data
+                    
+        except Exception as e:
+            print(f"Error in handle_attitude_request: {e}")
+            return {"error": str(e)}
+            
+    def get_attitude_data(self):
+        """
+        Returns the last collected attitude data
+        
+        Returns:
+            dict: The last collected attitude data
+        """
+        return self.attitude_data 
+
+class SerialHandler:
+    def __init__(self, drone_vehicle):
+        self.drone = drone_vehicle
+        self.serial_port = None
+        self.is_running = False
+        self.read_thread = None
+        self.write_lock = Lock()
+        self.last_heartbeat = 0
+        self.last_gui_update = 0
+        self.heartbeat_interval = 1.0  # 1 second
+        self.gui_update_interval = 0.7  # 0.7 seconds
+
+    def _handle_attitude_command(self, drone_id):
+        """
+        Handles attitude data request command
+        
+        Args:
+            drone_id (str): The ID of the drone to request data from
+        """
+        try:
+            # Get attitude data from drone
+            attitude_data = self.drone.handle_attitude_request(drone_id)
+            
+            # Format response message
+            response = {
+                'S': drone_id,
+                'T': 'GCS',
+                'C': 'ATTITUDE_DATA',
+                'P': json.dumps(attitude_data)
+            }
+            
+            # Send response
+            self._send_message(response)
+            
+        except Exception as e:
+            print(f"Error handling attitude command: {e}")
+            error_response = {
+                'S': drone_id,
+                'T': 'GCS',
+                'C': 'ERROR',
+                'P': f"Attitude data request failed: {str(e)}"
+            }
+            self._send_message(error_response)
+
+    def _handle_command(self, command_str):
+        """
+        Handles incoming commands
+        
+        Args:
+            command_str (str): The command string to process
+        """
+        try:
+            # Parse command
+            if command_str.startswith('{') and command_str.endswith('}'):
+                # Remove brackets and split by semicolon
+                parts = command_str[1:-1].split(';')
+                command_dict = {}
+                
+                # Parse each part
+                for part in parts:
+                    key, value = part.strip().split(':')
+                    command_dict[key.strip()] = value.strip()
+                
+                # Handle attitude request
+                if command_dict.get('C') == 'REQ' and command_dict.get('P') in ['LOC', 'GPS', 'BATT', 'ATTITUDE', 'SPEED']:
+                    self._handle_attitude_command(command_dict.get('T'))
+                    
+        except Exception as e:
+            print(f"Error processing command: {e}")
+            
+    def _send_message(self, message_dict):
+        """
+        Sends a message through the serial port
+        
+        Args:
+            message_dict (dict): The message to send
+        """
+        try:
+            if self.serial_port and self.serial_port.is_open:
+                message_str = json.dumps(message_dict) + '\n'
+                with self.write_lock:
+                    self.serial_port.write(message_str.encode())
+                    self.serial_port.flush()
+        except Exception as e:
+            print(f"Error sending message: {e}") 
