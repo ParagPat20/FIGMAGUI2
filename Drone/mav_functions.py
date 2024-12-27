@@ -314,50 +314,49 @@ class SerialHandler:
         self.heartbeat_interval = 1.0  # 1 second
         self.gui_update_interval = 0.7  # 0.7 seconds
 
-    def _handle_attitude_command(self, drone_id):
+    def send_message(self, target, command, payload):
         """
-        Handles attitude data request command
+        Sends a message through the serial port in the format {T:target;C:cmd;P:payload}
         
         Args:
-            drone_id (str): The ID of the drone to request data from
+            command (str): The command to send
+            payload (str): The payload associated with the command
+            target (str): The target identifier
         """
-        try:
-            # Get attitude data from drone
-            attitude_data = self.drone.handle_attitude_request(drone_id)
-            
-            # Format response message
-            response = {
-                'S': drone_id,
-                'T': 'GCS',
-                'C': 'ATTITUDE_DATA',
-                'P': json.dumps(attitude_data)
-            }
-            
-            # Send response
-            self._send_message(response)
-            
-        except Exception as e:
-            print(f"Error handling attitude command: {e}")
-            error_response = {
-                'S': drone_id,
-                'T': 'GCS',
-                'C': 'ERROR',
-                'P': f"Attitude data request failed: {str(e)}"
-            }
-            self._send_message(error_response)
+        message = f"{{T:{target};C:{command};P:{payload}}}\n"
+        self._send_raw_message(message)
 
-    def _handle_command(self, command_str):
+    def _send_raw_message(self, message_str):
+        """Sends a raw message string through the serial port."""
+        try:
+            if self.serial_port and self.serial_port.is_open:
+                with self.write_lock:
+                    self.serial_port.write(message_str.encode())
+                    self.serial_port.flush()
+        except Exception as e:
+            print(f"Error sending message: {e}")
+
+    def read_serial_commands(self):
+        """Reads commands from the serial port and processes them."""
+        while self.is_running:
+            try:
+                if self.serial_port and self.serial_port.in_waiting:
+                    line = self.serial_port.readline().decode().strip()
+                    self.process_received_message(line)
+            except Exception as e:
+                print(f"Error reading from serial port: {e}")
+
+    def process_received_message(self, message):
         """
-        Handles incoming commands
+        Processes a received message in the format {S:sender;C:cmd;P:payload}
         
         Args:
-            command_str (str): The command string to process
+            message (str): The received message string
         """
-        try:
-            # Parse command
-            if command_str.startswith('{') and command_str.endswith('}'):
+        if message.startswith('{') and message.endswith('}'):
+            try:
                 # Remove brackets and split by semicolon
-                parts = command_str[1:-1].split(';')
+                parts = message[1:-1].split(';')
                 command_dict = {}
                 
                 # Parse each part
@@ -365,25 +364,13 @@ class SerialHandler:
                     key, value = part.strip().split(':')
                     command_dict[key.strip()] = value.strip()
                 
-                # Handle attitude request
-                if command_dict.get('C') == 'REQ' and command_dict.get('P') in ['LOC', 'GPS', 'BATT', 'ATTITUDE', 'SPEED']:
-                    self._handle_attitude_command(command_dict.get('T'))
-                    
-        except Exception as e:
-            print(f"Error processing command: {e}")
-            
-    def _send_message(self, message_dict):
-        """
-        Sends a message through the serial port
-        
-        Args:
-            message_dict (dict): The message to send
-        """
-        try:
-            if self.serial_port and self.serial_port.is_open:
-                message_str = json.dumps(message_dict) + '\n'
-                with self.write_lock:
-                    self.serial_port.write(message_str.encode())
-                    self.serial_port.flush()
-        except Exception as e:
-            print(f"Error sending message: {e}") 
+                # Handle the command based on the parsed data
+                sender = command_dict.get('S')
+                command = command_dict.get('C')
+                payload = command_dict.get('P')
+                
+                # Process the command (this is where you would add your logic)
+                print(f"Received from {sender}: Command: {command}, Payload: {payload}")
+                
+            except Exception as e:
+                print(f"Error processing received message: {e}") 
