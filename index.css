@@ -2017,6 +2017,16 @@ button:disabled {
   right: 8px;
 }
 
+.param-overlay.current {
+  top: 26px;
+  left: 2%;
+}
+
+.param-overlay.voltage {
+  top: 8px;
+  left: 2%;
+}
+
 .param-overlay.gps {
   bottom: 8px;
   left: 8px;

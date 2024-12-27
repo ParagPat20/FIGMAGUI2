@@ -167,7 +167,7 @@ class DroneSerialHandler(SimpleHTTPRequestHandler):
                 DroneSerialHandler.serial_port.flush()
                 
                 self.send_response(200)
-                self.send_header('Content-type', 'application/json')
+                self.send_header('Content-type', 'text/plain')
                 self.send_cors_headers()
                 self.end_headers()
                 self.wfile.write(json.dumps({"status": "ok"}).encode())  # Send a simple JSON response

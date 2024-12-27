@@ -60,7 +60,17 @@
         <button class="start"><span class="start-label">START</span></button
         ><button class="pause"><span class="pause-label">PAUSE</span></button>
       </div>
-      <div class="esp-terminal"></div>
+      <div class="esp-terminal">
+        <div class="esp-terminal-header">
+          <span class="esp-terminal-title">ESP Terminal</span>
+          <button class="esp-terminal-close">&times;</button>
+        </div>
+        <div class="esp-terminal-content"></div>
+        <div class="esp-terminal-input">
+          <input type="text" class="serial-input" placeholder="Enter command...">
+          <button class="serial-send">Send</button>
+        </div>
+      </div>
       <div class="serial-frame">
         <input type="text" class="serial-input" placeholder="Enter command...">
         <button class="serial-send">Send</button>

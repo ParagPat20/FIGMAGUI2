@@ -217,7 +217,7 @@ void OnDataRecv(const uint8_t *mac, const uint8_t *incomingData, int len) {
   parseInputData(receivedData, packet);
 
   // Manually format the string without quotes
-  String formattedData = "{S:" + packet.S + ",C:" + packet.C + ",P:" + packet.P + "}";
+  String formattedData = "{S:" + packet.S + ";C:" + packet.C + ";P:" + packet.P + "}";
 
   // Print the formatted string without quotes
   Serial.println(formattedData);

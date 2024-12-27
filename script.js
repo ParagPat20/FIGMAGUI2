@@ -122,7 +122,7 @@ document.addEventListener('DOMContentLoaded', () => {
     initializeTerminalDrag();
     
     // Start fetching serial data
-    setInterval(fetchSerialData, 1000);
+    setInterval(fetchSerialData, 500);
 });
 
 // Utility Functions
@@ -518,7 +518,7 @@ class DroneCard {
         this.droneId = droneId;
         this.name = name;
         this.element = this.createCard();
-        this.updateInterval = null;
+        this.attitudeInterval = null;
     }
 
     createCard() {
@@ -541,19 +541,44 @@ class DroneCard {
                             <span data-param="heading">HDG 0°</span>
                         </div>
                         <div class="param-overlay battery">
-                            <span data-param="battery">BAT 75%</span>
+                            <span data-param="battery">BAT 0%</span>
                         </div>
-                        <div class="param-overlay distance">
-                            <span data-param="distance">0m</span>
+                        <div class="param-overlay voltage">
+                            <span data-param="voltage">0.0V</span>
+                        </div>
+                        <div class="param-overlay current">
+                            <span data-param="current">0.0A</span>
                         </div>
                         <div class="param-overlay gps">
-                            <span data-param="gps">3D Fix (8)</span>
+                            <span data-param="gps">No Fix</span>
                         </div>
                         <div class="param-overlay mode">
-                            <span data-param="mode">GUIDE</span>
+                            <span data-param="mode">STABILIZE</span>
                         </div>
-                        <div class="altitude-display">
+                        <div class="param-overlay speed" style="display: none;">
+                            <span data-param="speed">0.0 m/s</span>
+                        </div>
+                        <div class="param-overlay airspeed" style="display: none;">
+                            <span data-param="airSpeed">AS: 0.0</span>
+                        </div>
+                        <div class="param-overlay groundspeed" style="display: none;">
+                            <span data-param="groundSpeed">GS: 0.0</span>
+                        </div>
+                        <div class="param-overlay roll" style="display: none;">
+                            <span data-param="roll">R: 0.0°</span>
+                        </div>
+                        <div class="param-overlay pitch" style="display: none;">
+                            <span data-param="pitch">P: 0.0°</span>
+                        </div>
+                        <div class="param-overlay yaw" style="display: none;">
+                            <span data-param="yaw">Y: 0.0°</span>
+                        </div>
+                        <div class="altitude-display" style="display: none;">
                             <span class="altitude-value" data-param="altitude">0.0m</span>
+                        </div>
+                        <div class="param-overlay coordinates" style="display: none;">
+                            <span data-param="latitude">LAT: 0.000000</span>
+                            <span data-param="longitude">LON: 0.000000</span>
                         </div>
                     </div>
                     <div class="drone-controls">
@@ -620,19 +645,39 @@ class DroneCard {
         // Request speed data
         send_command(droneId, 'REQ', 'SPEED');
         console.log(`Requesting speed data for ${droneId}`);
+
+        // Request MODE data
+        send_command(droneId, 'REQ', 'MODE');
+        console.log(`Requesting mode data for ${droneId}`);
+
+        send_command(droneId, 'REQ', 'ARMED');
+        console.log(`Requesting armed data for ${droneId}`);    
     }
 
     updateParams(params) {
+        console.log('Updating params:', params); // Debug log
         Object.entries(params).forEach(([key, value]) => {
             const element = this.element.querySelector(`[data-param="${key}"]`);
             if (element) {
+                console.log(`Updating ${key} with value:`, value); // Debug log
                 // Update the text content based on the parameter type
                 switch(key) {
                     case 'heading':
-                        element.textContent = value;
+                        element.textContent = `HDG ${Math.round(value)}°`;
                         break;
                     case 'battery':
-                        element.textContent = value;
+                        element.textContent = `BAT ${value}%`;
+                        if (parseInt(value) < 20) {
+                            element.className = 'param-value error';
+                        } else if (parseInt(value) < 50) {
+                            element.className = 'param-value warning';
+                        }
+                        break;
+                    case 'voltage':
+                        element.textContent = `${parseFloat(value).toFixed(1)}V`;
+                        break;
+                    case 'current':
+                        element.textContent = `${parseFloat(value).toFixed(2)}A`;
                         break;
                     case 'mode':
                         element.textContent = value;
@@ -641,20 +686,34 @@ class DroneCard {
                         element.textContent = value;
                         break;
                     case 'altitude':
-                        element.textContent = value;
+                        element.textContent = `${parseFloat(value).toFixed(1)}m`;
                         break;
-                    case 'distance':
+                    case 'speed':
+                        element.textContent = `${parseFloat(value).toFixed(1)} m/s`;
+                        break;
+                    case 'airSpeed':
+                        element.textContent = `AS: ${parseFloat(value).toFixed(1)}`;
+                        break;
+                    case 'groundSpeed':
+                        element.textContent = `GS: ${parseFloat(value).toFixed(1)}`;
+                        break;
+                    case 'roll':
+                        element.textContent = `R: ${value}°`;
+                        break;
+                    case 'pitch':
+                        element.textContent = `P: ${value}°`;
+                        break;
+                    case 'yaw':
+                        element.textContent = `Y: ${value}°`;
+                        break;
+                    case 'armed':
                         element.textContent = value;
                         break;
                     default:
                         element.textContent = value;
                 }
-                
-                if (key === 'battery' && parseInt(value) < 20) {
-                    element.className = 'param-value error';
-                } else if (key === 'battery' && parseInt(value) < 50) {
-                    element.className = 'param-value warning';
-                }
+            } else {
+                console.warn(`Element with data-param="${key}" not found`); // Debug log
             }
         });
 
@@ -664,7 +723,7 @@ class DroneCard {
             if (horizon) {
                 const roll = params.roll || 0;
                 const pitch = params.pitch || 0;
-                
+                console.log('Updating attitude:', { roll, pitch }); // Debug log
                 // Update horizon position
                 horizon.style.transform = `rotate(${roll}deg) translateY(${pitch}%)`;
             }
@@ -984,29 +1043,25 @@ document.getElementById('menu-missions').addEventListener('click', () => {
 
 // Function to send command to the drone
 function send_command(target, command, payload) {
-    // Format the command string
-    const commandString = `{T:${target};C:${command};P:${payload}}\n`;
-    console.log('Sending command:', commandString);
-
-    // Send the command string to the server or the appropriate endpoint
+    // Convert target to uppercase to match ESP32 expectations
+    const upperTarget = target.toUpperCase();
+    const message = `{T:${upperTarget};C:${command};P:${payload}}`;
+    console.log('Sending command:', message);
+    
     fetch('http://127.0.0.1:5000/send_command', {
         method: 'POST',
         headers: {
-            'Content-Type': 'text/plain', // Set to plain text
+            'Content-Type': 'text/plain'
         },
-        body: commandString, // Send the command string directly
+        body: message
     })
-    .then(response => {
-        if (!response.ok) {
-            throw new Error('Network response was not ok');
-        }
-        return response.json();
-    })
+    .then(response => response.json())
     .then(data => {
         console.log('Command sent successfully:', data);
     })
     .catch(error => {
         console.error('Error sending command:', error);
+        customAlert.error('Failed to send command');
     });
 }
 
@@ -1061,36 +1116,53 @@ async function fetchSerialData() {
 
 // Function to display serial data in the terminal
 function displaySerialData(data) {
-    const terminal = document.querySelector('.esp-terminal');
+    const terminal = document.querySelector('.esp-terminal-content');
     if (!terminal) {
         console.error('Terminal element not found');
         return;
     }
 
-    if (!Array.isArray(data)) {
-        console.error('Invalid data format received:', data);
-        return;
+    // If data is an array, process each line
+    if (Array.isArray(data)) {
+        data.forEach(line => {
+            if (line && line.trim()) {
+                // Create line element
+                const lineElement = document.createElement('div');
+                lineElement.className = 'terminal-line';
+                lineElement.textContent = line;
+                terminal.appendChild(lineElement);
+
+                // Process message if it's in the correct format
+                if (line.startsWith('{') && line.endsWith('}')) {
+                    const parsedMsg = parseMessage(line);
+                    if (parsedMsg) {
+                        handleDroneMessage(parsedMsg);
+                    }
+                }
+            }
+        });
+    } else if (typeof data === 'string') {
+        // If data is a string, split it into lines
+        const lines = data.split('\n');
+        lines.forEach(line => {
+            if (line && line.trim()) {
+                const lineElement = document.createElement('div');
+                lineElement.className = 'terminal-line';
+                lineElement.textContent = line;
+                terminal.appendChild(lineElement);
+
+                // Process message if it's in the correct format
+                if (line.startsWith('{') && line.endsWith('}')) {
+                    const parsedMsg = parseMessage(line);
+                    if (parsedMsg) {
+                        handleDroneMessage(parsedMsg);
+                    }
+                }
+            }
+        });
     }
 
-    data.forEach(line => {
-        if (!line) return;
-        
-        // Create line element with timestamp
-        const lineElement = document.createElement('div');
-        lineElement.className = 'terminal-line';
-        const timestamp = new Date().toLocaleTimeString();
-        lineElement.textContent = `[${timestamp}] ${line}`;
-        terminal.appendChild(lineElement);
-
-        // Parse and handle message
-        const parsedMsg = parseMessage(line);
-        if (parsedMsg && parsedMsg.S && parsedMsg.C) {
-            console.log(`Processing message from ${parsedMsg.S}:`, parsedMsg);
-            handleDroneMessage(parsedMsg);
-        }
-    });
-
-    // Keep only last 100 lines
+    // Keep only the last 100 lines
     while (terminal.childNodes.length > 100) {
         terminal.removeChild(terminal.firstChild);
     }
@@ -1102,19 +1174,18 @@ function displaySerialData(data) {
 // Function to parse message format {S:source,C:command,P:payload}
 function parseMessage(message) {
     try {
-        // Remove curly braces and split by comma
-        const cleanMsg = message.replace(/[{}]/g, '');
-        const parts = cleanMsg.split(',');
+        // Remove curly braces and split by semicolon
+        const cleanMessage = message.replace(/[{}]/g, '');
+        const parts = cleanMessage.split(';');
         
-        const parsed = {};
+        // Create an object from the parts
+        const messageObj = {};
         parts.forEach(part => {
             const [key, value] = part.split(':');
-            if (key && value) {
-                parsed[key] = value;
-            }
+            messageObj[key] = value;
         });
         
-        return parsed;
+        return messageObj;
     } catch (error) {
         console.error('Error parsing message:', error);
         return null;
@@ -1153,6 +1224,8 @@ function initializeDroneState(droneId) {
     }
 }
 
+let 
+
 // Update handleDroneMessage to handle any drone
 function handleDroneMessage(parsedMsg) {
     console.log('Received message:', parsedMsg);
@@ -1164,40 +1237,189 @@ function handleDroneMessage(parsedMsg) {
     const state = droneStates[source];
     if (!state) return;
 
-    switch (command) {
-        case 'HB':
-            console.log('Heartbeat command received for:', source);
-            handleDroneHeartbeat(source);
-            break;
-        case 'STATUS':
-            try {
-                const status = JSON.parse(payload);
-                Object.assign(state, status);
+    try {
+        // Get the full payload
+        const fullPayload = parsedMsg.P;
+        console.log('Full payload:', fullPayload);
+
+        switch (command) {
+            case 'LOC':
+                // Parse location data: lat,lon,alt
+                const locParts = fullPayload.split(',');
+                if (locParts.length >= 3) {
+                    const [lat, lon, alt] = locParts.map(Number);
+                    console.log('Parsed LOC data:', { lat, lon, alt });
+                    state.latitude = lat;
+                    state.longitude = lon;
+                    state.altitude = Math.abs(alt);
+                    updateDroneUI(source);
+                }
+                break;
+
+            case 'GPS':
+                // Parse GPS data: fix_type,num_satellites
+                const gpsParts = fullPayload.split(',');
+                if (gpsParts.length >= 2) {
+                    const [fixType, numSats] = gpsParts.map(Number);
+                    console.log('Parsed GPS data:', { fixType, numSats }); // Debug log
+                    state.gps = `${fixType}D Fix (${numSats})`;
+                    state.gpsFixType = fixType;
+                    state.satellites = numSats;
+                    updateDroneUI(source);
+                }
+                break;
+
+            case 'BATT':
+                // Parse battery data: voltage,ampere,percentage
+                const battParts = fullPayload.split(',');
+                if (battParts.length >= 3) {
+                    const [voltage, ampere, percentage] = battParts.map(Number);
+                    console.log('Parsed BATT data:', { voltage, ampere, percentage }); // Debug log
+                    state.voltage = voltage;
+                    state.current = ampere;
+                    state.battery = Math.round(percentage); // Round to nearest integer
+                    updateDroneUI(source);
+                }
+                break;
+
+            case 'ATTITUDE':
+                // Parse attitude data: pitch,roll,yaw,heading
+                const attParts = fullPayload.split(',');
+                if (attParts.length >= 4) {
+                    const [pitch, roll, yaw, heading] = attParts.map(Number);
+                    console.log('Parsed ATTITUDE data:', { pitch, roll, yaw, heading }); // Debug log
+                    
+                    // Convert radians to degrees and store
+                    state.pitch = (pitch * 180/Math.PI).toFixed(1);
+                    state.roll = (roll * 180/Math.PI).toFixed(1);
+                    state.yaw = (yaw * 180/Math.PI).toFixed(1);
+                    state.heading = heading;
+                    
+                    console.log('Updated state:', {
+                        pitch: state.pitch,
+                        roll: state.roll,
+                        yaw: state.yaw,
+                        heading: state.heading
+                    });
+                    updateDroneUI(source);
+                }
+                break;
+
+            case 'SPEED':
+                // Parse speed data: airspeed,groundspeed,[vx,vy,vz]
+                const speedParts = fullPayload.split(',');
+                if (speedParts.length >= 3) {
+                    const airSpeed = parseFloat(speedParts[0]) || 0;
+                    const groundSpeed = parseFloat(speedParts[1]) || 0;
+                    
+                    // Parse velocity vector
+                    let velocities = [0, 0, 0];
+                    const velocityStr = speedParts.slice(2).join(','); // Join remaining parts
+                    if (velocityStr) {
+                        try {
+                            const cleanVelocity = velocityStr.replace(/[\[\]]/g, '');
+                            const velComponents = cleanVelocity.split(/[\s,]+/).filter(v => v !== '');
+                            velocities = velComponents.map(v => parseFloat(v) || 0);
+                        } catch (e) {
+                            console.warn('Error parsing velocity vector:', e);
+                        }
+                    }
+                    
+                    state.airSpeed = airSpeed;
+                    state.groundSpeed = groundSpeed;
+                    state.velocityX = velocities[0];
+                    state.velocityY = velocities[1];
+                    state.velocityZ = velocities[2];
+                    
+                    // Calculate total speed
+                    const totalSpeed = Math.sqrt(
+                        velocities[0]**2 + 
+                        velocities[1]**2 + 
+                        velocities[2]**2
+                    );
+                    state.speed = totalSpeed.toFixed(1);
+                    updateDroneUI(source);
+                }
+                break;
+
+            case 'MODE':
+                // Update flight mode
+                state.mode = payload;
+                console.log('Mode updated:', payload);
                 updateDroneUI(source);
-            } catch (error) {
-                console.error('Error parsing status:', error);
-            }
-            break;
-        case 'MODE':
-            state.mode = payload;
-            updateDroneUI(source);
-            break;
-        case 'ALT':
-            state.altitude = parseFloat(payload);
-            updateDroneUI(source);
-            break;
-        case 'BAT':
-            state.battery = parseInt(payload);
-            updateDroneUI(source);
-            break;
-        case 'GPS':
-            state.gps = payload;
-            updateDroneUI(source);
-            break;
-        case 'HDG':
-            state.heading = parseInt(payload);
-            updateDroneUI(source);
-            break;
+                break;
+
+            case 'ARMED':
+                // Update armed status
+                state.isArmed = payload === '1';
+                console.log('Armed status updated:', state.isArmed);
+                updateDroneUI(source);
+                break;
+
+            case 'HB':
+                handleDroneHeartbeat(source);
+                break;
+        }
+    } catch (error) {
+        console.error(`Error processing ${command} message:`, error);
+    }
+}
+
+// Update the DroneCard UI with new state
+function updateDroneUI(droneId) {
+    const drone = droneManager.drones.get(droneId);
+    if (!drone) {
+        console.warn(`No drone found for ID: ${droneId}`); // Debug log
+        return;
+    }
+
+    const state = droneStates[droneId];
+    if (!state) {
+        console.warn(`No state found for drone ID: ${droneId}`); // Debug log
+        return;
+    }
+
+    console.log(`Updating UI for drone ${droneId} with state:`, state); // Debug log
+
+    // Update the drone card parameters
+    const params = {
+        heading: state.heading || 0,
+        battery: state.battery || 0,
+        voltage: state.voltage ? state.voltage.toFixed(1) : '0.0',
+        current: state.current ? state.current.toFixed(2) : '0.00',
+        altitude: state.altitude ? state.altitude.toFixed(1) : '0.0',
+        gps: state.gps || 'No Fix',
+        mode: state.mode || 'STABILIZE',
+        roll: state.roll || 0,
+        pitch: state.pitch || 0,
+        yaw: state.yaw || 0,
+        airSpeed: state.airSpeed ? state.airSpeed.toFixed(1) : '0.0',
+        groundSpeed: state.groundSpeed ? state.groundSpeed.toFixed(1) : '0.0',
+        speed: state.speed || '0.0',
+        latitude: state.latitude ? state.latitude.toFixed(6) : '0.000000',
+        longitude: state.longitude ? state.longitude.toFixed(6) : '0.000000'
+    };
+
+    console.log('Sending params to updateParams:', params); // Debug log
+    drone.updateParams(params);
+
+    // Update map marker if lat/lon available
+    if (state.latitude !== undefined && state.longitude !== undefined) {
+        updateDroneMarker(
+            droneId, 
+            [state.latitude, state.longitude],
+            state.heading || 0,
+            state.altitude || 0,
+            droneId
+        );
+    }
+
+    // Update Leader_pos with MCU drone's LAT, LON
+    if (droneId === 'MCU') {
+        const leaderPosElement = document.querySelector('.leader-pos .coordinates');
+        if (leaderPosElement) {
+            leaderPosElement.textContent = `${params.latitude},${params.longitude}`;
+        }
     }
 }
 
