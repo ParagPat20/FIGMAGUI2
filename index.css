@@ -2503,3 +2503,426 @@ button:disabled {
 }
 
 
+/* Mission Planner Styles */
+.mission-planner-popup {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background: rgba(0, 0, 0, 0.8);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 2000;
+  opacity: 0;
+  transition: opacity 0.3s ease;
+  pointer-events: none;
+}
+
+.mission-planner-popup.active {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+.mission-planner-content {
+  width: 90%;
+  height: 90%;
+  background: #091930;
+  border-radius: 12px;
+  border: 1px solid rgba(112, 193, 114, 0.3);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.mission-planner-header {
+  padding: 15px 20px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.mission-planner-header h2 {
+  color: #ffffff;
+  font-family: IBM Plex Mono, var(--default-font-family);
+  font-size: 20px;
+  margin: 0;
+}
+
+.close-mission-planner {
+  background: none;
+  border: none;
+  color: #ffffff;
+  font-size: 24px;
+  cursor: pointer;
+  padding: 0;
+  width: 30px;
+  height: 30px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  transition: background 0.2s;
+}
+
+.close-mission-planner:hover {
+  background: rgba(255, 255, 255, 0.1);
+}
+
+.mission-planner-body {
+  flex: 1;
+  display: flex;
+  gap: 20px;
+  padding: 20px;
+  min-height: 0;
+}
+
+.mission-views {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 8px;
+  padding: 15px;
+}
+
+.view-controls {
+  display: flex;
+  gap: 10px;
+}
+
+.view-toggle {
+  padding: 8px 16px;
+  background: #1c2b40;
+  border: 1px solid rgba(112, 193, 114, 0.3);
+  border-radius: 6px;
+  color: #ffffff;
+  font-family: IBM Plex Mono, var(--default-font-family);
+  font-size: 14px;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.view-toggle.active {
+  background: #70c172;
+  border-color: #70c172;
+}
+
+.view-container {
+  flex: 1;
+  position: relative;
+  min-height: 0;
+  border: 1px solid rgba(112, 193, 114, 0.3);
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+#mission-canvas-2d,
+#mission-canvas-3d {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  display: none;
+}
+
+#mission-canvas-2d.active,
+#mission-canvas-3d.active {
+  display: block;
+}
+
+.mission-controls {
+  width: 300px;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  overflow-y: auto;
+  max-height: 100%;
+  padding-right: 10px;
+}
+
+.mission-planner .available-drones,
+.mission-planner .waypoint-settings,
+.mission-planner .playback-controls {
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 8px;
+  padding: 15px;
+  flex-shrink: 0;
+}
+
+.mission-planner h3 {
+  color: #ffffff;
+  font-family: IBM Plex Mono, var(--default-font-family);
+  font-size: 16px;
+  margin: 0 0 15px 0;
+}
+
+.mission-planner .drone-list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.mission-planner .drone-item {
+  padding: 10px;
+  background: #1c2b40;
+  border: 1px solid rgba(112, 193, 114, 0.3);
+  border-radius: 6px;
+  color: #ffffff;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.mission-planner .drone-item:hover {
+  background: #2c3b50;
+}
+
+.mission-planner .drone-item.selected {
+  background: #70c172;
+  border-color: #70c172;
+}
+
+.mission-planner .waypoint-inputs {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.mission-planner .input-group {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+
+.mission-planner .input-group label {
+  color: #9ca3af;
+  font-size: 12px;
+}
+
+.mission-planner .input-group input {
+  width: 100%;
+  padding: 8px;
+  background: #1c2b40;
+  border: 1px solid rgba(112, 193, 114, 0.3);
+  border-radius: 4px;
+  color: #70c172;
+  font-family: IBM Plex Mono, var(--default-font-family);
+  font-size: 14px;
+  outline: none;
+}
+
+.mission-planner .input-group input:focus {
+  border-color: #70c172;
+}
+
+.mission-planner .waypoint-settings .keyframe-controls {
+  display: flex;
+  gap: 10px;
+  margin-top: 15px;
+  padding: 10px;
+  background: #1c2b40;
+  border-radius: 5px;
+}
+
+.mission-planner .waypoint-settings .keyframe-controls button {
+  padding: 8px 15px;
+  border: none;
+  border-radius: 4px;
+  background: #2c7bf2;
+  color: white;
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 12px;
+  cursor: pointer;
+  transition: background 0.3s ease;
+}
+
+.mission-planner .waypoint-settings .keyframe-controls button:hover {
+  background: #1c5ac2;
+}
+
+.mission-planner .waypoint-settings .keyframe-controls button:active {
+  transform: scale(0.98);
+}
+
+.mission-planner .mission-controls .playback-controls {
+  margin-top: 20px;
+  padding: 15px;
+  background: #1c2b40;
+  border-radius: 5px;
+}
+
+.mission-planner .mission-controls .playback-controls h3 {
+  color: #ffffff;
+  margin-bottom: 15px;
+}
+
+.mission-planner .mission-controls .playback-buttons {
+  display: flex;
+  gap: 10px;
+  margin-bottom: 15px;
+}
+
+.mission-planner .mission-controls .play-mission,
+.mission-planner .mission-controls .stop-mission {
+  padding: 8px 20px;
+  border: none;
+  border-radius: 4px;
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 12px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.mission-planner .mission-controls .play-mission {
+  background: #70c172;
+  color: white;
+}
+
+.mission-planner .mission-controls .stop-mission {
+  background: #f05151;
+  color: white;
+}
+
+.mission-planner .mission-controls .play-mission:hover {
+  background: #5ca15e;
+}
+
+.mission-planner .mission-controls .stop-mission:hover {
+  background: #d43f3f;
+}
+
+.mission-planner .mission-controls .keyframe-timeline {
+  margin-top: 15px;
+  padding: 10px;
+  background: #0d1930;
+  border-radius: 5px;
+}
+
+.mission-planner .mission-controls #keyframe-slider {
+  width: 100%;
+  height: 4px;
+  background: #2c7bf2;
+  border-radius: 2px;
+  outline: none;
+  opacity: 0.7;
+  transition: opacity 0.2s;
+}
+
+.mission-planner .mission-controls #keyframe-slider::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  background: #70c172;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.mission-planner .mission-controls #keyframe-slider::-webkit-slider-thumb:hover {
+  transform: scale(1.2);
+}
+
+.mission-planner .mission-controls .keyframe-counter {
+  display: block;
+  text-align: center;
+  color: #ffffff;
+  margin-top: 10px;
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 12px;
+}
+
+.mission-planner .keyframe-list {
+  margin-top: 15px;
+  max-height: 200px;
+  overflow-y: auto;
+  background: #1c2b40;
+  border-radius: 5px;
+  padding: 10px;
+}
+
+.mission-planner .keyframe-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 8px;
+  background: #0d1930;
+  border-radius: 4px;
+  margin-bottom: 5px;
+  color: white;
+}
+
+.mission-planner .keyframe-item:hover {
+  background: #2c3b50;
+}
+
+.mission-planner .keyframe-item.selected {
+  background: #2c7bf2;
+}
+
+.mission-planner .keyframe-number {
+  font-weight: bold;
+  color: #70c172;
+}
+
+.mission-planner-footer {
+  padding: 15px 20px;
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+}
+
+.mission-planner-footer .load-mission,
+.mission-planner-footer .save-mission,
+.mission-planner-footer .clear-mission {
+  padding: 8px 16px;
+  border-radius: 6px;
+  font-family: IBM Plex Mono, var(--default-font-family);
+  font-size: 14px;
+  cursor: pointer;
+  transition: all 0.2s;
+  color: #ffffff;
+}
+
+.mission-planner-footer .save-mission {
+  background: #70c172;
+  border: none;
+}
+
+.mission-planner-footer .load-mission {
+  background: #2c7bf2;
+  border: none;
+}
+
+.mission-planner-footer .clear-mission {
+  background: #1c2b40;
+  border: 1px solid rgba(112, 193, 114, 0.3);
+}
+
+.mission-planner-footer .save-mission:hover {
+  background: #5a9d6a;
+}
+
+.mission-planner-footer .load-mission:hover {
+  background: #1c5ac2;
+}
+
+.mission-planner-footer .clear-mission:hover {
+  background: #2c3b50;
+}
+
+/* Firefox specific styles */
+.mission-planner .input-group input[type=number] {
+  -moz-appearance: textfield;
+  appearance: textfield;
+}
+
+.mission-planner .input-group input::-webkit-inner-spin-button,
+.mission-planner .input-group input::-webkit-outer-spin-button {
+  -webkit-appearance: none;
+  appearance: none;
+  margin: 0;
+} 

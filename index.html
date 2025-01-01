@@ -114,7 +114,7 @@
               <div class="menu-icon">
                 <img src="./assets/images/dronesettings-icon.png" alt="Drone Settings" />
               </div>
-              <span class="menu-text">Drone Settings</span>
+              <span class="menu-text">Setup</span>
             </button>
             
             <button class="menu-item" id="menu-missions">
@@ -187,26 +187,47 @@
                 <h3>Waypoint Settings</h3>
                 <div class="waypoint-inputs">
                   <div class="input-group">
-                    <label>Latitude</label>
-                    <input type="number" id="wp-lat" step="0.000001">
+                    <label>X Position (m)</label>
+                    <input type="number" id="wp-x" step="0.1">
                   </div>
                   <div class="input-group">
-                    <label>Longitude</label>
-                    <input type="number" id="wp-lon" step="0.000001">
+                    <label>Y Position (m)</label>
+                    <input type="number" id="wp-y" step="0.1">
                   </div>
                   <div class="input-group">
                     <label>Altitude (m)</label>
                     <input type="number" id="wp-alt" min="0" step="0.1">
                   </div>
                   <div class="input-group">
-                    <label>Distance (m)</label>
-                    <input type="number" id="wp-distance" min="0" step="0.1">
+                    <label>Heading (deg)</label>
+                    <input type="number" id="wp-heading" min="0" max="360" step="1">
                   </div>
+                </div>
+                <div class="keyframe-controls">
+                  <button class="add-keyframe">Add Keyframe</button>
+                  <button class="delete-keyframe">Delete Keyframe</button>
+                </div>
+              </div>
+              <div class="playback-controls">
+                <h3>Mission Playback</h3>
+                <div class="playback-buttons">
+                  <button class="play-mission">Play</button>
+                  <button class="stop-mission">Stop</button>
+                </div>
+                <div class="input-group">
+                  <label>Playback Speed (ms)</label>
+                  <input type="number" id="playback-speed" min="100" max="5000" step="100" value="1000">
+                </div>
+                <div class="keyframe-timeline">
+                  <input type="range" id="keyframe-slider" min="0" max="0" value="0">
+                  <span class="keyframe-counter">0 / 0</span>
                 </div>
               </div>
             </div>
           </div>
           <div class="mission-planner-footer">
+            <input type="file" id="load-mission" accept=".json" style="display: none;">
+            <button class="load-mission">Load Mission</button>
             <button class="save-mission">Save Mission</button>
             <button class="clear-mission">Clear</button>
           </div>

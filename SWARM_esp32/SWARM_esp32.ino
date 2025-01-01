@@ -18,8 +18,6 @@ uint8_t *peerMACs[] = {
   cd3MAC   // CD3 MAC address
 };
 
-
-
 esp_now_peer_info_t peerInfo;
 
 // Global variable to store sender identity
@@ -140,22 +138,6 @@ String serializeCommandPacket(const CommandPacket &packet) {
   return serialized;
 }
 
-void sendHeartbeat() {
-  CommandPacket hbPacket;
-  hbPacket.S = senderIdentity;  // Sender identity
-  hbPacket.T = "GCS";           // Target is GCS
-  hbPacket.C = "HB";            // Command type is Heartbeat
-  hbPacket.P = "1";             // Payload is 1
-
-  uint8_t *targetMAC = getTargetMAC(hbPacket.T);
-  if (targetMAC != nullptr) {
-    String serializedData = serializeCommandPacket(hbPacket);
-    esp_now_send(targetMAC, (uint8_t *)serializedData.c_str(), serializedData.length());
-    Serial.println("Heartbeat sent: " + serializedData);
-  } else {
-    Serial.println("Invalid target for Heartbeat");
-  }
-}
 
 void setup() {
   Serial.begin(115200);
@@ -179,14 +161,6 @@ void setup() {
 }
 
 void loop() {
-  static unsigned long lastHeartbeat = 0;  // Store the last heartbeat time
-  unsigned long currentMillis = millis();
-
-  // Send heartbeat every 2000 milliseconds (2 seconds)
-  if (currentMillis - lastHeartbeat >= 2000) {
-    sendHeartbeat();
-    lastHeartbeat = currentMillis;
-  }
 
   if (Serial.available()) {
     String inputData = Serial.readStringUntil('\n');
