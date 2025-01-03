@@ -817,10 +817,7 @@ const droneManager = {
 
 class MissionPlanner {
     constructor() {
-        this.popup = document.querySelector('.mission-planner-popup');
-        this.canvas2D = document.getElementById('mission-canvas-2d');
-        this.canvas3D = document.getElementById('mission-canvas-3d');
-        this.ctx2D = this.canvas2D.getContext('2d');
+        // Initialize basic properties
         this.scene = null;
         this.camera = null;
         this.renderer = null;
@@ -837,112 +834,240 @@ class MissionPlanner {
         this.droneMarkers = new Map(); // For 2D markers
         
         // Keyframe system
-        this.maxKeyframes = 50; // Maximum number of keyframes
+        this.maxKeyframes = 100; // Maximum number of keyframes
         this.keyframes = new Map(); // Map of drone ID to array of keyframes
         this.currentKeyframe = 0;
         this.isPlaying = false;
         this.playbackSpeed = 1000; // milliseconds between keyframes
         
-        // Initialize keyframe list
-        this.keyframeList = document.createElement('div');
-        this.keyframeList.className = 'keyframe-list';
-        document.querySelector('.mission-controls').appendChild(this.keyframeList);
+        // Add zoom settings
+        this.zoomLevel = 1;
+        this.minZoom = 0.1;
+        this.maxZoom = 5;
+        this.zoomStep = 0.1;
+    }
+
+    initialize() {
+        // Initialize DOM elements
+        this.popup = document.querySelector('.mission-planner-popup');
+        this.canvas2D = document.getElementById('mission-canvas-2d');
+        this.canvas3D = document.getElementById('mission-canvas-3d');
+        this.droneList = document.querySelector('.drone-list');
         
-        // Initialize
+        // Create keyframe list container if it doesn't exist
+        this.keyframeList = document.querySelector('.keyframe-list');
+        if (!this.keyframeList) {
+            const playbackControls = document.querySelector('.playback-controls');
+            if (playbackControls) {
+                this.keyframeList = document.createElement('div');
+                this.keyframeList.className = 'keyframe-list';
+                playbackControls.appendChild(this.keyframeList);
+            }
+        }
+        
+        if (!this.popup || !this.canvas2D || !this.canvas3D || !this.droneList) {
+            console.error('Required mission planner elements not found', {
+                popup: !!this.popup,
+                canvas2D: !!this.canvas2D,
+                canvas3D: !!this.canvas3D,
+                droneList: !!this.droneList
+            });
+            return false;
+        }
+
+        this.ctx2D = this.canvas2D.getContext('2d');
+        
+        // Initialize components
         this.initializeListeners();
         this.initializeDefaultDrones();
+        
+        // Add zoom event listener to 2D canvas
+        this.canvas2D?.addEventListener('wheel', this.handleZoom.bind(this));
+        
+        return true;
     }
 
     initializeListeners() {
         // View toggle buttons
         const viewToggles = document.querySelectorAll('.view-toggle');
-        viewToggles.forEach(toggle => {
-            toggle.addEventListener('click', () => {
-                viewToggles.forEach(t => t.classList.remove('active'));
-                toggle.classList.add('active');
-                
-                const view = toggle.dataset.view;
-                this.canvas2D.classList.toggle('active', view === '2d');
-                this.canvas3D.classList.toggle('active', view === '3d');
-                this.resizeCanvases();
+        if (viewToggles.length > 0) {
+            viewToggles.forEach(toggle => {
+                toggle.addEventListener('click', () => {
+                    viewToggles.forEach(t => t.classList.remove('active'));
+                    toggle.classList.add('active');
+                    
+                    const view = toggle.dataset.view;
+                    if (this.canvas2D && this.canvas3D) {
+                        this.canvas2D.classList.toggle('active', view === '2d');
+                        this.canvas3D.classList.toggle('active', view === '3d');
+                        this.resizeCanvases();
+                    }
+                });
             });
-        });
+        }
 
         // Close button
-        const closeButton = document.querySelector('.close-mission-planner');
-        closeButton.addEventListener('click', () => {
-            this.popup.classList.remove('active');
-            setTimeout(() => {
-                this.popup.style.display = 'none';
-            }, 300);
-        });
+        const closeButton = document.getElementById('close-mission-planner');
+        if (closeButton) {
+            closeButton.addEventListener('click', () => {
+                if (this.popup) {
+                    this.popup.classList.remove('active');
+                    setTimeout(() => {
+                        this.popup.style.display = 'none';
+                    }, 300);
+                }
+            });
+        }
 
         // Keyframe controls
-        const addKeyframeBtn = document.querySelector('.add-keyframe');
-        addKeyframeBtn.addEventListener('click', () => {
-            const selectedDrone = document.querySelector('.drone-item.selected');
-            if (!selectedDrone) return;
+        const addKeyframeBtn = document.getElementById('add-keyframe');
+        if (addKeyframeBtn) {
+            addKeyframeBtn.addEventListener('click', () => {
+                const selectedDrone = document.querySelector('.drone-item.selected');
+                if (!selectedDrone) {
+                    customAlert.warning('Please select a drone first');
+                    return;
+                }
 
-            const droneId = selectedDrone.dataset.droneId;
-            const position = {
-                x: parseFloat(document.getElementById('wp-x').value) || 0,
-                y: parseFloat(document.getElementById('wp-y').value) || 0,
-                z: parseFloat(document.getElementById('wp-alt').value) || 2
-            };
-            const heading = (parseFloat(document.getElementById('wp-heading').value) || 0) * Math.PI / 180;
-            
-            this.addKeyframe(droneId, position, heading);
-            this.updateKeyframeSlider();
-        });
+                const droneId = selectedDrone.dataset.droneId;
+                const position = {
+                    x: parseFloat(document.getElementById('wp-x')?.value) || 0,
+                    y: parseFloat(document.getElementById('wp-y')?.value) || 0,
+                    z: parseFloat(document.getElementById('wp-alt')?.value) || 2
+                };
+                const heading = ((parseFloat(document.getElementById('wp-heading')?.value) || 0) * Math.PI / 180);
+                
+                this.addKeyframe(droneId, position, heading);
+            });
+        }
 
-        const deleteKeyframeBtn = document.querySelector('.delete-keyframe');
-        deleteKeyframeBtn.addEventListener('click', () => {
-            const selectedDrone = document.querySelector('.drone-item.selected');
-            if (!selectedDrone) return;
+        const deleteKeyframeBtn = document.getElementById('delete-keyframe');
+        if (deleteKeyframeBtn) {
+            deleteKeyframeBtn.addEventListener('click', () => {
+                const selectedDrone = document.querySelector('.drone-item.selected');
+                if (!selectedDrone) {
+                    customAlert.warning('Please select a drone first');
+                    return;
+                }
 
-            const droneId = selectedDrone.dataset.droneId;
-            const frames = this.keyframes.get(droneId);
-            if (frames && frames.length > 1) {
-                frames.splice(this.currentKeyframe, 1);
-                this.updateKeyframeSlider();
-                this.updateViews();
+                const droneId = selectedDrone.dataset.droneId;
+                const frames = this.keyframes.get(droneId);
+                if (frames && frames.length > 1) {
+                    frames.splice(this.currentKeyframe, 1);
+                    if (this.currentKeyframe >= frames.length) {
+                        this.currentKeyframe = frames.length - 1;
+                    }
+                    this.updateKeyframeSlider();
+                    this.updateViews();
+                    this.updateKeyframeList();
+                    
+                    // Update input fields with current keyframe data
+                    if (frames[this.currentKeyframe]) {
+                        this.updateWaypointInputs(frames[this.currentKeyframe]);
+                    }
+                }
+            });
+        }
+
+        // Waypoint input handlers
+        ['wp-x', 'wp-y', 'wp-alt', 'wp-heading'].forEach(inputId => {
+            const input = document.getElementById(inputId);
+            if (input) {
+                input.addEventListener('change', () => {
+                    const selectedDrone = document.querySelector('.drone-item.selected');
+                    if (!selectedDrone) return;
+
+                    const droneId = selectedDrone.dataset.droneId;
+                    const frames = this.keyframes.get(droneId);
+                    if (frames && frames[this.currentKeyframe]) {
+                        const frame = frames[this.currentKeyframe];
+                        const value = parseFloat(input.value) || 0;
+                        
+                        switch(inputId) {
+                            case 'wp-x':
+                                frame.position.x = value;
+                                break;
+                            case 'wp-y':
+                                frame.position.y = value;
+                                break;
+                            case 'wp-alt':
+                                frame.position.z = value;
+                                break;
+                            case 'wp-heading':
+                                frame.heading = value * Math.PI / 180;
+                                break;
+                        }
+                        
+                        this.updateViews();
+                        this.updateKeyframeList();
+                    }
+                });
             }
         });
 
         // Playback controls
-        const playButton = document.querySelector('.play-mission');
-        playButton.addEventListener('click', () => this.playKeyframes());
+        const playButton = document.getElementById('play-mission');
+        if (playButton) {
+            playButton.addEventListener('click', () => this.playKeyframes());
+        }
 
-        const stopButton = document.querySelector('.stop-mission');
-        stopButton.addEventListener('click', () => this.stopKeyframes());
+        const stopButton = document.getElementById('stop-mission');
+        if (stopButton) {
+            stopButton.addEventListener('click', () => this.stopKeyframes());
+        }
 
         const speedInput = document.getElementById('playback-speed');
-        speedInput.addEventListener('change', () => {
-            this.playbackSpeed = parseInt(speedInput.value) || 1000;
-        });
+        if (speedInput) {
+            speedInput.addEventListener('change', () => {
+                this.playbackSpeed = parseInt(speedInput.value) || 1000;
+            });
+        }
 
         const keyframeSlider = document.getElementById('keyframe-slider');
-        keyframeSlider.addEventListener('input', () => {
-            this.currentKeyframe = parseInt(keyframeSlider.value);
-            this.updateViews();
-            this.updateKeyframeCounter();
-        });
+        if (keyframeSlider) {
+            keyframeSlider.addEventListener('input', () => {
+                this.currentKeyframe = parseInt(keyframeSlider.value);
+                this.updateViews();
+                this.updateKeyframeCounter();
+            });
+        }
 
         // Mission file controls
-        const loadButton = document.querySelector('.load-mission');
-        const loadInput = document.getElementById('load-mission');
-        loadButton.addEventListener('click', () => loadInput.click());
-        loadInput.addEventListener('change', (e) => {
-            if (e.target.files.length > 0) {
-                this.loadMission(e.target.files[0]);
-            }
-        });
+        const loadButton = document.getElementById('load-mission');
+        const loadInput = document.createElement('input');
+        loadInput.type = 'file';
+        loadInput.accept = '.json';
+        loadInput.style.display = 'none';
+        document.body.appendChild(loadInput);
 
-        const saveButton = document.querySelector('.save-mission');
-        saveButton.addEventListener('click', () => this.saveMission());
+        if (loadButton) {
+            loadButton.addEventListener('click', () => {
+                loadInput.value = ''; // Clear the input
+                loadInput.click();
+            });
+            loadInput.addEventListener('change', (e) => {
+                const file = e.target.files[0];
+                if (file) {
+                    this.loadMission(file);
+                }
+            });
+        }
 
-        const clearButton = document.querySelector('.clear-mission');
-        clearButton.addEventListener('click', () => this.clearMission());
+        const saveButton = document.getElementById('save-mission');
+        if (saveButton) {
+            saveButton.addEventListener('click', () => {
+                if (this.keyframes.size === 0) {
+                    customAlert.warning('No mission data to save');
+                    return;
+                }
+                this.saveMission();
+            });
+        }
+
+        const clearButton = document.getElementById('clear-mission');
+        if (clearButton) {
+            clearButton.addEventListener('click', () => this.clearMission());
+        }
 
         // Window resize handler
         window.addEventListener('resize', () => this.resizeCanvases());
@@ -950,6 +1075,11 @@ class MissionPlanner {
 
     resizeCanvases() {
         const container = document.querySelector('.view-container');
+        if (!container || !this.canvas2D || !this.canvas3D) {
+            console.warn('Required elements not found for resizing canvases');
+            return;
+        }
+
         const width = container.clientWidth;
         const height = container.clientHeight;
 
@@ -979,50 +1109,87 @@ class MissionPlanner {
     }
 
     updateKeyframeCounter() {
-        const counter = document.querySelector('.keyframe-counter');
+        const counter = document.getElementById('keyframe-counter');
         const maxFrames = Math.max(...Array.from(this.keyframes.values()).map(k => k.length));
         counter.textContent = `${this.currentKeyframe + 1} / ${maxFrames}`;
     }
 
     updateAvailableDrones() {
-        const droneList = document.querySelector('.drone-list');
-        droneList.innerHTML = '';
+        if (!this.droneList) {
+            console.warn('Drone list element not found');
+            return;
+        }
+        
+        this.droneList.innerHTML = '';
 
         this.defaultDrones.forEach(droneId => {
             const droneItem = document.createElement('div');
             droneItem.className = 'drone-item';
             droneItem.dataset.droneId = droneId;
             droneItem.style.borderColor = this.getDroneColor(droneId);
-            droneItem.textContent = droneId;
+            droneItem.innerHTML = `
+                <span class="drone-id">${droneId}</span>
+                <span class="drone-status"></span>
+            `;
 
             droneItem.addEventListener('click', () => {
+                // Remove selection from all drones
                 document.querySelectorAll('.drone-item').forEach(item => {
                     item.classList.remove('selected');
                 });
+                
+                // Add selection to clicked drone
                 droneItem.classList.add('selected');
 
                 // Update input fields with current drone position
                 const frames = this.keyframes.get(droneId);
                 if (frames && frames[this.currentKeyframe]) {
                     const frame = frames[this.currentKeyframe];
-                    document.getElementById('wp-x').value = frame.position.x.toFixed(1);
-                    document.getElementById('wp-y').value = frame.position.y.toFixed(1);
-                    document.getElementById('wp-alt').value = frame.position.z.toFixed(1);
-                    document.getElementById('wp-heading').value = (frame.heading * 180 / Math.PI).toFixed(0);
+                    const inputs = {
+                        'wp-x': frame.position.x,
+                        'wp-y': frame.position.y,
+                        'wp-alt': frame.position.z,
+                        'wp-heading': (frame.heading * 180 / Math.PI)
+                    };
+
+                    // Update each input field with animation
+                    Object.entries(inputs).forEach(([id, value]) => {
+                        const input = document.getElementById(id);
+                        if (input) {
+                            input.value = value.toFixed(1);
+                            input.classList.add('updated');
+                            setTimeout(() => input.classList.remove('updated'), 500);
+                        }
+                    });
                 }
+
+                // Highlight current drone's position in keyframe list
+                document.querySelectorAll('.drone-position').forEach(pos => {
+                    pos.classList.toggle('highlighted', pos.querySelector('.drone-id').textContent === droneId);
+                });
             });
 
-            droneList.appendChild(droneItem);
+            this.droneList.appendChild(droneItem);
         });
+
+        // Select first drone by default if none selected
+        if (!document.querySelector('.drone-item.selected')) {
+            this.droneList.firstElementChild?.click();
+        }
     }
 
     initializeDefaultDrones() {
+        // Create default keyframe with initial values
+        const defaultKeyframe = {
+            position: { x: 0, y: 0, z: 2 }, // Default 2m altitude
+            heading: 0,
+            timestamp: Date.now()
+        };
+
+        // Initialize each drone with a single keyframe
         this.defaultDrones.forEach(droneId => {
-            this.keyframes.set(droneId, [{
-                position: { x: 0, y: 0, z: 2 }, // Default 2m altitude
-                heading: 0,
-                timestamp: 0
-            }]);
+            // Set single keyframe for each drone
+            this.keyframes.set(droneId, [defaultKeyframe]);
             
             // Create drone marker for 2D view
             const marker = {
@@ -1032,6 +1199,12 @@ class MissionPlanner {
             };
             this.droneMarkers.set(droneId, marker);
         });
+
+        // Update UI after initialization
+        this.currentKeyframe = 0;
+        this.updateKeyframeSlider();
+        this.updateKeyframeCounter();
+        this.updateKeyframeList();
     }
 
     getDroneColor(droneId) {
@@ -1046,6 +1219,11 @@ class MissionPlanner {
     }
 
     show() {
+        if (!this.popup) {
+            console.warn('Mission planner popup element not found');
+            return;
+        }
+
         this.popup.style.display = 'flex';
         setTimeout(() => {
             this.popup.classList.add('active');
@@ -1155,9 +1333,17 @@ class MissionPlanner {
         const centerX = this.canvas2D.width / 2;
         const centerY = this.canvas2D.height / 2;
         
+        // Save context state
+        this.ctx2D.save();
+        
+        // Apply zoom transformation
+        this.ctx2D.translate(centerX, centerY);
+        this.ctx2D.scale(this.zoomLevel, this.zoomLevel);
+        this.ctx2D.translate(-centerX, -centerY);
+        
         // Draw grid
         this.ctx2D.strokeStyle = '#1c2b40';
-        this.ctx2D.lineWidth = 1;
+        this.ctx2D.lineWidth = 1 / this.zoomLevel;
         
         // Draw vertical grid lines
         for (let x = -this.gridSize/2; x <= this.gridSize/2; x += this.gridSpacing) {
@@ -1179,7 +1365,7 @@ class MissionPlanner {
         
         // Draw axes
         this.ctx2D.strokeStyle = '#70c172';
-        this.ctx2D.lineWidth = 2;
+        this.ctx2D.lineWidth = 2 / this.zoomLevel;
         
         // X-axis
         this.ctx2D.beginPath();
@@ -1192,6 +1378,54 @@ class MissionPlanner {
         this.ctx2D.moveTo(centerX, 0);
         this.ctx2D.lineTo(centerX, this.canvas2D.height);
         this.ctx2D.stroke();
+
+        // Draw paths between keyframes for each drone
+        this.droneMarkers.forEach((marker, droneId) => {
+            const frames = this.keyframes.get(droneId);
+            if (frames && frames.length > 1) {
+                // Set path style based on drone color with transparency
+                this.ctx2D.strokeStyle = marker.color.replace(')', ', 0.3)').replace('rgb', 'rgba');
+                this.ctx2D.lineWidth = 2 / this.zoomLevel;
+                this.ctx2D.setLineDash([5 / this.zoomLevel, 5 / this.zoomLevel]);
+
+                // Draw path through all keyframes
+                this.ctx2D.beginPath();
+                frames.forEach((frame, index) => {
+                    const screenX = centerX + frame.position.x * this.pixelsPerMeter;
+                    const screenY = centerY - frame.position.y * this.pixelsPerMeter;
+                    
+                    if (index === 0) {
+                        this.ctx2D.moveTo(screenX, screenY);
+                    } else {
+                        this.ctx2D.lineTo(screenX, screenY);
+                    }
+                });
+                this.ctx2D.stroke();
+                this.ctx2D.setLineDash([]); // Reset line dash
+
+                // Draw waypoint markers at each keyframe
+                frames.forEach((frame, index) => {
+                    const screenX = centerX + frame.position.x * this.pixelsPerMeter;
+                    const screenY = centerY - frame.position.y * this.pixelsPerMeter;
+                    
+                    // Draw waypoint circle
+                    this.ctx2D.fillStyle = marker.color.replace(')', ', 0.2)').replace('rgb', 'rgba');
+                    this.ctx2D.strokeStyle = marker.color;
+                    this.ctx2D.lineWidth = 1 / this.zoomLevel;
+                    this.ctx2D.beginPath();
+                    this.ctx2D.arc(screenX, screenY, 8 / this.zoomLevel, 0, Math.PI * 2);
+                    this.ctx2D.fill();
+                    this.ctx2D.stroke();
+
+                    // Draw waypoint number
+                    this.ctx2D.fillStyle = '#ffffff';
+                    this.ctx2D.font = `${10 / this.zoomLevel}px IBM Plex Mono`;
+                    this.ctx2D.textAlign = 'center';
+                    this.ctx2D.textBaseline = 'middle';
+                    this.ctx2D.fillText(index + 1, screenX, screenY);
+                });
+            }
+        });
         
         // Draw drone markers
         this.droneMarkers.forEach((marker, droneId) => {
@@ -1201,12 +1435,12 @@ class MissionPlanner {
             // Draw drone circle
             this.ctx2D.fillStyle = marker.color;
             this.ctx2D.beginPath();
-            this.ctx2D.arc(screenX, screenY, 5, 0, Math.PI * 2);
+            this.ctx2D.arc(screenX, screenY, 5 / this.zoomLevel, 0, Math.PI * 2);
             this.ctx2D.fill();
             
             // Draw heading indicator
-            const headingX = screenX + Math.cos(marker.heading) * 10;
-            const headingY = screenY - Math.sin(marker.heading) * 10;
+            const headingX = screenX + Math.cos(marker.heading) * (10 / this.zoomLevel);
+            const headingY = screenY - Math.sin(marker.heading) * (10 / this.zoomLevel);
             this.ctx2D.beginPath();
             this.ctx2D.moveTo(screenX, screenY);
             this.ctx2D.lineTo(headingX, headingY);
@@ -1214,9 +1448,12 @@ class MissionPlanner {
             
             // Draw drone ID
             this.ctx2D.fillStyle = '#ffffff';
-            this.ctx2D.font = '12px IBM Plex Mono';
-            this.ctx2D.fillText(droneId, screenX + 10, screenY - 10);
+            this.ctx2D.font = `${12 / this.zoomLevel}px IBM Plex Mono`;
+            this.ctx2D.fillText(droneId, screenX + (10 / this.zoomLevel), screenY - (10 / this.zoomLevel));
         });
+        
+        // Restore context state
+        this.ctx2D.restore();
     }
 
     update3DView() {
@@ -1237,151 +1474,429 @@ class MissionPlanner {
 
     addKeyframe(droneId, position, heading) {
         if (!this.keyframes.has(droneId)) {
+            console.warn(`No keyframes found for drone ${droneId}`);
             this.keyframes.set(droneId, []);
         }
-        
-        const frames = this.keyframes.get(droneId);
-        if (frames.length >= this.maxKeyframes) {
-            customAlert.warning(`Maximum keyframes (${this.maxKeyframes}) reached for ${droneId}`);
-            return;
-        }
-        
-        const keyframe = {
-            position: { ...position },
-            heading: heading,
-            timestamp: Date.now()
-        };
-        
-        // Insert keyframe at current position
-        frames.splice(this.currentKeyframe, 0, keyframe);
-        
-        // Update drone marker position for 2D view
-        const marker = this.droneMarkers.get(droneId);
-        if (marker) {
-            marker.position.x = position.x;
-            marker.position.y = position.y;
-            marker.heading = heading;
-        }
-        
-        // Update drone model position for 3D view
-        const model = this.droneModels.get(droneId);
-        if (model) {
-            model.position.set(position.x, position.z, -position.y);
-            model.rotation.y = -heading;
-        }
-        
+
+        // For each drone, create a new keyframe
+        this.defaultDrones.forEach(currentDroneId => {
+            if (!this.keyframes.has(currentDroneId)) {
+                this.keyframes.set(currentDroneId, []);
+            }
+
+            const frames = this.keyframes.get(currentDroneId);
+            if (frames.length >= this.maxKeyframes) {
+                customAlert.warning(`Maximum keyframes (${this.maxKeyframes}) reached`);
+                return;
+            }
+
+            // Get previous keyframe data or use defaults
+            const prevFrame = frames[this.currentKeyframe] || {
+                position: { x: 0, y: 0, z: 2 },
+                heading: 0
+            };
+
+            // Create new keyframe
+            let keyframe;
+            if (currentDroneId === droneId) {
+                // For the selected drone, use the new position and heading
+                keyframe = {
+                    position: { 
+                        x: position.x !== undefined ? parseFloat(position.x) : prevFrame.position.x,
+                        y: position.y !== undefined ? parseFloat(position.y) : prevFrame.position.y,
+                        z: position.z !== undefined ? parseFloat(position.z) : prevFrame.position.z
+                    },
+                    heading: heading !== undefined ? parseFloat(heading) : prevFrame.heading,
+                    delay: prevFrame.delay || 1000, // Default delay of 1 second
+                    timestamp: Date.now()
+                };
+
+                // Ensure all values are numbers and not NaN
+                keyframe.position.x = isNaN(keyframe.position.x) ? prevFrame.position.x : keyframe.position.x;
+                keyframe.position.y = isNaN(keyframe.position.y) ? prevFrame.position.y : keyframe.position.y;
+                keyframe.position.z = isNaN(keyframe.position.z) ? prevFrame.position.z : keyframe.position.z;
+                keyframe.heading = isNaN(keyframe.heading) ? prevFrame.heading : keyframe.heading;
+                keyframe.delay = isNaN(keyframe.delay) ? 1000 : keyframe.delay;
+            } else {
+                // For other drones, copy the previous keyframe exactly
+                keyframe = {
+                    position: { ...prevFrame.position },
+                    heading: prevFrame.heading,
+                    delay: prevFrame.delay || 1000,
+                    timestamp: Date.now()
+                };
+            }
+
+            // Insert keyframe after current position
+            frames.splice(this.currentKeyframe + 1, 0, keyframe);
+
+            // Update drone marker position for 2D view
+            const marker = this.droneMarkers.get(currentDroneId);
+            if (marker) {
+                marker.position.x = keyframe.position.x;
+                marker.position.y = keyframe.position.y;
+                marker.heading = keyframe.heading;
+            }
+
+            // Update drone model position for 3D view
+            const model = this.droneModels.get(currentDroneId);
+            if (model) {
+                model.position.set(keyframe.position.x, keyframe.position.z, -keyframe.position.y);
+                model.rotation.y = -keyframe.heading;
+            }
+        });
+
+        // Move to the newly inserted keyframe
+        this.currentKeyframe++;
+
+        // Update UI
         this.updateViews();
         this.updateKeyframeSlider();
+        this.updateKeyframeCounter();
         this.updateKeyframeList();
+
+        // Update input fields for the selected drone
+        const selectedDroneFrames = this.keyframes.get(droneId);
+        if (selectedDroneFrames && selectedDroneFrames[this.currentKeyframe]) {
+            this.updateWaypointInputs(selectedDroneFrames[this.currentKeyframe]);
+        }
+    }
+
+    updateWaypointInputs(keyframe) {
+        const inputs = {
+            'wp-x': keyframe.position.x,
+            'wp-y': keyframe.position.y,
+            'wp-alt': keyframe.position.z,
+            'wp-heading': (keyframe.heading * 180 / Math.PI)
+        };
+
+        Object.entries(inputs).forEach(([id, value]) => {
+            const input = document.getElementById(id);
+            if (input) {
+                input.value = value.toFixed(1);
+                input.classList.add('updated');
+                setTimeout(() => input.classList.remove('updated'), 500);
+            }
+        });
     }
 
     updateKeyframeList() {
+        if (!this.keyframeList) {
+            console.warn('Keyframe list element not found');
+            return;
+        }
+
         this.keyframeList.innerHTML = '';
-        const maxFrames = Math.max(...Array.from(this.keyframes.values()).map(k => k.length));
         
+        // Get maximum number of keyframes from all drones
+        let maxFrames = 0;
+        this.keyframes.forEach(frames => {
+            maxFrames = Math.max(maxFrames, frames.length);
+        });
+
+        // Create a container for each keyframe
         for (let i = 0; i < maxFrames; i++) {
-            const keyframeItem = document.createElement('div');
-            keyframeItem.className = 'keyframe-item';
-            if (i === this.currentKeyframe) {
-                keyframeItem.classList.add('selected');
+            const keyframeContainer = document.createElement('div');
+            keyframeContainer.className = 'keyframe-container';
+            keyframeContainer.classList.toggle('current', i === this.currentKeyframe);
+            
+            // Get the first available frame to get the delay value
+            let frameDelay = 1000; // Default delay
+            for (const frames of this.keyframes.values()) {
+                if (frames[i]) {
+                    frameDelay = frames[i].delay || 1000;
+                    break;
+                }
             }
             
-            const keyframeNumber = document.createElement('span');
-            keyframeNumber.className = 'keyframe-number';
-            keyframeNumber.textContent = `#${i + 1}`;
+            // Create frame header with edit/delete buttons
+            const frameHeader = document.createElement('div');
+            frameHeader.className = 'frame-header';
+            frameHeader.innerHTML = `
+                <div class="frame-info">
+                    <span class="frame-title">Frame ${i + 1}</span>
+                    <div class="frame-delay">
+                        <label>Delay:</label>
+                        <input type="number" class="delay-input" value="${frameDelay}" min="100" max="10000" step="100" data-frame="${i}"> ms
+                    </div>
+                </div>
+                <div class="frame-actions">
+                    <button class="frame-btn edit-frame" data-frame="${i}">
+                        <i class="fas fa-edit"></i> Edit
+                    </button>
+                    <button class="frame-btn delete-frame" data-frame="${i}">
+                        <i class="fas fa-trash"></i> Delete
+                    </button>
+                </div>
+            `;
             
             const dronePositions = document.createElement('div');
             dronePositions.className = 'drone-positions';
             
-            this.keyframes.forEach((frames, droneId) => {
-                if (frames[i]) {
-                    const pos = frames[i].position;
-                    dronePositions.innerHTML += `
-                        <div>${droneId}: (${pos.x.toFixed(1)}, ${pos.y.toFixed(1)}, ${pos.z.toFixed(1)})</div>
+            // Add each drone's position in this keyframe
+            this.defaultDrones.forEach(droneId => {
+                const frames = this.keyframes.get(droneId);
+                if (frames && frames[i]) {
+                    const frame = frames[i];
+                    const dronePosition = document.createElement('div');
+                    dronePosition.className = 'drone-position';
+                    dronePosition.innerHTML = `
+                        <span class="drone-id">${droneId}</span>
+                        <span class="position">X: ${frame.position.x.toFixed(1)}, Y: ${frame.position.y.toFixed(1)}, Z: ${frame.position.z.toFixed(1)}</span>
+                        <span class="heading">H: ${(frame.heading * 180 / Math.PI).toFixed(0)}°</span>
+                        <button class="edit-drone" data-drone="${droneId}" data-frame="${i}">Edit</button>
                     `;
+                    dronePositions.appendChild(dronePosition);
                 }
             });
             
-            keyframeItem.appendChild(keyframeNumber);
-            keyframeItem.appendChild(dronePositions);
+            keyframeContainer.appendChild(frameHeader);
+            keyframeContainer.appendChild(dronePositions);
             
-            keyframeItem.addEventListener('click', () => {
+            // Add click handler for frame selection
+            keyframeContainer.addEventListener('click', () => {
                 this.currentKeyframe = i;
                 this.updateViews();
                 this.updateKeyframeSlider();
+                this.updateKeyframeCounter();
                 this.updateKeyframeList();
             });
+
+            // Add click handlers for edit buttons
+            const editFrameBtn = keyframeContainer.querySelector('.edit-frame');
+            editFrameBtn.addEventListener('click', (e) => {
+                e.stopPropagation();
+                const frameIndex = parseInt(e.target.dataset.frame);
+                this.editFrame(frameIndex);
+            });
+
+            // Add click handlers for delete buttons
+            const deleteFrameBtn = keyframeContainer.querySelector('.delete-frame');
+            deleteFrameBtn.addEventListener('click', (e) => {
+                e.stopPropagation();
+                const frameIndex = parseInt(e.target.dataset.frame);
+                this.deleteFrame(frameIndex);
+            });
+
+            // Add click handlers for individual drone edit buttons
+            const editDroneButtons = keyframeContainer.querySelectorAll('.edit-drone');
+            editDroneButtons.forEach(button => {
+                button.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    const droneId = e.target.dataset.drone;
+                    const frameIndex = parseInt(e.target.dataset.frame);
+                    this.editDroneInFrame(droneId, frameIndex);
+                });
+            });
             
-            this.keyframeList.appendChild(keyframeItem);
+            // Add delay input handler
+            const delayInput = keyframeContainer.querySelector('.delay-input');
+            delayInput.addEventListener('change', (e) => {
+                e.stopPropagation();
+                const frameIndex = parseInt(e.target.dataset.frame);
+                const newDelay = parseInt(e.target.value) || 1000;
+                
+                // Update delay for all drones in this frame
+                this.defaultDrones.forEach(droneId => {
+                    const frames = this.keyframes.get(droneId);
+                    if (frames && frames[frameIndex]) {
+                        frames[frameIndex].delay = newDelay;
+                    }
+                });
+            });
+            
+            this.keyframeList.appendChild(keyframeContainer);
         }
+    }
+
+    // Add these new methods to handle editing
+    editFrame(frameIndex) {
+        // Set current frame
+        this.currentKeyframe = frameIndex;
+        
+        // Update UI to show current frame is selected
+        this.updateViews();
+        this.updateKeyframeSlider();
+        this.updateKeyframeCounter();
+        this.updateKeyframeList();
+        
+        // Load the first drone's data into input fields
+        const selectedDrone = document.querySelector('.drone-item.selected');
+        if (selectedDrone) {
+            const droneId = selectedDrone.dataset.droneId;
+            const frames = this.keyframes.get(droneId);
+            if (frames && frames[frameIndex]) {
+                this.updateWaypointInputs(frames[frameIndex]);
+            }
+        }
+    }
+
+    deleteFrame(frameIndex) {
+        if (confirm(`Are you sure you want to delete Frame ${frameIndex + 1}?`)) {
+            // Delete frame from all drones
+            this.defaultDrones.forEach(droneId => {
+                const frames = this.keyframes.get(droneId);
+                if (frames && frames.length > frameIndex) {
+                    frames.splice(frameIndex, 1);
+                }
+            });
+            
+            // Update current frame if needed
+            if (this.currentKeyframe >= frameIndex) {
+                this.currentKeyframe = Math.max(0, this.currentKeyframe - 1);
+            }
+            
+            // Update UI
+            this.updateViews();
+            this.updateKeyframeSlider();
+            this.updateKeyframeCounter();
+            this.updateKeyframeList();
+        }
+    }
+
+    editDroneInFrame(droneId, frameIndex) {
+        // Select the drone
+        const droneItems = document.querySelectorAll('.drone-item');
+        droneItems.forEach(item => {
+            item.classList.toggle('selected', item.dataset.droneId === droneId);
+        });
+        
+        // Set current frame
+        this.currentKeyframe = frameIndex;
+        
+        // Load drone data into input fields
+        const frames = this.keyframes.get(droneId);
+        if (frames && frames[frameIndex]) {
+            this.updateWaypointInputs(frames[frameIndex]);
+        }
+        
+        // Update UI
+        this.updateViews();
+        this.updateKeyframeSlider();
+        this.updateKeyframeCounter();
+        this.updateKeyframeList();
     }
 
     playKeyframes() {
         if (this.isPlaying) return;
         
         this.isPlaying = true;
-        const startFrame = this.currentKeyframe;
+        let currentTime = 0;
+        let startFrame = this.currentKeyframe;
         
-        const animate = () => {
+        const animate = async () => {
             if (!this.isPlaying) return;
-            
-            const currentTime = Date.now();
-            const progress = (currentTime % this.playbackSpeed) / this.playbackSpeed;
-            
-            this.droneMarkers.forEach((marker, droneId) => {
-                const frames = this.keyframes.get(droneId);
-                if (frames && frames.length > 1) {
-                    const currentFrame = frames[this.currentKeyframe];
-                    const nextFrame = frames[(this.currentKeyframe + 1) % frames.length];
-                    
-                    if (currentFrame && nextFrame) {
-                        // Interpolate position
-                        marker.position.x = this.lerp(currentFrame.position.x, nextFrame.position.x, progress);
-                        marker.position.y = this.lerp(currentFrame.position.y, nextFrame.position.y, progress);
-                        
-                        // Interpolate heading
-                        marker.heading = this.lerpAngle(currentFrame.heading, nextFrame.heading, progress);
-                        
-                        // Update 3D model
+
+            // Get maximum frames across all drones
+            let maxFrames = 0;
+            this.keyframes.forEach(frames => {
+                maxFrames = Math.max(maxFrames, frames.length);
+            });
+
+            // If we're at the last frame, stop playback
+            if (this.currentKeyframe >= maxFrames - 1) {
+                this.stopKeyframes();
+                return;
+            }
+
+            // Get current and next frame for interpolation
+            const currentFrame = this.currentKeyframe;
+            const nextFrame = currentFrame + 1;
+
+            // Get the delay for the current frame (use the first drone's delay)
+            let frameDelay = 1000;
+            for (const frames of this.keyframes.values()) {
+                if (frames[currentFrame]) {
+                    frameDelay = frames[currentFrame].delay || 1000;
+                    break;
+                }
+            }
+
+            // Interpolate positions for all drones
+            const startTime = Date.now();
+            const animate3DTransition = () => {
+                if (!this.isPlaying) return;
+
+                const currentTime = Date.now() - startTime;
+                const progress = Math.min(currentTime / frameDelay, 1);
+
+                // Use easing function for smoother motion
+                const easedProgress = this.easeInOutCubic(progress);
+
+                // Update each drone's position
+                this.defaultDrones.forEach(droneId => {
+                    const frames = this.keyframes.get(droneId);
+                    if (frames && frames[currentFrame] && frames[nextFrame]) {
+                        const startPos = frames[currentFrame].position;
+                        const endPos = frames[nextFrame].position;
+                        const startHeading = frames[currentFrame].heading;
+                        const endHeading = frames[nextFrame].heading;
+
+                        // Interpolate position and heading with easing
+                        const currentPos = {
+                            x: this.lerp(startPos.x, endPos.x, easedProgress),
+                            y: this.lerp(startPos.y, endPos.y, easedProgress),
+                            z: this.lerp(startPos.z, endPos.z, easedProgress)
+                        };
+                        const currentHeading = this.lerpAngle(startHeading, endHeading, easedProgress);
+
+                        // Update marker position for 2D view
+                        const marker = this.droneMarkers.get(droneId);
+                        if (marker) {
+                            marker.position.x = currentPos.x;
+                            marker.position.y = currentPos.y;
+                            marker.heading = currentHeading;
+                        }
+
+                        // Update 3D model position
                         const model = this.droneModels.get(droneId);
                         if (model) {
-                            model.position.x = marker.position.x;
-                            model.position.z = -marker.position.y;
-                            model.position.y = this.lerp(currentFrame.position.z, nextFrame.position.z, progress);
-                            model.rotation.y = -marker.heading;
+                            model.position.set(currentPos.x, currentPos.z, -currentPos.y);
+                            model.rotation.y = -currentHeading;
                         }
                     }
+                });
+
+                // Update views
+                this.updateViews();
+
+                // Continue animation if not complete
+                if (progress < 1) {
+                    requestAnimationFrame(animate3DTransition);
+                } else {
+                    // Move to next frame
+                    this.currentKeyframe = nextFrame;
+                    this.updateKeyframeSlider();
+                    this.updateKeyframeCounter();
+                    this.updateKeyframeList();
+                    
+                    // Continue to next frame after a small delay
+                    setTimeout(() => {
+                        animate();
+                    }, 100); // Small delay between frames for better visualization
                 }
-            });
-            
-            this.updateViews();
-            
-            if (progress >= 1) {
-                const maxFrames = Math.max(...Array.from(this.keyframes.values()).map(k => k.length));
-                this.currentKeyframe = (this.currentKeyframe + 1) % maxFrames;
-                
-                if (this.currentKeyframe === startFrame) {
-                    this.isPlaying = false;
-                    return;
-                }
-                
-                this.updateKeyframeCounter();
-                this.updateKeyframeList();
-            }
-            
-            if (this.isPlaying) {
-                requestAnimationFrame(animate);
-            }
+            };
+
+            // Start transition animation
+            animate3DTransition();
         };
-        
+
+        // Start the animation sequence
         animate();
     }
-    
+
+    // Easing function for smoother motion
+    easeInOutCubic(t) {
+        return t < 0.5
+            ? 4 * t * t * t
+            : 1 - Math.pow(-2 * t + 2, 3) / 2;
+    }
+
     // Linear interpolation helper
     lerp(start, end, t) {
         return start * (1 - t) + end * t;
     }
-    
+
     // Angle interpolation helper
     lerpAngle(start, end, t) {
         const diff = end - start;
@@ -1396,26 +1911,47 @@ class MissionPlanner {
     }
 
     saveMission() {
-        const missionData = {
-            drones: {},
-            gridSize: this.gridSize,
-            gridSpacing: this.gridSpacing
-        };
-        
-        this.keyframes.forEach((frames, droneId) => {
-            missionData.drones[droneId] = frames;
-        });
-        
-        const blob = new Blob([JSON.stringify(missionData, null, 2)], { type: 'application/json' });
-        const url = URL.createObjectURL(blob);
-        
-        const a = document.createElement('a');
-        a.href = url;
-        a.download = 'mission.json';
-        document.body.appendChild(a);
-        a.click();
-        document.body.removeChild(a);
-        URL.revokeObjectURL(url);
+        try {
+            const missionData = {
+                gridSize: this.gridSize,
+                gridSpacing: this.gridSpacing,
+                playbackSpeed: this.playbackSpeed,
+                drones: {}
+            };
+
+            // Save keyframes for each drone
+            this.defaultDrones.forEach(droneId => {
+                const frames = this.keyframes.get(droneId);
+                if (frames) {
+                    missionData.drones[droneId] = frames.map(frame => ({
+                        position: {
+                            x: frame.position.x,
+                            y: frame.position.y,
+                            z: frame.position.z
+                        },
+                        heading: frame.heading,
+                        delay: frame.delay || 1000, // Save delay time
+                        timestamp: frame.timestamp
+                    }));
+                }
+            });
+
+            // Create and download file
+            const blob = new Blob([JSON.stringify(missionData, null, 2)], { type: 'application/json' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `mission_${new Date().toISOString().slice(0,19).replace(/:/g, '-')}.json`;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+
+            customAlert.success('Mission saved successfully');
+        } catch (error) {
+            console.error('Error saving mission:', error);
+            customAlert.error('Failed to save mission: ' + error.message);
+        }
     }
 
     loadMission(file) {
@@ -1423,20 +1959,85 @@ class MissionPlanner {
         reader.onload = (e) => {
             try {
                 const missionData = JSON.parse(e.target.result);
+                
+                // Update settings
                 this.gridSize = missionData.gridSize || this.gridSize;
                 this.gridSpacing = missionData.gridSpacing || this.gridSpacing;
+                this.playbackSpeed = missionData.playbackSpeed || this.playbackSpeed;
                 
+                // Clear existing keyframes
                 this.keyframes.clear();
+                
+                // Load drone keyframes
                 Object.entries(missionData.drones).forEach(([droneId, frames]) => {
-                    this.keyframes.set(droneId, frames);
+                    // Ensure all frames have proper structure
+                    const validatedFrames = frames.map((frame, index) => ({
+                        position: {
+                            x: parseFloat(frame.position.x) || 0,
+                            y: parseFloat(frame.position.y) || 0,
+                            z: parseFloat(frame.position.z) || 2
+                        },
+                        heading: parseFloat(frame.heading) || 0,
+                        delay: parseInt(frame.delay) || 1000, // Load delay time
+                        timestamp: frame.timestamp || (index * this.playbackSpeed)
+                    }));
+                    this.keyframes.set(droneId, validatedFrames);
+                    
+                    // Update drone marker
+                    const marker = this.droneMarkers.get(droneId);
+                    if (marker && validatedFrames.length > 0) {
+                        const firstFrame = validatedFrames[0];
+                        marker.position.x = firstFrame.position.x;
+                        marker.position.y = firstFrame.position.y;
+                        marker.heading = firstFrame.heading;
+                    }
+                    
+                    // Update 3D model
+                    const model = this.droneModels.get(droneId);
+                    if (model && validatedFrames.length > 0) {
+                        const firstFrame = validatedFrames[0];
+                        model.position.set(firstFrame.position.x, firstFrame.position.z, -firstFrame.position.y);
+                        model.rotation.y = -firstFrame.heading;
+                    }
                 });
                 
+                // Reset to first keyframe
                 this.currentKeyframe = 0;
+                
+                // Update UI
+                this.updateKeyframeSlider();
+                this.updateKeyframeCounter();
+                this.updateKeyframeList();
                 this.updateViews();
+                
+                // Update input fields for selected drone
+                const selectedDrone = document.querySelector('.drone-item.selected');
+                if (selectedDrone) {
+                    const droneId = selectedDrone.dataset.droneId;
+                    const frames = this.keyframes.get(droneId);
+                    if (frames && frames[0]) {
+                        this.updateWaypointInputs(frames[0]);
+                    }
+                }
+                
+                // Update playback speed input if it exists
+                const speedInput = document.getElementById('playback-speed');
+                if (speedInput) {
+                    speedInput.value = this.playbackSpeed;
+                }
+                
+                customAlert.success('Mission loaded successfully');
             } catch (error) {
                 console.error('Error loading mission:', error);
+                customAlert.error('Failed to load mission: ' + error.message);
             }
         };
+        
+        reader.onerror = (error) => {
+            console.error('Error reading file:', error);
+            customAlert.error('Failed to read mission file');
+        };
+        
         reader.readAsText(file);
     }
 
@@ -1453,6 +2054,20 @@ class MissionPlanner {
         this.update3DView();
     }
 
+    handleZoom(event) {
+        event.preventDefault();
+        
+        // Calculate new zoom level
+        const delta = event.deltaY > 0 ? -this.zoomStep : this.zoomStep;
+        const newZoom = Math.max(this.minZoom, Math.min(this.maxZoom, this.zoomLevel + delta));
+        
+        // Only update if zoom level changed
+        if (newZoom !== this.zoomLevel) {
+            this.zoomLevel = newZoom;
+            this.update2DView();
+        }
+    }
+
     // ... (keep existing methods for handling mouse events, etc.)
 }
 
@@ -1460,6 +2075,10 @@ class MissionPlanner {
 document.getElementById('menu-missions').addEventListener('click', () => {
     if (!window.missionPlanner) {
         window.missionPlanner = new MissionPlanner();
+    }
+    if (!window.missionPlanner.popup && !window.missionPlanner.initialize()) {
+        console.error('Failed to initialize mission planner');
+        return;
     }
     window.missionPlanner.show();
 });

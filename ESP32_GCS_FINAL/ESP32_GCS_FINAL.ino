@@ -144,7 +144,6 @@ String serializeCommandPacket(const CommandPacket &packet) {
   return serialized;
 }
 
-
 void setup() {
   Serial.begin(115200);
   WiFi.mode(WIFI_STA);
@@ -167,21 +166,28 @@ void setup() {
 }
 
 void loop() {
-
   if (Serial.available()) {
     String inputData = Serial.readStringUntil('\n');
     CommandPacket packet;
     parseInputData(inputData, packet);
+    Serial.println(inputData);
 
     // Set the sender field in the packet to the identified sender
     packet.S = senderIdentity;
 
-    uint8_t *targetMAC = getTargetMAC(packet.T);
-    if (targetMAC != nullptr) {
-      String serializedData = serializeCommandPacket(packet);
-      esp_now_send(targetMAC, (uint8_t *)serializedData.c_str(), serializedData.length());
+    if (packet.T == "GCS" && packet.C == "SERIAL" && packet.P == "HB") {
+      Serial.println("OK");
     } else {
-      Serial.println("Invalid target specified");
+
+      uint8_t *targetMAC = getTargetMAC(packet.T);
+      if (targetMAC != nullptr) {
+        String serializedData = serializeCommandPacket(packet);
+        esp_now_send(targetMAC, (uint8_t *)serializedData.c_str(), serializedData.length());
+      } else {
+        Serial.print("Target");
+        Serial.print(packet.T);
+        Serial.println("Invalid target specified");
+      }
     }
   }
 }

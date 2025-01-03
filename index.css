@@ -1340,14 +1340,14 @@ select::-ms-expand {
 }
 
 /* Drone card hover effect */
-.drone-list {
+/* .drone-list {
   transition: transform 0.2s ease, box-shadow 0.2s ease;
 }
 
 .drone-list:hover {
   transform: scale(0.92);
   box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
-}
+} */
 
 /* Add pulsing effect for active states */
 @keyframes pulse {
@@ -1655,12 +1655,32 @@ button:disabled {
 }
 
 .drone-cards-container {
-  display: flex;
-  flex-direction: column;
-  align-content: flex-end;
-  align-items: flex-end;
-  gap: 10px;
-  padding: 5px 0 5px 5px;
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+    padding: 15px;
+    max-height: calc(100vh - 200px); /* Set maximum height */
+    overflow-y: auto; /* Enable vertical scrolling */
+    overflow-x: hidden; /* Hide horizontal scrollbar */
+}
+
+/* Custom scrollbar styling */
+.drone-cards-container::-webkit-scrollbar {
+    width: 8px;
+}
+
+.drone-cards-container::-webkit-scrollbar-track {
+    background: #091930;
+    border-radius: 4px;
+}
+
+.drone-cards-container::-webkit-scrollbar-thumb {
+    background: #1c2b40;
+    border-radius: 4px;
+}
+
+.drone-cards-container::-webkit-scrollbar-thumb:hover {
+    background: #2c3e50;
 }
 
 /* Drone Card Styles */
@@ -2228,29 +2248,420 @@ button:disabled {
 }
 
 .mission-planner-content {
-  width: 90%;
-  height: 90%;
-  background: #091930;
-  border-radius: 12px;
-  border: 1px solid rgba(112, 193, 114, 0.3);
-  display: flex;
-  flex-direction: column;
-  overflow: hidden;
+    width: 90%;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    background: #091930;
+    border-radius: 12px;
+    border: 1px solid rgba(112, 193, 114, 0.3);
+    overflow: hidden;
 }
 
 .mission-planner-header {
-  padding: 15px 20px;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    padding: 15px 20px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.mission-planner-body {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    min-height: 0;
+    padding: 20px;
+    gap: 20px;
+}
+
+/* Top section with two frames */
+.top-section {
+    display: flex;
+    gap: 20px;
+    flex: 1;
+    min-height: 0;
+}
+
+/* Left frame - Map */
+.mission-views {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    background: rgba(0, 0, 0, 0.2);
+    border-radius: 8px;
+    padding: 15px;
+    min-height: 0;
+}
+
+/* Right frame - Controls */
+.mission-controls {
+    width: 300px;
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+    background: rgba(0, 0, 0, 0.2);
+    border-radius: 8px;
+    padding: 15px;
+    overflow-y: auto;
+}
+
+/* Bottom frame - Keyframes */
+.keyframe-section {
+    height: 250px;
+    background: rgba(0, 0, 0, 0.2);
+    border-radius: 12px;
+    padding: 15px;
+    border: 1px solid rgba(112, 193, 114, 0.1);
+}
+
+.keyframe-list {
+    display: flex;
+    gap: 15px;
+    overflow-x: auto;
+    height: 100%;
+    padding: 5px 5px 15px 5px;
+    scrollbar-width: thin;
+    scrollbar-color: rgba(112, 193, 114, 0.3) transparent;
+}
+
+.keyframe-list::-webkit-scrollbar {
+    height: 8px;
+}
+
+.keyframe-list::-webkit-scrollbar-track {
+    background: transparent;
+}
+
+.keyframe-list::-webkit-scrollbar-thumb {
+    background-color: rgba(112, 193, 114, 0.3);
+    border-radius: 4px;
+}
+
+.keyframe-list::-webkit-scrollbar-thumb:hover {
+    background-color: rgba(112, 193, 114, 0.5);
+}
+
+/* Keyframe container */
+.keyframe-container {
+    min-width: 280px;
+    max-width: 280px;
+    background: linear-gradient(135deg, rgba(28, 43, 64, 0.8) 0%, rgba(9, 25, 48, 0.9) 100%);
+    border-radius: 10px;
+    padding: 12px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    border: 1px solid rgba(112, 193, 114, 0.2);
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.keyframe-container:hover {
+    transform: translateY(-2px);
+    border-color: rgba(112, 193, 114, 0.4);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+}
+
+.keyframe-container.current {
+    background: linear-gradient(135deg, rgba(112, 193, 114, 0.1) 0%, rgba(9, 25, 48, 0.95) 100%);
+    border-color: #70c172;
+    box-shadow: 0 0 15px rgba(112, 193, 114, 0.2);
+}
+
+.frame-header {
+  color: #ffffff;
+  font-family: IBM Plex Mono, monospace;
+  font-size: 14px;
+  margin-bottom: 8px;
   display: flex;
   justify-content: space-between;
   align-items: center;
+  flex-direction: row;
 }
 
-.mission-planner-header h2 {
-  color: #ffffff;
-  font-family: IBM Plex Mono, var(--default-font-family);
-  font-size: 20px;
-  margin: 0;
+.frame-info {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-direction: column;
+}
+
+
+.frame-delay {
+  display: flex;
+  align-items: center;
+  gap: 3px;
+  font-size: 12px;
+  color: #9ca3af;
+  flex-direction: row;
+}
+
+.delay-input {
+    width: 70px;
+    padding: 4px 8px;
+    background: rgba(28, 43, 64, 0.6);
+    border: 1px solid rgba(112, 193, 114, 0.2);
+    border-radius: 4px;
+    color: #70c172;
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 12px;
+    text-align: right;
+}
+
+.delay-input:focus {
+    outline: none;
+    border-color: #70c172;
+    box-shadow: 0 0 10px rgba(112, 193, 114, 0.2);
+}
+
+.frame-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
+}
+
+.frame-btn {
+    padding: 4px 8px;
+    border: none;
+    border-radius: 4px;
+    font-size: 12px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+}
+
+.frame-btn.edit-frame {
+    background: rgba(44, 123, 242, 0.1);
+    color: #2c7bf2;
+    border: 1px solid rgba(44, 123, 242, 0.3);
+}
+
+.frame-btn.edit-frame:hover {
+    background: rgba(44, 123, 242, 0.2);
+    transform: translateY(-1px);
+}
+
+.frame-btn.delete-frame {
+    background: rgba(240, 81, 81, 0.1);
+    color: #f05151;
+    border: 1px solid rgba(240, 81, 81, 0.3);
+}
+
+.frame-btn.delete-frame:hover {
+    background: rgba(240, 81, 81, 0.2);
+    transform: translateY(-1px);
+}
+
+.drone-position {
+    background: rgba(0, 0, 0, 0.2);
+    border-radius: 6px;
+    padding: 8px 10px;
+    display: grid;
+    grid-template-columns: auto 1fr auto auto;
+    gap: 10px;
+    align-items: center;
+    transition: all 0.2s ease;
+}
+
+.drone-position .edit-drone {
+    opacity: 0;
+    background: rgba(44, 123, 242, 0.1);
+    color: #2c7bf2;
+    padding: 2px 6px;
+    border-radius: 3px;
+    font-size: 11px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    border: 1px solid rgba(44, 123, 242, 0.3);
+}
+
+.drone-position:hover .edit-drone {
+    opacity: 1;
+}
+
+.drone-position .edit-drone:hover {
+    background: rgba(44, 123, 242, 0.2);
+    transform: translateY(-1px);
+}
+
+/* Drone positions */
+.drone-positions {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    overflow-y: auto;
+    max-height: 160px;
+    padding-right: 8px;
+    scrollbar-width: thin;
+    scrollbar-color: rgba(112, 193, 114, 0.3) transparent;
+}
+
+.drone-positions::-webkit-scrollbar {
+    width: 4px;
+}
+
+.drone-positions::-webkit-scrollbar-track {
+    background: transparent;
+}
+
+.drone-positions::-webkit-scrollbar-thumb {
+    background-color: rgba(112, 193, 114, 0.3);
+    border-radius: 2px;
+}
+
+.drone-position {
+    background: rgba(0, 0, 0, 0.2);
+    border-radius: 6px;
+    padding: 8px 10px;
+    display: grid;
+    grid-template-columns: auto 1fr auto;
+    gap: 10px;
+    align-items: center;
+    transition: all 0.2s ease;
+}
+
+.drone-position:hover {
+    background: rgba(112, 193, 114, 0.1);
+}
+
+.drone-position .drone-id {
+    color: #70c172;
+    font-weight: 600;
+    font-size: 12px;
+    min-width: 40px;
+}
+
+.drone-position .position {
+    color: #ffffff;
+    font-size: 12px;
+    font-family: 'IBM Plex Mono', monospace;
+}
+
+.drone-position .heading {
+    color: #9ca3af;
+    font-size: 12px;
+    font-family: 'IBM Plex Mono', monospace;
+    text-align: right;
+    min-width: 50px;
+}
+
+/* Control section styles */
+.available-drones,
+.waypoint-settings,
+.playback-controls {
+    background: rgba(0, 0, 0, 0.2);
+    border-radius: 6px;
+    padding: 15px;
+}
+
+/* Input styles */
+.waypoint-inputs {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 10px;
+}
+
+.input-group {
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+}
+
+/* Footer styles */
+.mission-planner-footer {
+    padding: 15px 20px;
+    border-top: 1px solid rgba(255, 255, 255, 0.1);
+    display: flex;
+    justify-content: flex-end;
+    gap: 10px;
+}
+
+.mission-planner-footer {
+    grid-column: 1 / -1;
+    display: flex;
+    justify-content: flex-end;
+    gap: 10px;
+    padding-top: 20px;
+}
+
+/* Update view container styles */
+.view-container {
+    flex-grow: 1;
+    position: relative;
+    min-height: 400px;
+    background: rgba(0, 0, 0, 0.3);
+    border-radius: 6px;
+    overflow: hidden;
+}
+
+/* Update keyframe container styles for horizontal layout */
+.keyframe-container {
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+    border: 1px solid rgba(112, 193, 114, 0.2);
+}
+
+.keyframe-container.current {
+    border-color: #70c172;
+    background: rgba(112, 193, 114, 0.2);
+}
+
+.frame-header {
+    font-size: 12px;
+    color: #ffffff;
+    padding-bottom: 5px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.drone-positions {
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+}
+
+.drone-position {
+    font-size: 11px;
+    padding: 5px;
+    background: rgba(0, 0, 0, 0.2);
+    border-radius: 4px;
+    display: grid;
+    grid-template-columns: auto 1fr auto;
+    gap: 8px;
+    align-items: center;
+}
+
+/* Update input styles */
+.waypoint-inputs {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 10px;
+}
+
+.input-group {
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+}
+
+.input-group label {
+    font-size: 12px;
+    color: #ffffff;
+}
+
+.input-group input {
+    width: 100%;
+    padding: 8px;
+    background: rgba(0, 0, 0, 0.3);
+    border: 1px solid rgba(112, 193, 114, 0.3);
+    border-radius: 4px;
+    color: #ffffff;
+    font-family: 'IBM Plex Mono', monospace;
 }
 
 .close-mission-planner {
@@ -2271,175 +2682,6 @@ button:disabled {
 
 .close-mission-planner:hover {
   background: rgba(255, 255, 255, 0.1);
-}
-
-.mission-planner-body {
-  flex: 1;
-  display: flex;
-  gap: 20px;
-  padding: 20px;
-  min-height: 0;
-}
-
-.mission-views {
-  flex: 1;
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
-  background: rgba(255, 255, 255, 0.05);
-  border-radius: 8px;
-  padding: 15px;
-}
-
-.view-controls {
-  display: flex;
-  gap: 10px;
-}
-
-.view-toggle {
-  padding: 8px 16px;
-  background: #1c2b40;
-  border: 1px solid rgba(112, 193, 114, 0.3);
-  border-radius: 6px;
-  color: #ffffff;
-  font-family: IBM Plex Mono, var(--default-font-family);
-  font-size: 14px;
-  cursor: pointer;
-  transition: all 0.2s;
-}
-
-.view-toggle.active {
-  background: #70c172;
-  border-color: #70c172;
-}
-
-.view-container {
-  flex: 1;
-  position: relative;
-  min-height: 0;
-  border: 1px solid rgba(112, 193, 114, 0.3);
-  border-radius: 8px;
-  overflow: hidden;
-}
-
-#mission-canvas-2d,
-#mission-canvas-3d {
-  position: absolute;
-  width: 100%;
-  height: 100%;
-  display: none;
-}
-
-#mission-canvas-2d.active,
-#mission-canvas-3d.active {
-  display: block;
-}
-
-.mission-controls {
-  width: 300px;
-  display: flex;
-  flex-direction: column;
-  gap: 20px;
-}
-
-.available-drones,
-.waypoint-settings {
-  background: rgba(255, 255, 255, 0.05);
-  border-radius: 8px;
-  padding: 15px;
-}
-
-.available-drones h3,
-.waypoint-settings h3 {
-  color: #ffffff;
-  font-family: IBM Plex Mono, var(--default-font-family);
-  font-size: 16px;
-  margin: 0 0 15px 0;
-}
-
-.drone-list {
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
-}
-
-.drone-item {
-  padding: 10px;
-  background: #1c2b40;
-  border: 1px solid rgba(112, 193, 114, 0.3);
-  border-radius: 6px;
-  color: #ffffff;
-  cursor: move;
-  transition: all 0.2s;
-}
-
-.drone-item:hover {
-  background: #2c3b50;
-}
-
-.waypoint-inputs {
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
-}
-
-.input-group {
-  display: flex;
-  flex-direction: column;
-  gap: 5px;
-}
-
-.input-group label {
-  color: #9ca3af;
-  font-size: 12px;
-}
-
-.input-group input {
-  padding: 8px;
-  background: #1c2b40;
-  border: 1px solid rgba(112, 193, 114, 0.3);
-  border-radius: 4px;
-  color: #70c172;
-  font-family: IBM Plex Mono, var(--default-font-family);
-  font-size: 14px;
-}
-
-.mission-planner-footer {
-  padding: 15px 20px;
-  border-top: 1px solid rgba(255, 255, 255, 0.1);
-  display: flex;
-  justify-content: flex-end;
-  gap: 10px;
-}
-
-.save-mission,
-.clear-mission {
-  padding: 8px 16px;
-  border-radius: 6px;
-  font-family: IBM Plex Mono, var(--default-font-family);
-  font-size: 14px;
-  cursor: pointer;
-  transition: all 0.2s;
-}
-
-.save-mission {
-  background: #70c172;
-  border: none;
-  color: #ffffff;
-}
-
-.clear-mission {
-  background: #1c2b40;
-  border: 1px solid rgba(112, 193, 114, 0.3);
-  color: #ffffff;
-}
-
-.save-mission:hover {
-  background: #5a9d6a;
-}
-
-.clear-mission:hover {
-  background: #2c3b50;
 }
 
 .esp-terminal {
@@ -2643,7 +2885,7 @@ button:disabled {
   padding-right: 10px;
 }
 
-.mission-planner .available-drones,
+.mission-planner,
 .mission-planner .waypoint-settings,
 .mission-planner .playback-controls {
   background: rgba(255, 255, 255, 0.05);
@@ -2666,22 +2908,73 @@ button:disabled {
 }
 
 .mission-planner .drone-item {
-  padding: 10px;
+  padding: 12px 15px;
   background: #1c2b40;
-  border: 1px solid rgba(112, 193, 114, 0.3);
+  border: 2px solid rgba(112, 193, 114, 0.3);
   border-radius: 6px;
   color: #ffffff;
   cursor: pointer;
-  transition: all 0.2s;
+  transition: all 0.2s ease;
+  font-family: IBM Plex Mono, monospace;
+  font-size: 14px;
+  font-weight: 500;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.mission-planner .drone-item .drone-id {
+  font-weight: bold;
+}
+
+.mission-planner .drone-item .drone-status {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: rgba(112, 193, 114, 0.3);
+  transition: all 0.2s ease;
 }
 
 .mission-planner .drone-item:hover {
   background: #2c3b50;
+  transform: translateY(-1px);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
 }
 
 .mission-planner .drone-item.selected {
   background: #70c172;
-  border-color: #70c172;
+  border-color: #ffffff;
+  color: #ffffff;
+  font-weight: bold;
+  transform: translateY(-1px);
+  box-shadow: 0 2px 12px rgba(112, 193, 114, 0.4);
+}
+
+.mission-planner .drone-item.selected .drone-status {
+  background: #ffffff;
+}
+
+/* Input field update animation */
+@keyframes input-update {
+  0% { background: rgba(112, 193, 114, 0.1); }
+  50% { background: rgba(112, 193, 114, 0.3); }
+  100% { background: rgba(112, 193, 114, 0.1); }
+}
+
+.mission-planner .input-group input.updated {
+  animation: input-update 0.5s ease;
+}
+
+/* Highlight selected drone's position in keyframe list */
+.drone-position {
+  opacity: 0.7;
+  transition: all 0.2s ease;
+}
+
+.drone-position.highlighted {
+  opacity: 1;
+  background: rgba(112, 193, 114, 0.2);
+  transform: translateX(5px);
 }
 
 .mission-planner .waypoint-inputs {
@@ -2717,7 +3010,8 @@ button:disabled {
   border-color: #70c172;
 }
 
-.mission-planner .waypoint-settings .keyframe-controls {
+
+.keyframe-controls {
   display: flex;
   gap: 10px;
   margin-top: 15px;
@@ -2726,7 +3020,7 @@ button:disabled {
   border-radius: 5px;
 }
 
-.mission-planner .waypoint-settings .keyframe-controls button {
+.keyframe-controls button {
   padding: 8px 15px;
   border: none;
   border-radius: 4px;
@@ -2738,34 +3032,50 @@ button:disabled {
   transition: background 0.3s ease;
 }
 
-.mission-planner .waypoint-settings .keyframe-controls button:hover {
+.add-keyframe:hover {
   background: #1c5ac2;
 }
 
-.mission-planner .waypoint-settings .keyframe-controls button:active {
+.delete-keyframe:hover {
+  background: #f05151;
+}
+
+.add-keyframe:active,
+.delete-keyframe:active {
   transform: scale(0.98);
 }
 
-.mission-planner .mission-controls .playback-controls {
+.playback-controls {
   margin-top: 20px;
   padding: 15px;
   background: #1c2b40;
   border-radius: 5px;
 }
 
-.mission-planner .mission-controls .playback-controls h3 {
+.playback-title {
   color: #ffffff;
   margin-bottom: 15px;
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 16px;
+  font-weight: 600;
 }
 
-.mission-planner .mission-controls .playback-buttons {
+.playback-controls h3 {
+  color: #ffffff;
+  margin-bottom: 15px;
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 16px;
+  font-weight: 600;
+}
+
+.playback-buttons {
   display: flex;
   gap: 10px;
   margin-bottom: 15px;
 }
 
-.mission-planner .mission-controls .play-mission,
-.mission-planner .mission-controls .stop-mission {
+.play-mission,
+.stop-mission {
   padding: 8px 20px;
   border: none;
   border-radius: 4px;
@@ -2775,32 +3085,32 @@ button:disabled {
   transition: all 0.3s ease;
 }
 
-.mission-planner .mission-controls .play-mission {
+.play-mission {
   background: #70c172;
   color: white;
 }
 
-.mission-planner .mission-controls .stop-mission {
+.stop-mission {
   background: #f05151;
   color: white;
 }
 
-.mission-planner .mission-controls .play-mission:hover {
+.play-mission:hover {
   background: #5ca15e;
 }
 
-.mission-planner .mission-controls .stop-mission:hover {
+.stop-mission:hover {
   background: #d43f3f;
 }
 
-.mission-planner .mission-controls .keyframe-timeline {
+.keyframe-timeline {
   margin-top: 15px;
   padding: 10px;
   background: #0d1930;
   border-radius: 5px;
 }
 
-.mission-planner .mission-controls #keyframe-slider {
+#keyframe-slider {
   width: 100%;
   height: 4px;
   background: #2c7bf2;
@@ -2810,7 +3120,7 @@ button:disabled {
   transition: opacity 0.2s;
 }
 
-.mission-planner .mission-controls #keyframe-slider::-webkit-slider-thumb {
+#keyframe-slider::-webkit-slider-thumb {
   -webkit-appearance: none;
   appearance: none;
   width: 16px;
@@ -2821,11 +3131,11 @@ button:disabled {
   transition: all 0.2s ease;
 }
 
-.mission-planner .mission-controls #keyframe-slider::-webkit-slider-thumb:hover {
+#keyframe-slider::-webkit-slider-thumb:hover {
   transform: scale(1.2);
 }
 
-.mission-planner .mission-controls .keyframe-counter {
+.keyframe-counter {
   display: block;
   text-align: center;
   color: #ffffff;
@@ -2834,16 +3144,17 @@ button:disabled {
   font-size: 12px;
 }
 
-.mission-planner .keyframe-list {
-  margin-top: 15px;
-  max-height: 200px;
+.keyframe-list {
+  max-height: 300px;
   overflow-y: auto;
-  background: #1c2b40;
-  border-radius: 5px;
+  margin-top: 15px;
   padding: 10px;
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 8px;
+  border: 1px solid rgba(112, 193, 114, 0.3);
 }
 
-.mission-planner .keyframe-item {
+.keyframe-item {
   display: flex;
   justify-content: space-between;
   align-items: center;
@@ -2854,15 +3165,15 @@ button:disabled {
   color: white;
 }
 
-.mission-planner .keyframe-item:hover {
+.keyframe-item:hover {
   background: #2c3b50;
 }
 
-.mission-planner .keyframe-item.selected {
+.keyframe-item.selected {
   background: #2c7bf2;
 }
 
-.mission-planner .keyframe-number {
+.keyframe-number {
   font-weight: bold;
   color: #70c172;
 }
@@ -2875,9 +3186,9 @@ button:disabled {
   gap: 10px;
 }
 
-.mission-planner-footer .load-mission,
-.mission-planner-footer .save-mission,
-.mission-planner-footer .clear-mission {
+.load-mission,
+.save-mission,
+.clear-mission {
   padding: 8px 16px;
   border-radius: 6px;
   font-family: IBM Plex Mono, var(--default-font-family);
@@ -2887,42 +3198,378 @@ button:disabled {
   color: #ffffff;
 }
 
-.mission-planner-footer .save-mission {
+.save-mission {
   background: #70c172;
   border: none;
 }
 
-.mission-planner-footer .load-mission {
+.load-mission {
   background: #2c7bf2;
   border: none;
 }
 
-.mission-planner-footer .clear-mission {
+.clear-mission {
   background: #1c2b40;
   border: 1px solid rgba(112, 193, 114, 0.3);
 }
 
-.mission-planner-footer .save-mission:hover {
+.save-mission:hover {
   background: #5a9d6a;
 }
 
-.mission-planner-footer .load-mission:hover {
+.load-mission:hover {
   background: #1c5ac2;
 }
 
-.mission-planner-footer .clear-mission:hover {
+.clear-mission:hover {
   background: #2c3b50;
 }
 
 /* Firefox specific styles */
-.mission-planner .input-group input[type=number] {
+input[type=number] {
   -moz-appearance: textfield;
   appearance: textfield;
 }
 
-.mission-planner .input-group input::-webkit-inner-spin-button,
-.mission-planner .input-group input::-webkit-outer-spin-button {
+input::-webkit-inner-spin-button,
+input::-webkit-outer-spin-button {
   -webkit-appearance: none;
   appearance: none;
   margin: 0;
+}
+
+.keyframe-container {
+    margin-bottom: 10px;
+    padding: 10px;
+    background: #1c2b40;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    border: 1px solid rgba(112, 193, 114, 0.2);
+}
+
+.keyframe-container:hover {
+    background: #2c3b50;
+    transform: translateX(5px);
+}
+
+.keyframe-container.current {
+    background: rgba(112, 193, 114, 0.2);
+    border-color: #70c172;
+}
+
+.frame-header {
+    color: #ffffff;
+    font-family: IBM Plex Mono, monospace;
+    font-size: 14px;
+    margin-bottom: 8px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.frame-header::after {
+    content: '⟶';
+    color: #70c172;
+    opacity: 0;
+    transition: all 0.2s ease;
+}
+
+.keyframe-container:hover .frame-header::after {
+    opacity: 1;
+    transform: translateX(5px);
+}
+
+.drone-positions {
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+}
+
+.drone-position {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 8px;
+    background: rgba(0, 0, 0, 0.2);
+    border-radius: 4px;
+    font-size: 12px;
+    border-left: 3px solid;
+    transition: all 0.2s ease;
+}
+
+.drone-position.highlighted {
+    background: rgba(112, 193, 114, 0.1);
+    transform: translateX(5px);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+}
+
+.drone-id {
+    font-weight: bold;
+    color: #70c172;
+    min-width: 40px;
+}
+
+.position {
+    color: #ffffff;
+    flex-grow: 1;
+    font-family: IBM Plex Mono, monospace;
+}
+
+.heading {
+    color: #9ca3af;
+    min-width: 60px;
+    text-align: right;
+    font-family: IBM Plex Mono, monospace;
 } 
+
+/* Mission Controls Styling */
+.mission-controls {
+    width: 320px;
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+    background: linear-gradient(135deg, rgba(28, 43, 64, 0.8) 0%, rgba(9, 25, 48, 0.9) 100%);
+    border: 1px solid rgba(112, 193, 114, 0.2);
+    border-radius: 12px;
+    padding: 20px;
+    overflow-y: auto;
+    scrollbar-width: none; /* Firefox */
+}
+
+.mission-controls::-webkit-scrollbar {
+    display: none; /* Chrome, Safari, Edge */
+}
+
+/* Section Headers */
+.mission-controls h3 {
+    color: #70c172;
+    font-size: 14px;
+    font-weight: 600;
+    margin: 0 0 15px 0;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    text-shadow: 0 0 10px rgba(112, 193, 114, 0.3);
+}
+
+/* Available Drones Section */
+.available-drones {
+    background: rgba(0, 0, 0, 0.2);
+    border-radius: 10px;
+    padding: 15px;
+    border: 1px solid rgba(112, 193, 114, 0.1);
+}
+
+.drone-list {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.drone-item {
+    padding: 12px;
+    background: rgba(28, 43, 64, 0.6);
+    border: 1px solid rgba(112, 193, 114, 0.2);
+    border-radius: 8px;
+    color: #ffffff;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.drone-item:hover {
+    background: rgba(112, 193, 114, 0.1);
+    border-color: rgba(112, 193, 114, 0.4);
+    transform: translateX(5px);
+}
+
+.drone-item.selected {
+    background: rgba(112, 193, 114, 0.2);
+    border-color: #70c172;
+    box-shadow: 0 0 10px rgba(112, 193, 114, 0.2);
+}
+
+/* Waypoint Settings Section */
+.waypoint-settings {
+    background: rgba(0, 0, 0, 0.2);
+    border-radius: 10px;
+    padding: 15px;
+    border: 1px solid rgba(112, 193, 114, 0.1);
+}
+
+.waypoint-inputs {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 12px;
+    margin-bottom: 15px;
+}
+
+.input-group {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+
+.input-group label {
+    font-size: 12px;
+    color: #9ca3af;
+    font-weight: 500;
+}
+
+.input-group input {
+    background: rgba(28, 43, 64, 0.6);
+    border: 1px solid rgba(112, 193, 114, 0.2);
+    border-radius: 6px;
+    padding: 8px 12px;
+    color: #70c172;
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 13px;
+    transition: all 0.3s ease;
+}
+
+.input-group input:focus {
+    outline: none;
+    border-color: #70c172;
+    box-shadow: 0 0 10px rgba(112, 193, 114, 0.2);
+}
+
+.input-group input:hover {
+    border-color: rgba(112, 193, 114, 0.4);
+}
+
+/* Keyframe Controls */
+.keyframe-controls {
+    display: flex;
+    gap: 10px;
+    margin-top: 15px;
+}
+
+.keyframe-controls button {
+    flex: 1;
+    padding: 10px;
+    border: none;
+    border-radius: 6px;
+    font-size: 13px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.add-keyframe {
+    background: #70c172;
+    color: #091930;
+}
+
+.add-keyframe:hover {
+    background: #5da660;
+    transform: translateY(-2px);
+}
+
+.delete-keyframe {
+    background: rgba(240, 81, 81, 0.1);
+    color: #f05151;
+    border: 1px solid rgba(240, 81, 81, 0.3);
+}
+
+.delete-keyframe:hover {
+    background: rgba(240, 81, 81, 0.2);
+    transform: translateY(-2px);
+}
+
+/* Playback Controls Section */
+.playback-controls {
+    background: rgba(0, 0, 0, 0.2);
+    border-radius: 10px;
+    padding: 15px;
+    border: 1px solid rgba(112, 193, 114, 0.1);
+}
+
+.playback-buttons {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 15px;
+}
+
+.playback-buttons button {
+    flex: 1;
+    padding: 10px;
+    border: none;
+    border-radius: 6px;
+    font-size: 13px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.play-mission {
+    background: #70c172;
+    color: #091930;
+}
+
+.play-mission:hover {
+    background: #5da660;
+    transform: translateY(-2px);
+}
+
+.stop-mission {
+    background: rgba(240, 81, 81, 0.1);
+    color: #f05151;
+    border: 1px solid rgba(240, 81, 81, 0.3);
+}
+
+.stop-mission:hover {
+    background: rgba(240, 81, 81, 0.2);
+    transform: translateY(-2px);
+}
+
+/* Keyframe Timeline */
+.keyframe-timeline {
+    margin-top: 15px;
+    position: relative;
+}
+
+input[type="range"] {
+    appearance: none;
+    width: 100%;
+    height: 4px;
+    background: rgba(112, 193, 114, 0.2);
+    border-radius: 2px;
+    outline: none;
+}
+
+input[type="range"]::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    width: 16px;
+    height: 16px;
+    background: #70c172;
+    border-radius: 50%;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+input[type="range"]::-webkit-slider-thumb:hover {
+    transform: scale(1.2);
+    box-shadow: 0 0 10px rgba(112, 193, 114, 0.4);
+}
+
+.keyframe-counter {
+    display: block;
+    text-align: center;
+    color: #9ca3af;
+    font-size: 12px;
+    margin-top: 8px;
+}
+
+/* Animations */
+@keyframes pulse {
+    0% { box-shadow: 0 0 0 0 rgba(112, 193, 114, 0.4); }
+    70% { box-shadow: 0 0 0 10px rgba(112, 193, 114, 0); }
+    100% { box-shadow: 0 0 0 0 rgba(112, 193, 114, 0); }
+}
+
+.input-group input.updated {
+    animation: pulse 1s;
+    border-color: #70c172;
+}

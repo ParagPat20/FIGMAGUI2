@@ -149,86 +149,58 @@ class DroneSerialHandler(SimpleHTTPRequestHandler):
                 self.send_error(500, f"Server error: {str(e)}")
 
     def do_POST(self):
-        content_length = int(self.headers.get('Content-Length', 0))
-        post_data = self.rfile.read(content_length).decode('utf-8')  # Read the raw body as a string
+        try:
+            content_length = int(self.headers.get('Content-Length', 0))
+            post_data = self.rfile.read(content_length).decode('utf-8')
 
-        print(f"Received POST request on {self.path} with data: {post_data}")
+            print(f"Received POST request on {self.path} with data: {post_data}")
 
-        if self.path == '/send_command':
-            try:
-                command = post_data.strip()  # Use the raw command string directly
-                
-                if not DroneSerialHandler.serial_port or not DroneSerialHandler.serial_port.is_open:
-                    raise Exception("Serial port not connected")
+            if self.path == '/send_command':
+                try:
+                    command = post_data.strip()
                     
-                # Add command terminator
-                command += "\n"
-                DroneSerialHandler.serial_port.write(command.encode())
-                DroneSerialHandler.serial_port.flush()
-                
-                self.send_response(200)
-                self.send_header('Content-type', 'text/plain')
-                self.send_cors_headers()
-                self.end_headers()
-                self.wfile.write(json.dumps({"status": "ok"}).encode())  # Send a simple JSON response
-                
-            except Exception as e:
-                print(f"Command error: {e}")
-                self.send_response(500)
-                self.send_header('Content-type', 'application/json')
-                self.send_cors_headers()
-                self.end_headers()
-                self.wfile.write(json.dumps({"error": str(e)}).encode())
-            return
+                    if not DroneSerialHandler.serial_port or not DroneSerialHandler.serial_port.is_open:
+                        raise Exception("Serial port not connected")
+                        
+                    command += "\n"
+                    DroneSerialHandler.serial_port.write(command.encode())
+                    DroneSerialHandler.serial_port.flush()
+                    
+                    try:
+                        self.send_response(200)
+                        self.send_header('Content-type', 'text/plain')
+                        self.send_cors_headers()
+                        self.end_headers()
+                        self.wfile.write(json.dumps({"status": "ok"}).encode())
+                    except (ConnectionAbortedError, BrokenPipeError) as e:
+                        print(f"Connection was closed by client: {e}")
+                        return
+                    
+                except Exception as e:
+                    print(f"Command error: {e}")
+                    try:
+                        self.send_response(500)
+                        self.send_header('Content-type', 'application/json')
+                        self.send_cors_headers()
+                        self.end_headers()
+                        self.wfile.write(json.dumps({"error": str(e)}).encode())
+                    except (ConnectionAbortedError, BrokenPipeError) as e:
+                        print(f"Connection was closed by client: {e}")
+                        return
+                return
 
-        elif self.path == "/verify_port":
+            # Add more paths as needed
+            self.send_error(404)  # If the path is not recognized
+            
+        except (ConnectionAbortedError, BrokenPipeError) as e:
+            print(f"Connection was closed by client: {e}")
+            return
+        except Exception as e:
+            print(f"Unexpected error in do_POST: {e}")
             try:
-                data = json.loads(post_data)  # Parse the JSON data
-                port = data.get('port')  # Extract the port from POST data
-                command = data.get('command')  # Extract the command
-
-                if not port:
-                    raise ValueError("Port not specified")
-
-                # Pass the correct port to verify_esp32_response
-                is_verified = self.verify_esp32_response(port, command)
-                
-                if is_verified:
-                    DroneSerialHandler.verified_ports.add(port)  # Add to verified ports
-                    DroneSerialHandler.start_serial_listener()
-                else:
-                    if DroneSerialHandler.serial_port:
-                        DroneSerialHandler.serial_port.close()
-                        DroneSerialHandler.serial_port = None
-                
-                self.send_response(200)
-                self.send_header('Content-type', 'application/json')
-                self.send_cors_headers()
-                self.end_headers()
-                
-                response = {
-                    "verified": is_verified,
-                    "status": "connected" if is_verified else "invalid_device"
-                }
-                
-                self.wfile.write(json.dumps(response).encode())
-                print(f"Port verification result: {response}")
-                
-            except Exception as e:
-                print(f"Port verification error: {e}")
-                if DroneSerialHandler.serial_port:
-                    DroneSerialHandler.serial_port.close()
-                    DroneSerialHandler.serial_port = None
-                self.send_response(500)
-                self.send_header('Content-type', 'application/json')
-                self.send_cors_headers()
-                self.end_headers()
-                self.wfile.write(json.dumps({"error": str(e)}).encode())
-            return
-        
-
-        # Add more paths as needed
-        self.send_error(404)  # If the path is not recognized
+                self.send_error(500)
+            except (ConnectionAbortedError, BrokenPipeError):
+                pass
 
     def read_response(self, timeout=1.0):
         """Read response from serial port for query commands"""
