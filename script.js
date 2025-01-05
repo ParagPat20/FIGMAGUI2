@@ -112,6 +112,33 @@ function initializeEventListeners() {
     
     // MCU button
     elements.mcuButton?.addEventListener('click', handleDroneSelect);
+
+    // Add event listeners for multi-drone control buttons
+    const armAllBtn = document.querySelector('.button-arm-all');
+    const launchAllBtn = document.querySelector('.button-launch-all');
+    const landAllBtn = document.querySelector('.button-land-all');
+
+    armAllBtn?.addEventListener('click', () => {
+        droneManager.drones.forEach((drone, droneId) => {
+            send_command(droneId, 'ARM', 'GUIDED');
+            console.log(`ARM command sent for ${droneId}`);
+        });
+    });
+
+    launchAllBtn?.addEventListener('click', () => {
+        droneManager.drones.forEach((drone, droneId) => {
+            const defaultAltitude = '2'; // Default altitude value
+            send_command(droneId, 'LAUNCH', defaultAltitude);
+            console.log(`LAUNCH command sent for ${droneId} with altitude ${defaultAltitude}`);
+        });
+    });
+
+    landAllBtn?.addEventListener('click', () => {
+        droneManager.drones.forEach((drone, droneId) => {
+            send_command(droneId, 'LAND', '1');
+            console.log(`LAND command sent for ${droneId}`);
+        });
+    });
 }
 
 // Initialize everything when DOM is loaded
@@ -605,10 +632,45 @@ class DroneCard {
 
         armBtn.addEventListener('click', () => this.handleArm(this.droneId));
         launchBtn.addEventListener('click', () => this.handleLaunch(this.droneId));
-        modeBtn.addEventListener('click', () => this.handleMode(this.droneId));
         landBtn.addEventListener('click', () => this.handleLand(this.droneId));
         attitudeBtn.addEventListener('click', () => {
             this.startSendingAttitudeRequests(this.droneId);
+        });
+
+        // Create and setup mode dropdown
+        const modeDropdown = document.createElement('div');
+        modeDropdown.className = 'mode-dropdown';
+        const modes = ['GUIDED', 'POSHOLD', 'LOITER', 'STABILIZE', 'RTL', 'LAND', 'SMART_RTL', 'FLIP', 'ALT_HOLD'];
+        modes.forEach(mode => {
+            const modeOption = document.createElement('div');
+            modeOption.className = 'mode-option';
+            modeOption.textContent = mode;
+            modeOption.addEventListener('click', () => {
+                send_command(this.droneId, 'SET_MODE', mode);
+                console.log(`Mode set to ${mode} for ${this.droneId}`);
+                modeDropdown.style.display = 'none';
+            });
+            modeDropdown.appendChild(modeOption);
+        });
+        card.appendChild(modeDropdown);
+
+        // Show dropdown on mode button click
+        modeBtn.addEventListener('click', (e) => {
+            e.stopPropagation();
+            const dropdowns = document.querySelectorAll('.modes-dropdown');
+            dropdowns.forEach(dropdown => {
+                if (dropdown !== modeDropdown) {
+                    dropdown.style.display = 'none';
+                }
+            });
+            modeDropdown.style.display = modeDropdown.style.display === 'block' ? 'none' : 'block';
+        });
+
+        // Hide dropdown when clicking outside
+        document.addEventListener('click', (e) => {
+            if (!card.contains(e.target) && !modeBtn.contains(e.target)) {
+                modeDropdown.style.display = 'none';
+            }
         });
     }
 

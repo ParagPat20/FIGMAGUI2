@@ -1027,22 +1027,28 @@ button {
 
 /* Update the modes-dropdown styles */
 .modes-dropdown {
-  position: fixed;
-  background: #0f2951;
-  border: 1px solid #95bdf8;
-  border-radius: 8px;
-  overflow: hidden;
-  z-index: 9999;
-  width: 93px;
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
-  transform: translateY(-10px);
-  opacity: 0;
-  transition: all 0.2s ease;
+  position: absolute;
+  top: 10px; /* Adjust as needed */
+  left: 50%;
+  transform: translateX(-50%);
+  background-color: white;
+  border: 1px solid #ccc;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  z-index: 1000;
+  display: none;
+  padding: 10px;
+  border-radius: 5px;
 }
 
-.modes-dropdown.show {
-  transform: translateY(0);
-  opacity: 1;
+.modes-dropdown .mode-option {
+  padding: 10px 15px;
+  color: #ffffff;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.modes-dropdown .mode-option:hover {
+  background-color: #2c3e50;
 }
 
 .mode-option {
@@ -3572,4 +3578,49 @@ input[type="range"]::-webkit-slider-thumb:hover {
 .input-group input.updated {
     animation: pulse 1s;
     border-color: #70c172;
+}
+
+.mode-dropdown {
+    position: absolute;
+    display: none;
+    background-color: #1c2b40;
+    border-radius: 4px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+    z-index: 1000;
+    padding: 5px 0;
+    min-width: 100px;
+}
+
+.mode-dropdown .mode-option {
+    padding: 8px 12px;
+    color: #ffffff;
+    cursor: pointer;
+    transition: background-color 0.2s;
+}
+
+.mode-dropdown .mode-option:hover {
+    background-color: #2c3e50;
+}
+
+.drone-card:hover .mode-dropdown {
+    display: block;
+}
+
+.button-arm-all, .button-launch-all, .button-land-all {
+    background-color: #1c2b40;
+    color: #ffffff;
+    border: none;
+    padding: 10px 20px;
+    margin: 5px;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: background-color 0.3s;
+}
+
+.button-arm-all:hover, .button-launch-all:hover, .button-land-all:hover {
+    background-color: #2c3e50;
+}
+
+.button-arm-all:active, .button-launch-all:active, .button-land-all:active {
+    background-color: #3c4e60;
 }
