@@ -652,17 +652,20 @@ class DroneCard {
             });
             modeDropdown.appendChild(modeOption);
         });
-        card.appendChild(modeDropdown);
+        document.body.appendChild(modeDropdown); // Append to body
 
-        // Show dropdown on mode button click
+        // Toggle dropdown on mode button click
         modeBtn.addEventListener('click', (e) => {
             e.stopPropagation();
-            const dropdowns = document.querySelectorAll('.modes-dropdown');
+            const dropdowns = document.querySelectorAll('.mode-dropdown');
             dropdowns.forEach(dropdown => {
                 if (dropdown !== modeDropdown) {
                     dropdown.style.display = 'none';
                 }
             });
+            const rect = modeBtn.getBoundingClientRect();
+            modeDropdown.style.top = `${rect.bottom + window.scrollY}px`;
+            modeDropdown.style.left = `${rect.left + window.scrollX}px`;
             modeDropdown.style.display = modeDropdown.style.display === 'block' ? 'none' : 'block';
         });
 
@@ -856,7 +859,7 @@ const droneManager = {
         if (!this.drones.has(droneId)) {
             const droneCard = new DroneCard(droneId, name);
             const container = document.querySelector('.drone-cards-container');
-            container.appendChild(droneCard.element);
+            container.prepend(droneCard.element);
             this.drones.set(droneId, droneCard);
         }
     },

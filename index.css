@@ -1661,13 +1661,11 @@ button:disabled {
 }
 
 .drone-cards-container {
-    display: flex;
-    flex-direction: column;
-    gap: 15px;
-    padding: 15px;
-    max-height: calc(100vh - 200px); /* Set maximum height */
-    overflow-y: auto; /* Enable vertical scrolling */
-    overflow-x: hidden; /* Hide horizontal scrollbar */
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  grid-auto-flow: row;
+  gap: 10px;
+  justify-items: end;
 }
 
 /* Custom scrollbar styling */
@@ -3582,13 +3580,16 @@ input[type="range"]::-webkit-slider-thumb:hover {
 
 .mode-dropdown {
     position: absolute;
-    display: none;
-    background-color: #1c2b40;
-    border-radius: 4px;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+    top: 100%; /* Adjust as needed to align with the button */
+    left: 0;
+    transform: translateY(-100%);
+    background-color: rgb(77, 77, 77);
+    border: 1px solid #ccc;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
     z-index: 1000;
-    padding: 5px 0;
-    min-width: 100px;
+    display: none;
+    padding: 10px;
+    border-radius: 5px;
 }
 
 .mode-dropdown .mode-option {
@@ -3603,7 +3604,7 @@ input[type="range"]::-webkit-slider-thumb:hover {
 }
 
 .drone-card:hover .mode-dropdown {
-    display: block;
+    display: none;
 }
 
 .button-arm-all, .button-launch-all, .button-land-all {
