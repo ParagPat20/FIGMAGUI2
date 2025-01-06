@@ -6,9 +6,74 @@ from threading import Thread, Lock
 from http.server import HTTPServer, SimpleHTTPRequestHandler
 import serial.tools.list_ports
 import os
+from datetime import datetime
 
 # Get the directory containing run_app.py
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+
+# Create logs directory if it doesn't exist
+LOGS_DIR = os.path.join(BASE_DIR, 'logs')
+os.makedirs(LOGS_DIR, exist_ok=True)
+
+class LogbookManager:
+    def __init__(self):
+        self.current_log_file = None
+        self.log_lock = Lock()
+        self.start_new_log()
+    
+    def start_new_log(self):
+        """Start a new log file with current timestamp"""
+        timestamp = datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
+        self.current_log_file = os.path.join(LOGS_DIR, f"esp_log_{timestamp}.txt")
+        with open(self.current_log_file, 'w') as f:
+            f.write(f"=== ESP Terminal Log Started at {timestamp} ===\n")
+    
+    def log_data(self, data):
+        """Log data with timestamp"""
+        if not data:
+            return
+            
+        timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S.%f")[:-3]
+        with self.log_lock:
+            try:
+                with open(self.current_log_file, 'a') as f:
+                    if isinstance(data, list):
+                        for line in data:
+                            f.write(f"[{timestamp}] {line}\n")
+                    else:
+                        f.write(f"[{timestamp}] {data}\n")
+            except Exception as e:
+                print(f"Error writing to log file: {e}")
+    
+    def get_log_files(self):
+        """Get list of all log files"""
+        try:
+            files = []
+            for file in os.listdir(LOGS_DIR):
+                if file.startswith("esp_log_") and file.endswith(".txt"):
+                    file_path = os.path.join(LOGS_DIR, file)
+                    files.append({
+                        "name": file,
+                        "path": file_path,
+                        "size": os.path.getsize(file_path),
+                        "date": datetime.fromtimestamp(os.path.getctime(file_path)).strftime("%Y-%m-%d %H:%M:%S")
+                    })
+            return sorted(files, key=lambda x: x["date"], reverse=True)
+        except Exception as e:
+            print(f"Error getting log files: {e}")
+            return []
+    
+    def get_log_content(self, file_name):
+        """Get content of a specific log file"""
+        try:
+            file_path = os.path.join(LOGS_DIR, file_name)
+            if not os.path.exists(file_path):
+                return None
+            with open(file_path, 'r') as f:
+                return f.read()
+        except Exception as e:
+            print(f"Error reading log file: {e}")
+            return None
 
 def get_esp32_ports():
     """List all available serial ports"""
@@ -29,6 +94,7 @@ class DroneSerialHandler(SimpleHTTPRequestHandler):
     serial_listener_thread = None
     serial_data = []
     serial_data_lock = Lock()
+    logbook_manager = LogbookManager()
 
     @classmethod
     def start_serial_listener(cls):
@@ -44,6 +110,8 @@ class DroneSerialHandler(SimpleHTTPRequestHandler):
                         if line:
                             with cls.serial_data_lock:
                                 cls.serial_data.append(line)
+                                # Log the data
+                                cls.logbook_manager.log_data(line)
                     except Exception as e:
                         print(f"Error reading from serial port: {e}")
 
@@ -74,6 +142,24 @@ class DroneSerialHandler(SimpleHTTPRequestHandler):
             self.send_cors_headers()
             self.end_headers()
             self.wfile.write(json.dumps(data).encode())
+        elif self.path == '/list_logs':
+            log_files = DroneSerialHandler.logbook_manager.get_log_files()
+            self.send_response(200)
+            self.send_header('Content-type', 'application/json')
+            self.send_cors_headers()
+            self.end_headers()
+            self.wfile.write(json.dumps(log_files).encode())
+        elif self.path.startswith('/get_log/'):
+            file_name = self.path.split('/get_log/')[1]
+            log_content = DroneSerialHandler.logbook_manager.get_log_content(file_name)
+            if log_content is not None:
+                self.send_response(200)
+                self.send_header('Content-type', 'text/plain')
+                self.send_cors_headers()
+                self.end_headers()
+                self.wfile.write(log_content.encode())
+            else:
+                self.send_error(404, "Log file not found")
         else:
             # Handle API endpoints
             if self.path == '/list_ports':

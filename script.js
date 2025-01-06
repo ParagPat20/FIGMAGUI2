@@ -1644,25 +1644,12 @@ class MissionPlanner {
             keyframeContainer.className = 'keyframe-container';
             keyframeContainer.classList.toggle('current', i === this.currentKeyframe);
             
-            // Get the first available frame to get the delay value
-            let frameDelay = 1000; // Default delay
-            for (const frames of this.keyframes.values()) {
-                if (frames[i]) {
-                    frameDelay = frames[i].delay || 1000;
-                    break;
-                }
-            }
-            
-            // Create frame header with edit/delete buttons
+            // Create frame header
             const frameHeader = document.createElement('div');
             frameHeader.className = 'frame-header';
             frameHeader.innerHTML = `
                 <div class="frame-info">
                     <span class="frame-title">Frame ${i + 1}</span>
-                    <div class="frame-delay">
-                        <label>Delay:</label>
-                        <input type="number" class="delay-input" value="${frameDelay}" min="100" max="10000" step="100" data-frame="${i}"> ms
-                    </div>
                 </div>
                 <div class="frame-actions">
                     <button class="frame-btn edit-frame" data-frame="${i}">
@@ -1733,24 +1720,49 @@ class MissionPlanner {
                 });
             });
             
-            // Add delay input handler
-            const delayInput = keyframeContainer.querySelector('.delay-input');
-            delayInput.addEventListener('change', (e) => {
-                e.stopPropagation();
-                const frameIndex = parseInt(e.target.dataset.frame);
-                const newDelay = parseInt(e.target.value) || 1000;
-                
-                // Update delay for all drones in this frame
-                this.defaultDrones.forEach(droneId => {
-                    const frames = this.keyframes.get(droneId);
-                    if (frames && frames[frameIndex]) {
-                        frames[frameIndex].delay = newDelay;
-                    }
-                });
-            });
-            
             this.keyframeList.appendChild(keyframeContainer);
+
+            // Add delay container after each frame (except the last one)
+            if (i < maxFrames - 1) {
+                const delayContainer = document.createElement('div');
+                delayContainer.className = 'frame-delay-container';
+                delayContainer.innerHTML = `
+                    <div class="delay-input-container">
+                        <input type="number" class="delay-input" value="${this.getFrameDelay(i)}" min="100" max="10000" step="100" data-frame="${i}">
+                        <span class="delay-unit">ms</span>
+                    </div>
+                `;
+
+                // Add delay input handler
+                const delayInput = delayContainer.querySelector('.delay-input');
+                delayInput.addEventListener('change', (e) => {
+                    e.stopPropagation();
+                    const frameIndex = parseInt(e.target.dataset.frame);
+                    const newDelay = parseInt(e.target.value) || 1000;
+                    
+                    // Update delay for all drones in this frame
+                    this.defaultDrones.forEach(droneId => {
+                        const frames = this.keyframes.get(droneId);
+                        if (frames && frames[frameIndex]) {
+                            frames[frameIndex].delay = newDelay;
+                        }
+                    });
+                });
+
+                this.keyframeList.appendChild(delayContainer);
+            }
         }
+    }
+
+    // Helper method to get frame delay
+    getFrameDelay(frameIndex) {
+        // Get delay from any drone's frame (they should all be the same)
+        for (const frames of this.keyframes.values()) {
+            if (frames && frames[frameIndex]) {
+                return frames[frameIndex].delay || 1000;
+            }
+        }
+        return 1000; // Default delay
     }
 
     // Add these new methods to handle editing
@@ -1957,9 +1969,13 @@ class MissionPlanner {
     saveMission() {
         try {
             const missionData = {
-                gridSize: this.gridSize,
-                gridSpacing: this.gridSpacing,
-                playbackSpeed: this.playbackSpeed,
+                version: "1.0",
+                timestamp: Date.now(),
+                settings: {
+                    gridSize: this.gridSize,
+                    gridSpacing: this.gridSpacing,
+                    playbackSpeed: this.playbackSpeed
+                },
                 drones: {}
             };
 
@@ -1967,16 +1983,18 @@ class MissionPlanner {
             this.defaultDrones.forEach(droneId => {
                 const frames = this.keyframes.get(droneId);
                 if (frames) {
-                    missionData.drones[droneId] = frames.map(frame => ({
-                        position: {
-                            x: frame.position.x,
-                            y: frame.position.y,
-                            z: frame.position.z
-                        },
-                        heading: frame.heading,
-                        delay: frame.delay || 1000, // Save delay time
-                        timestamp: frame.timestamp
-                    }));
+                    missionData.drones[droneId] = {
+                        color: this.getDroneColor(droneId),
+                        frames: frames.map(frame => ({
+                            position: {
+                                x: parseFloat(frame.position.x.toFixed(2)),
+                                y: parseFloat(frame.position.y.toFixed(2)),
+                                z: parseFloat(frame.position.z.toFixed(2))
+                            },
+                            heading: parseFloat(frame.heading.toFixed(4)),
+                            delay: frame.delay || 1000
+                        }))
+                    };
                 }
             });
 
@@ -1985,7 +2003,7 @@ class MissionPlanner {
             const url = URL.createObjectURL(blob);
             const a = document.createElement('a');
             a.href = url;
-            a.download = `mission_${new Date().toISOString().slice(0,19).replace(/:/g, '-')}.json`;
+            a.download = `swarm_mission_${new Date().toISOString().slice(0,19).replace(/:/g, '-')}.json`;
             document.body.appendChild(a);
             a.click();
             document.body.removeChild(a);
@@ -2004,49 +2022,70 @@ class MissionPlanner {
             try {
                 const missionData = JSON.parse(e.target.result);
                 
-                // Update settings
-                this.gridSize = missionData.gridSize || this.gridSize;
-                this.gridSpacing = missionData.gridSpacing || this.gridSpacing;
-                this.playbackSpeed = missionData.playbackSpeed || this.playbackSpeed;
+                // Validate mission data format
+                if (!missionData.drones || typeof missionData.drones !== 'object') {
+                    throw new Error('Invalid mission file format');
+                }
+
+                // Update settings if available
+                if (missionData.settings) {
+                    this.gridSize = missionData.settings.gridSize || this.gridSize;
+                    this.gridSpacing = missionData.settings.gridSpacing || this.gridSpacing;
+                    this.playbackSpeed = missionData.settings.playbackSpeed || this.playbackSpeed;
+                }
                 
                 // Clear existing keyframes
                 this.keyframes.clear();
+                this.droneMarkers.clear();
                 
                 // Load drone keyframes
-                Object.entries(missionData.drones).forEach(([droneId, frames]) => {
-                    // Ensure all frames have proper structure
-                    const validatedFrames = frames.map((frame, index) => ({
+                Object.entries(missionData.drones).forEach(([droneId, droneData]) => {
+                    if (!this.defaultDrones.includes(droneId)) {
+                        console.warn(`Skipping unknown drone: ${droneId}`);
+                        return;
+                    }
+
+                    // Validate and load frames
+                    const validatedFrames = droneData.frames.map(frame => ({
                         position: {
                             x: parseFloat(frame.position.x) || 0,
                             y: parseFloat(frame.position.y) || 0,
                             z: parseFloat(frame.position.z) || 2
                         },
                         heading: parseFloat(frame.heading) || 0,
-                        delay: parseInt(frame.delay) || 1000, // Load delay time
-                        timestamp: frame.timestamp || (index * this.playbackSpeed)
+                        delay: parseInt(frame.delay) || 1000
                     }));
+
+                    // Set frames for this drone
                     this.keyframes.set(droneId, validatedFrames);
                     
-                    // Update drone marker
-                    const marker = this.droneMarkers.get(droneId);
-                    if (marker && validatedFrames.length > 0) {
-                        const firstFrame = validatedFrames[0];
-                        marker.position.x = firstFrame.position.x;
-                        marker.position.y = firstFrame.position.y;
-                        marker.heading = firstFrame.heading;
-                    }
+                    // Create or update drone marker
+                    const marker = {
+                        position: { 
+                            x: validatedFrames[0].position.x,
+                            y: validatedFrames[0].position.y
+                        },
+                        heading: validatedFrames[0].heading,
+                        color: this.getDroneColor(droneId)
+                    };
+                    this.droneMarkers.set(droneId, marker);
                     
-                    // Update 3D model
+                    // Update 3D model if it exists
                     const model = this.droneModels.get(droneId);
                     if (model && validatedFrames.length > 0) {
                         const firstFrame = validatedFrames[0];
-                        model.position.set(firstFrame.position.x, firstFrame.position.z, -firstFrame.position.y);
+                        model.position.set(
+                            firstFrame.position.x,
+                            firstFrame.position.z,
+                            -firstFrame.position.y
+                        );
                         model.rotation.y = -firstFrame.heading;
                     }
                 });
                 
                 // Reset to first keyframe
                 this.currentKeyframe = 0;
+                this.isPlaying = false;
                 
                 // Update UI
                 this.updateKeyframeSlider();
@@ -2064,7 +2103,7 @@ class MissionPlanner {
                     }
                 }
                 
-                // Update playback speed input if it exists
+                // Update playback speed input
                 const speedInput = document.getElementById('playback-speed');
                 if (speedInput) {
                     speedInput.value = this.playbackSpeed;
@@ -2154,11 +2193,16 @@ function send_command(target, command, payload) {
 
 // Function to handle serial input
 function serialInput() {
-    const serialInputField = document.querySelector('.serial-input'); // Assuming there's an input field with this class
-    const inputValue = serialInputField.value; // Get the value from the input field
-
-    // Call the serialSend function with the input value
-    serialSend(inputValue);
+    const serialInputFields = document.querySelectorAll('.serial-input');
+    serialInputFields.forEach(inputField => {
+        const inputValue = inputField.value.trim(); // Get the value from the input field
+        if (inputValue) {
+            // Call the serialSend function with the input value
+            serialSend(inputValue);
+            // Clear the input field after sending
+            inputField.value = '';
+        }
+    });
 }
 
 // Function to send the command based on the input value
@@ -2169,6 +2213,7 @@ function serialSend(valueString) {
     // Ensure there are exactly three parts
     if (parts.length !== 3) {
         console.error('Input must contain exactly three parts separated by semicolons (target;command;payload)');
+        customAlert.error('Invalid format. Use: target;command;payload');
         return;
     }
 
@@ -2180,9 +2225,23 @@ function serialSend(valueString) {
     send_command(target, command, payload);
 }
 
-// Example of adding an event listener to the send button
-const serialSendButton = document.querySelector('.serial-send'); // Assuming there's a button with this class
-serialSendButton.addEventListener('click', serialInput);
+// Add event listeners to all serial-send buttons
+document.addEventListener('DOMContentLoaded', () => {
+    const serialSendButtons = document.querySelectorAll('.serial-send');
+    const serialInputFields = document.querySelectorAll('.serial-input');
+
+    serialSendButtons.forEach(button => {
+        button.addEventListener('click', serialInput);
+    });
+
+    serialInputFields.forEach(input => {
+        input.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') {
+                serialInput();
+            }
+        });
+    });
+});
 
 // Function to fetch data from /esp-terminal
 async function fetchSerialData() {
@@ -2686,22 +2745,22 @@ function initializeKeyboardControls() {
         const newPosition = { ...currentFrame.position };
 
         switch(event.key.toLowerCase()) {
-            // X-axis controls (W/S)
-            case 'w':
+            // X-axis controls (A/D)
+            case 'a':
                 newPosition.x += 1;
                 positionChanged = true;
                 break;
-            case 's':
+            case 'd':
                 newPosition.x -= 1;
                 positionChanged = true;
                 break;
 
-            // Y-axis controls (A/D)
-            case 'a':
+            // Y-axis controls (W/S)
+            case 'w':
                 newPosition.y -= 1;
                 positionChanged = true;
                 break;
-            case 'd':
+            case 's':
                 newPosition.y += 1;
                 positionChanged = true;
                 break;
@@ -2729,5 +2788,157 @@ function initializeKeyboardControls() {
             customAlert.show(`Moved ${droneId} to X: ${newPosition.x.toFixed(1)}, Y: ${newPosition.y.toFixed(1)}, Z: ${newPosition.z.toFixed(1)}`, 'info', 1000);
         }
     });
+}
+
+class Logbook {
+    constructor() {
+        this.popup = document.querySelector('.logbook-popup');
+        this.logFilesList = document.querySelector('.log-files-list');
+        this.logViewer = document.querySelector('.log-viewer');
+        this.closeButton = document.getElementById('close-logbook');
+        this.currentLogFile = null;
+        this.refreshInterval = null;
+        
+        this.initialize();
+    }
+    
+    initialize() {
+        if (!this.popup || !this.logFilesList || !this.logViewer || !this.closeButton) {
+            console.error('Required logbook elements not found');
+            return false;
+        }
+        
+        // Setup event listeners
+        this.closeButton.addEventListener('click', () => this.hide());
+        
+        // Close on click outside
+        this.popup.addEventListener('click', (e) => {
+            if (e.target === this.popup) {
+                this.hide();
+            }
+        });
+        
+        return true;
+    }
+    
+    show() {
+        if (!this.popup) return;
+        
+        this.popup.style.display = 'flex';
+        setTimeout(() => {
+            this.popup.classList.add('active');
+            this.loadLogFiles();
+            
+            // Start auto-refresh if viewing current log
+            if (this.currentLogFile && this.currentLogFile.endsWith(new Date().toISOString().split('T')[0] + '.txt')) {
+                this.startAutoRefresh();
+            }
+        }, 10);
+    }
+    
+    hide() {
+        if (!this.popup) return;
+        
+        this.popup.classList.remove('active');
+        setTimeout(() => {
+            this.popup.style.display = 'none';
+            this.stopAutoRefresh();
+        }, 300);
+    }
+    
+    async loadLogFiles() {
+        try {
+            const response = await fetch('http://127.0.0.1:5000/list_logs');
+            if (!response.ok) throw new Error('Failed to fetch log files');
+            
+            const files = await response.json();
+            this.renderLogFiles(files);
+        } catch (error) {
+            console.error('Error loading log files:', error);
+            customAlert.error('Failed to load log files');
+        }
+    }
+    
+    renderLogFiles(files) {
+        if (!this.logFilesList) return;
+        
+        this.logFilesList.innerHTML = '';
+        files.forEach(file => {
+            const fileItem = document.createElement('div');
+            fileItem.className = 'log-file-item';
+            if (file.name === this.currentLogFile) {
+                fileItem.classList.add('active');
+            }
+            
+            fileItem.innerHTML = `
+                <div class="log-file-name">${file.name}</div>
+                <div class="log-file-date">${file.date}</div>
+            `;
+            
+            fileItem.addEventListener('click', () => this.loadLogContent(file.name));
+            this.logFilesList.appendChild(fileItem);
+        });
+    }
+    
+    async loadLogContent(fileName) {
+        try {
+            // Stop auto-refresh when switching files
+            this.stopAutoRefresh();
+            
+            const response = await fetch(`http://127.0.0.1:5000/get_log/${fileName}`);
+            if (!response.ok) throw new Error('Failed to fetch log content');
+            
+            const content = await response.text();
+            this.logViewer.textContent = content;
+            this.logViewer.scrollTop = this.logViewer.scrollHeight;
+            
+            // Update active state
+            this.currentLogFile = fileName;
+            document.querySelectorAll('.log-file-item').forEach(item => {
+                item.classList.toggle('active', item.querySelector('.log-file-name').textContent === fileName);
+            });
+            
+            // Start auto-refresh if viewing today's log
+            if (fileName.endsWith(new Date().toISOString().split('T')[0] + '.txt')) {
+                this.startAutoRefresh();
+            }
+        } catch (error) {
+            console.error('Error loading log content:', error);
+            customAlert.error('Failed to load log content');
+        }
+    }
+    
+    startAutoRefresh() {
+        if (this.refreshInterval) return;
+        
+        this.refreshInterval = setInterval(() => {
+            if (this.currentLogFile) {
+                this.loadLogContent(this.currentLogFile);
+            }
+        }, 5000); // Refresh every 5 seconds
+    }
+    
+    stopAutoRefresh() {
+        if (this.refreshInterval) {
+            clearInterval(this.refreshInterval);
+            this.refreshInterval = null;
+        }
+    }
+}
+
+// Initialize logbook when menu item is clicked
+document.getElementById('menu-logbook').addEventListener('click', () => {
+    if (!window.logbook) {
+        window.logbook = new Logbook();
+    }
+    window.logbook.show();
+});
+
+// Update showLogbook function
+function showLogbook() {
+    if (!window.logbook) {
+        window.logbook = new Logbook();
+    }
+    window.logbook.show();
 }
 
