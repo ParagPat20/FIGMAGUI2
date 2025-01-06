@@ -144,6 +144,7 @@ String serializeCommandPacket(const CommandPacket &packet) {
   return serialized;
 }
 
+
 void setup() {
   Serial.begin(115200);
   WiFi.mode(WIFI_STA);

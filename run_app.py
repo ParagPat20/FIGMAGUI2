@@ -23,8 +23,6 @@ def get_esp32_ports():
         })
     return ports
 
-
-    
 class DroneSerialHandler(SimpleHTTPRequestHandler):
     serial_port = None
     verified_ports = set()  # Store verified port names
