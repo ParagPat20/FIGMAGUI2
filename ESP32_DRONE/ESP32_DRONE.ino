@@ -25,6 +25,9 @@ esp_now_peer_info_t peerInfo;
 // Global variable to store sender identity
 String senderIdentity = "";
 
+// Counter for failed transmissions
+int failedTransmissionCount = 0;
+
 // Command structure
 struct CommandPacket {
   String S;  // GCS or other sender
@@ -187,8 +190,23 @@ void loop() {
 }
 
 void OnDataSent(const uint8_t *mac_addr, esp_now_send_status_t status) {
-  Serial.print("Last Packet Send Status: ");
-  Serial.println(status == ESP_NOW_SEND_SUCCESS ? "Delivery Success" : "Delivery Fail");
+  if (status == ESP_NOW_SEND_SUCCESS) {
+    Serial.println("Delivery Success");
+    failedTransmissionCount = 0; // Reset counter on successful transmission
+  } else {
+    Serial.println("Delivery Fail");
+    failedTransmissionCount++;
+    
+    if (failedTransmissionCount >= 5) {
+      CommandPacket landPacket;
+      landPacket.S = senderIdentity;
+      landPacket.C = "LAND";
+      landPacket.P = "1";
+      String serializedData = serializeCommandPacket(landPacket);
+      Serial.println(serializedData);
+      failedTransmissionCount = 0; // Reset counter after sending LAND command
+    }
+  }
 }
 
 void OnDataRecv(const uint8_t *mac, const uint8_t *incomingData, int len) {

@@ -910,6 +910,9 @@ class MissionPlanner {
         this.minZoom = 0.1;
         this.maxZoom = 5;
         this.zoomStep = 0.1;
+        
+        // Initialize keyboard controls
+        initializeKeyboardControls();
     }
 
     initialize() {
@@ -1003,34 +1006,6 @@ class MissionPlanner {
                 const heading = ((parseFloat(document.getElementById('wp-heading')?.value) || 0) * Math.PI / 180);
                 
                 this.addKeyframe(droneId, position, heading);
-            });
-        }
-
-        const deleteKeyframeBtn = document.getElementById('delete-keyframe');
-        if (deleteKeyframeBtn) {
-            deleteKeyframeBtn.addEventListener('click', () => {
-                const selectedDrone = document.querySelector('.drone-item.selected');
-                if (!selectedDrone) {
-                    customAlert.warning('Please select a drone first');
-                    return;
-                }
-
-                const droneId = selectedDrone.dataset.droneId;
-                const frames = this.keyframes.get(droneId);
-                if (frames && frames.length > 1) {
-                    frames.splice(this.currentKeyframe, 1);
-                    if (this.currentKeyframe >= frames.length) {
-                        this.currentKeyframe = frames.length - 1;
-                    }
-                    this.updateKeyframeSlider();
-                    this.updateViews();
-                    this.updateKeyframeList();
-                    
-                    // Update input fields with current keyframe data
-                    if (frames[this.currentKeyframe]) {
-                        this.updateWaypointInputs(frames[this.currentKeyframe]);
-                    }
-                }
             });
         }
 
@@ -1244,21 +1219,25 @@ class MissionPlanner {
     }
 
     initializeDefaultDrones() {
-        // Create default keyframe with initial values
-        const defaultKeyframe = {
-            position: { x: 0, y: 0, z: 2 }, // Default 2m altitude
-            heading: 0,
-            timestamp: Date.now()
-        };
-
-        // Initialize each drone with a single keyframe
-        this.defaultDrones.forEach(droneId => {
+        // Create default keyframe with initial values for each drone
+        this.defaultDrones.forEach((droneId, index) => {
+            // Calculate offset positions - arranging drones in a line with 1m spacing
+            const defaultKeyframe = {
+                position: { 
+                    x: index * 1, // Space them 1m apart on X axis
+                    y: 0,        // Same Y position
+                    z: 2         // Default 2m altitude
+                },
+                heading: 0,
+                timestamp: Date.now()
+            };
+            
             // Set single keyframe for each drone
             this.keyframes.set(droneId, [defaultKeyframe]);
             
             // Create drone marker for 2D view
             const marker = {
-                position: { x: 0, y: 0 },
+                position: { x: index * 1, y: 0 },
                 heading: 0,
                 color: this.getDroneColor(droneId)
             };
@@ -2680,5 +2659,75 @@ function setupDroneCardEventListeners(droneId) {
             console.log(`Mode set to ${selectedMode} for ${droneId}`);
         });
     }
+}
+
+// Add keyboard control functionality
+function initializeKeyboardControls() {
+    document.addEventListener('keydown', (event) => {
+        // Only process keyboard input if mission planner is active
+        const missionPlanner = document.querySelector('.mission-planner-popup');
+        if (!missionPlanner || missionPlanner.style.display === 'none') return;
+
+        // Get selected drone
+        const selectedDroneElement = document.querySelector('.drone-item.selected');
+        if (!selectedDroneElement) {
+            console.log('No drone selected');
+            return;
+        }
+
+        const droneId = selectedDroneElement.dataset.droneId;
+        const frames = window.missionPlanner.keyframes.get(droneId);
+        if (!frames || !frames[window.missionPlanner.currentKeyframe]) return;
+
+        const currentFrame = frames[window.missionPlanner.currentKeyframe];
+        let positionChanged = false;
+
+        // Clone current position
+        const newPosition = { ...currentFrame.position };
+
+        switch(event.key.toLowerCase()) {
+            // X-axis controls (W/S)
+            case 'w':
+                newPosition.x += 1;
+                positionChanged = true;
+                break;
+            case 's':
+                newPosition.x -= 1;
+                positionChanged = true;
+                break;
+
+            // Y-axis controls (A/D)
+            case 'a':
+                newPosition.y -= 1;
+                positionChanged = true;
+                break;
+            case 'd':
+                newPosition.y += 1;
+                positionChanged = true;
+                break;
+
+            // Z-axis controls (Q/E)
+            case 'q':
+                newPosition.z += 1;
+                positionChanged = true;
+                break;
+            case 'e':
+                newPosition.z -= 1;
+                positionChanged = true;
+                break;
+        }
+
+        if (positionChanged) {
+            // Update position
+            currentFrame.position = newPosition;
+
+            // Update UI
+            window.missionPlanner.updateViews();
+            window.missionPlanner.updateWaypointInputs(currentFrame);
+
+            // Show movement notification
+            customAlert.show(`Moved ${droneId} to X: ${newPosition.x.toFixed(1)}, Y: ${newPosition.y.toFixed(1)}, Z: ${newPosition.z.toFixed(1)}`, 'info', 1000);
+        }
+    });
 }
 
