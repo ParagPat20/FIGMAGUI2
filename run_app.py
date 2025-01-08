@@ -388,21 +388,27 @@ class ApplicationManager:
     def start_electron(self):
         """Start Electron application"""
         try:
-            users_base_path = r"C:/Users/"
-            user_identifier = "LOQ"
-            # Use node to run electron directly
-            electron_path = os.path.join(users_base_path, user_identifier, r"AppData/Roaming/npm/node_modules/electron/dist/electron.exe")
+            # Try to run electron directly using npm
             main_js_path = os.path.join(BASE_DIR, 'main.js')
             
-            if not os.path.exists(electron_path):
-                print("Electron not found. Installing...")
+            try:
+                # First try running electron directly
+                self.electron_process = subprocess.Popen(
+                    ['npx', 'electron', '.'],
+                    shell=True
+                )
+                print("Electron app started")
+            except Exception as e:
+                print(f"Electron not found. Installing... {e}")
+                # If electron is not found, install it
                 subprocess.run(['npm', 'install', 'electron'], shell=True, check=True)
-            
-            self.electron_process = subprocess.Popen(
-                [electron_path, main_js_path],
-                shell=True
-            )
-            print("Electron app started")
+                # Try running again after installation
+                self.electron_process = subprocess.Popen(
+                    ['npx', 'electron', '.'],
+                    shell=True
+                )
+                print("Electron installed and started")
+                
         except Exception as e:
             print(f"Failed to start Electron: {e}")
             self.running = False
