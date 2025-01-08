@@ -553,7 +553,7 @@ class DroneCard {
         card.className = 'drone-card';
         card.innerHTML = `
             <div class="drone-card-header">
-                <span class="drone-name">${this.name}</span>
+                <span class="drone-name" style="display: block;">${this.name}</span>
                 <div class="connection-status">
                     <div class="status-indicator"></div>
                     <span class="status-text">Connected</span>
@@ -3040,7 +3040,13 @@ class SetupMenu {
         
         // Clear previous inputs
         document.getElementById('ip-input').value = '';
-        document.getElementById('port-input').value = '';
+        const portInput = document.getElementById('port-input');
+        portInput.value = '';
+        
+        // Set port input to accept only numbers
+        portInput.type = 'number';
+        portInput.min = '1';
+        portInput.max = '65535';
         
         this.ipPortDialog.style.display = 'flex';
         setTimeout(() => {
@@ -3061,10 +3067,16 @@ class SetupMenu {
         if (!this.currentDrone) return;
         
         const ip = document.getElementById('ip-input').value.trim();
-        const port = document.getElementById('port-input').value.trim();
+        const port = parseInt(document.getElementById('port-input').value.trim());
+        
+        // Validate port number
+        if (port && (isNaN(port) || port < 1 || port > 65535)) {
+            customAlert.error('Port must be a number between 1 and 65535');
+            return;
+        }
         
         // If both fields are empty, send '0' as payload
-        const payload = (ip === '' && port === '') ? '0' : `${ip},${port}`;
+        const payload = (ip === '' && !port) ? '0' : `${ip},${port}`;
         
         send_command(this.currentDrone, 'SOCAT', payload);
         customAlert.success(`Setup command sent to ${this.currentDrone}`);
