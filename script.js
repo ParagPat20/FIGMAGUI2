@@ -2942,3 +2942,626 @@ function showLogbook() {
     window.logbook.show();
 }
 
+class SetupMenu {
+    constructor() {
+        this.popup = document.querySelector('.setup-popup');
+        this.setupList = document.querySelector('.drone-setup-list');
+        this.closeButton = document.getElementById('close-setup');
+        this.ipPortDialog = document.querySelector('.ip-port-dialog');
+        this.defaultDrones = ['MCU', 'CD1', 'CD2', 'CD3', 'CD4'];
+        this.currentDrone = null;
+        
+        this.initialize();
+    }
+    
+    initialize() {
+        if (!this.popup || !this.setupList || !this.closeButton || !this.ipPortDialog) {
+            console.error('Required setup menu elements not found');
+            return false;
+        }
+        
+        // Setup event listeners
+        this.closeButton.addEventListener('click', () => this.hide());
+        
+        // Close on click outside
+        this.popup.addEventListener('click', (e) => {
+            if (e.target === this.popup) {
+                this.hide();
+            }
+        });
+        
+        // Setup IP/Port dialog event listeners
+        document.getElementById('close-dialog').addEventListener('click', () => this.hideIpPortDialog());
+        document.querySelector('.cancel-btn').addEventListener('click', () => this.hideIpPortDialog());
+        document.querySelector('.confirm-btn').addEventListener('click', () => this.handleIpPortConfirm());
+        
+        return true;
+    }
+    
+    show() {
+        if (!this.popup) return;
+        
+        this.popup.style.display = 'flex';
+        setTimeout(() => {
+            this.popup.classList.add('active');
+            this.renderDroneList();
+        }, 10);
+    }
+    
+    hide() {
+        if (!this.popup) return;
+        
+        this.popup.classList.remove('active');
+        setTimeout(() => {
+            this.popup.style.display = 'none';
+        }, 300);
+    }
+    
+    renderDroneList() {
+        if (!this.setupList) return;
+        
+        this.setupList.innerHTML = '';
+        this.defaultDrones.forEach(droneId => {
+            const droneItem = document.createElement('div');
+            droneItem.className = 'drone-setup-item';
+            droneItem.innerHTML = `
+                <div class="drone-setup-info">
+                    <span class="drone-id">${droneId}</span>
+                </div>
+                <div class="drone-setup-buttons">
+                    <button class="setup-btn" data-drone="${droneId}">Setup</button>
+                    <button class="reconnect-btn" data-drone="${droneId}">Reconnect</button>
+                </div>
+            `;
+            
+            // Add event listeners for buttons
+            const setupBtn = droneItem.querySelector('.setup-btn');
+            const reconnectBtn = droneItem.querySelector('.reconnect-btn');
+            
+            setupBtn.addEventListener('click', () => this.handleSetup(droneId));
+            reconnectBtn.addEventListener('click', () => this.handleReconnect(droneId));
+            
+            this.setupList.appendChild(droneItem);
+        });
+    }
+    
+    handleSetup(droneId) {
+        this.currentDrone = droneId;
+        this.showIpPortDialog();
+    }
+    
+    handleReconnect(droneId) {
+        send_command(droneId, 'INIT', '0');
+        customAlert.success(`Reconnect command sent to ${droneId}`);
+    }
+    
+    showIpPortDialog() {
+        if (!this.ipPortDialog) return;
+        
+        // Clear previous inputs
+        document.getElementById('ip-input').value = '';
+        document.getElementById('port-input').value = '';
+        
+        this.ipPortDialog.style.display = 'flex';
+        setTimeout(() => {
+            this.ipPortDialog.classList.add('active');
+        }, 10);
+    }
+    
+    hideIpPortDialog() {
+        if (!this.ipPortDialog) return;
+        
+        this.ipPortDialog.classList.remove('active');
+        setTimeout(() => {
+            this.ipPortDialog.style.display = 'none';
+        }, 300);
+    }
+    
+    handleIpPortConfirm() {
+        if (!this.currentDrone) return;
+        
+        const ip = document.getElementById('ip-input').value.trim();
+        const port = document.getElementById('port-input').value.trim();
+        
+        // If both fields are empty, send '0' as payload
+        const payload = (ip === '' && port === '') ? '0' : `${ip},${port}`;
+        
+        send_command(this.currentDrone, 'SOCAT', payload);
+        customAlert.success(`Setup command sent to ${this.currentDrone}`);
+        
+        this.hideIpPortDialog();
+    }
+}
+
+// Initialize setup menu when menu item is clicked
+document.getElementById('menu-drone-settings').addEventListener('click', () => {
+    if (!window.setupMenu) {
+        window.setupMenu = new SetupMenu();
+    }
+    window.setupMenu.show();
+});
+
+// Update showDroneSettings function
+function showDroneSettings() {
+    if (!window.setupMenu) {
+        window.setupMenu = new SetupMenu();
+    }
+    window.setupMenu.show();
+}
+
+class SettingsMenu {
+    constructor() {
+        this.popup = document.querySelector('.settings-popup');
+        this.closeButton = document.getElementById('close-settings');
+        this.saveButton = document.querySelector('.save-settings');
+        this.resetButton = document.querySelector('.reset-settings');
+        
+        // Default settings
+        this.defaultSettings = {
+            map: {
+                defaultType: 'light',
+                defaultZoom: 18
+            },
+            mission: {
+                defaultAltitude: 2,
+                defaultSeparation: 2,
+                keyframeDelay: 1000
+            },
+            display: {
+                showDroneLabels: true,
+                showAltitude: true,
+                showHeading: true,
+                showPath: true
+            },
+            safety: {
+                minBattery: 20,
+                maxAltitude: 100,
+                maxDistance: 500,
+                returnAltitude: 10
+            },
+            communication: {
+                telemetryRate: 500,
+                heartbeatTimeout: 3
+            }
+        };
+        
+        this.currentSettings = this.loadSettings();
+        this.initialize();
+    }
+    
+    initialize() {
+        if (!this.popup || !this.closeButton || !this.saveButton || !this.resetButton) {
+            console.error('Required settings elements not found');
+            return false;
+        }
+        
+        // Setup event listeners
+        this.closeButton.addEventListener('click', () => this.hide());
+        this.saveButton.addEventListener('click', () => this.saveSettings());
+        this.resetButton.addEventListener('click', () => this.resetSettings());
+        
+        // Close on click outside
+        this.popup.addEventListener('click', (e) => {
+            if (e.target === this.popup) {
+                this.hide();
+            }
+        });
+        
+        return true;
+    }
+    
+    show() {
+        if (!this.popup) return;
+        
+        this.popup.style.display = 'flex';
+        setTimeout(() => {
+            this.popup.classList.add('active');
+            this.loadSettingsToUI();
+        }, 10);
+    }
+    
+    hide() {
+        if (!this.popup) return;
+        
+        this.popup.classList.remove('active');
+        setTimeout(() => {
+            this.popup.style.display = 'none';
+        }, 300);
+    }
+    
+    loadSettings() {
+        const savedSettings = localStorage.getItem('appSettings');
+        return savedSettings ? JSON.parse(savedSettings) : this.defaultSettings;
+    }
+    
+    loadSettingsToUI() {
+        // Map Settings
+        document.getElementById('default-map-type').value = this.currentSettings.map.defaultType;
+        document.getElementById('default-zoom').value = this.currentSettings.map.defaultZoom;
+        
+        // Mission Settings
+        document.getElementById('default-altitude').value = this.currentSettings.mission.defaultAltitude;
+        document.getElementById('default-separation').value = this.currentSettings.mission.defaultSeparation;
+        document.getElementById('keyframe-delay').value = this.currentSettings.mission.keyframeDelay;
+        
+        // Display Settings
+        document.getElementById('show-drone-labels').checked = this.currentSettings.display.showDroneLabels;
+        document.getElementById('show-altitude').checked = this.currentSettings.display.showAltitude;
+        document.getElementById('show-heading').checked = this.currentSettings.display.showHeading;
+        document.getElementById('show-path').checked = this.currentSettings.display.showPath;
+        
+        // Safety Settings
+        document.getElementById('min-battery').value = this.currentSettings.safety.minBattery;
+        document.getElementById('max-altitude').value = this.currentSettings.safety.maxAltitude;
+        document.getElementById('max-distance').value = this.currentSettings.safety.maxDistance;
+        document.getElementById('return-altitude').value = this.currentSettings.safety.returnAltitude;
+        
+        // Communication Settings
+        document.getElementById('telemetry-rate').value = this.currentSettings.communication.telemetryRate;
+        document.getElementById('heartbeat-timeout').value = this.currentSettings.communication.heartbeatTimeout;
+    }
+    
+    getSettingsFromUI() {
+        return {
+            map: {
+                defaultType: document.getElementById('default-map-type').value,
+                defaultZoom: parseInt(document.getElementById('default-zoom').value)
+            },
+            mission: {
+                defaultAltitude: parseFloat(document.getElementById('default-altitude').value),
+                defaultSeparation: parseFloat(document.getElementById('default-separation').value),
+                keyframeDelay: parseInt(document.getElementById('keyframe-delay').value)
+            },
+            display: {
+                showDroneLabels: document.getElementById('show-drone-labels').checked,
+                showAltitude: document.getElementById('show-altitude').checked,
+                showHeading: document.getElementById('show-heading').checked,
+                showPath: document.getElementById('show-path').checked
+            },
+            safety: {
+                minBattery: parseInt(document.getElementById('min-battery').value),
+                maxAltitude: parseInt(document.getElementById('max-altitude').value),
+                maxDistance: parseInt(document.getElementById('max-distance').value),
+                returnAltitude: parseInt(document.getElementById('return-altitude').value)
+            },
+            communication: {
+                telemetryRate: parseInt(document.getElementById('telemetry-rate').value),
+                heartbeatTimeout: parseInt(document.getElementById('heartbeat-timeout').value)
+            }
+        };
+    }
+    
+    saveSettings() {
+        const newSettings = this.getSettingsFromUI();
+        localStorage.setItem('appSettings', JSON.stringify(newSettings));
+        this.currentSettings = newSettings;
+        
+        // Apply settings to the application
+        this.applySettings();
+        
+        customAlert.success('Settings saved successfully');
+        this.hide();
+    }
+    
+    resetSettings() {
+        if (confirm('Are you sure you want to reset all settings to default?')) {
+            localStorage.removeItem('appSettings');
+            this.currentSettings = this.defaultSettings;
+            this.loadSettingsToUI();
+            
+            // Apply default settings to the application
+            this.applySettings();
+            
+            customAlert.success('Settings reset to default');
+        }
+    }
+    
+    applySettings() {
+        // Apply Map Settings
+        if (map) {
+            map.setZoom(this.currentSettings.map.defaultZoom);
+            // Switch map type based on setting
+            const layers = {
+                light: document.querySelector('.light-mode'),
+                satellite: document.querySelector('.satellite-mode')
+            };
+            const selectedLayer = layers[this.currentSettings.map.defaultType];
+            if (selectedLayer) {
+                selectedLayer.click();
+            }
+        }
+        
+        // Apply Mission Settings
+        document.querySelector('.measurement input').value = this.currentSettings.mission.defaultSeparation;
+        document.querySelector('.measurement-12 input').value = this.currentSettings.mission.defaultAltitude;
+        
+        // Apply Display Settings
+        const droneMarkers = document.querySelectorAll('.drone-marker-container');
+        droneMarkers.forEach(marker => {
+            const label = marker.querySelector('.drone-name');
+            const altitude = marker.querySelector('.drone-altitude');
+            const heading = marker.querySelector('.drone-heading-indicator');
+            
+            if (label) label.style.display = this.currentSettings.display.showDroneLabels ? 'block' : 'none';
+            if (altitude) altitude.style.display = this.currentSettings.display.showAltitude ? 'block' : 'none';
+            if (heading) heading.style.display = this.currentSettings.display.showHeading ? 'block' : 'none';
+        });
+        
+        // Apply path visibility
+        const missionPaths = document.querySelectorAll('.mission-path');
+        missionPaths.forEach(path => {
+            path.style.display = this.currentSettings.display.showPath ? 'block' : 'none';
+        });
+        
+        // Apply Communication Settings
+        clearInterval(window.telemetryInterval);
+        window.telemetryInterval = setInterval(fetchSerialData, this.currentSettings.communication.telemetryRate);
+    }
+}
+
+// Initialize settings menu when menu item is clicked
+document.getElementById('menu-settings').addEventListener('click', () => {
+    if (!window.settingsMenu) {
+        window.settingsMenu = new SettingsMenu();
+    }
+    window.settingsMenu.show();
+});
+
+// Update showSettings function
+function showSettings() {
+    if (!window.settingsMenu) {
+        window.settingsMenu = new SettingsMenu();
+    }
+    window.settingsMenu.show();
+}
+
+class HelpCenter {
+    constructor() {
+        this.popup = document.querySelector('.help-popup');
+        this.closeButton = document.getElementById('close-help');
+        this.navItems = document.querySelectorAll('.help-nav-item');
+        this.sections = document.querySelectorAll('.help-section');
+        
+        this.initialize();
+    }
+    
+    initialize() {
+        if (!this.popup || !this.closeButton) {
+            console.error('Required help center elements not found');
+            return false;
+        }
+        
+        // Setup event listeners
+        this.closeButton.addEventListener('click', () => this.hide());
+        
+        // Close on click outside
+        this.popup.addEventListener('click', (e) => {
+            if (e.target === this.popup) {
+                this.hide();
+            }
+        });
+        
+        // Setup navigation
+        this.navItems.forEach(item => {
+            item.addEventListener('click', () => {
+                const section = item.dataset.section;
+                this.showSection(section);
+            });
+        });
+        
+        return true;
+    }
+    
+    show() {
+        if (!this.popup) return;
+        
+        this.popup.style.display = 'flex';
+        setTimeout(() => {
+            this.popup.classList.add('active');
+        }, 10);
+    }
+    
+    hide() {
+        if (!this.popup) return;
+        
+        this.popup.classList.remove('active');
+        setTimeout(() => {
+            this.popup.style.display = 'none';
+        }, 300);
+    }
+    
+    showSection(sectionId) {
+        // Remove active class from all nav items and sections
+        this.navItems.forEach(item => item.classList.remove('active'));
+        this.sections.forEach(section => section.classList.remove('active'));
+        
+        // Add active class to selected nav item and section
+        const selectedNav = document.querySelector(`.help-nav-item[data-section="${sectionId}"]`);
+        const selectedSection = document.getElementById(sectionId);
+        
+        if (selectedNav && selectedSection) {
+            selectedNav.classList.add('active');
+            selectedSection.classList.add('active');
+        }
+    }
+}
+
+// Initialize help center when menu item is clicked
+document.getElementById('menu-help').addEventListener('click', () => {
+    if (!window.helpCenter) {
+        window.helpCenter = new HelpCenter();
+    }
+    window.helpCenter.show();
+});
+
+// Update showHelp function
+function showHelp() {
+    if (!window.helpCenter) {
+        window.helpCenter = new HelpCenter();
+    }
+    window.helpCenter.show();
+}
+
+// Add NED Control class
+class NEDControl {
+    constructor() {
+        this.isEnabled = false;
+        this.activeTargets = new Set();
+        this.velocities = { x: 0, y: 0, z: 0 };
+        this.controlInterval = null;
+        this.keyStates = {
+            'w': false, // +x
+            's': false, // -x
+            'a': false, // +y
+            'd': false, // -y
+            'u': false, // -z
+            'j': false  // +z
+        };
+        
+        // Map number keys to drone IDs
+        this.droneKeys = {
+            '1': 'MCU',
+            '2': 'CD1',
+            '3': 'CD2',
+            '4': 'CD3',
+            '5': 'CD4'
+        };
+        
+        this.initialize();
+    }
+    
+    initialize() {
+        // Initialize main toggle
+        const mainToggle = document.querySelector('.main-control-toggle');
+        mainToggle?.addEventListener('click', () => this.toggleMainControl());
+        
+        // Initialize drone toggles
+        const droneToggles = document.querySelectorAll('.drone-toggle');
+        droneToggles.forEach(toggle => {
+            toggle.addEventListener('click', () => {
+                const droneId = toggle.dataset.drone;
+                this.toggleDroneControl(droneId);
+            });
+        });
+        
+        // Initialize keyboard listeners
+        window.addEventListener('keydown', (e) => this.handleKeyDown(e));
+        window.addEventListener('keyup', (e) => this.handleKeyUp(e));
+    }
+    
+    toggleMainControl() {
+        const mainToggle = document.querySelector('.main-control-toggle');
+        this.isEnabled = !this.isEnabled;
+        
+        if (this.isEnabled) {
+            mainToggle.textContent = 'NED Control: ON';
+            mainToggle.classList.add('active');
+            this.startControlLoop();
+        } else {
+            mainToggle.textContent = 'NED Control: OFF';
+            mainToggle.classList.remove('active');
+            this.stopControlLoop();
+            this.resetVelocities();
+        }
+    }
+    
+    toggleDroneControl(droneId) {
+        const button = document.querySelector(`.drone-toggle[data-drone="${droneId}"]`);
+        if (!button) return;
+
+        if (this.activeTargets.has(droneId)) {
+            this.activeTargets.delete(droneId);
+            button.textContent = `${droneId}: OFF`;
+            button.classList.remove('active');
+        } else {
+            this.activeTargets.add(droneId);
+            button.textContent = `${droneId}: ON`;
+            button.classList.add('active');
+        }
+    }
+    
+    handleKeyDown(e) {
+        if (!this.isEnabled) return;
+        
+        const key = e.key.toLowerCase();
+        
+        // Handle number keys for drone toggling
+        if (this.droneKeys[e.key]) {
+            e.preventDefault();
+            this.toggleDroneControl(this.droneKeys[e.key]);
+            return;
+        }
+        
+        // Handle movement keys
+        if (this.keyStates.hasOwnProperty(key) && !this.keyStates[key]) {
+            e.preventDefault();
+            this.keyStates[key] = true;
+            this.updateVelocities();
+        }
+    }
+    
+    handleKeyUp(e) {
+        if (!this.isEnabled) return;
+        
+        const key = e.key.toLowerCase();
+        if (this.keyStates.hasOwnProperty(key)) {
+            e.preventDefault();
+            this.keyStates[key] = false;
+            this.updateVelocities();
+        }
+    }
+    
+    updateVelocities() {
+        // Update X velocity (W/S)
+        this.velocities.x = 0;
+        if (this.keyStates['w']) this.velocities.x = 0.6;
+        if (this.keyStates['s']) this.velocities.x = -0.6;
+        
+        // Update Y velocity (A/D)
+        this.velocities.y = 0;
+        if (this.keyStates['a']) this.velocities.y = 0.6;
+        if (this.keyStates['d']) this.velocities.y = -0.6;
+        
+        // Update Z velocity (U/J)
+        this.velocities.z = 0;
+        if (this.keyStates['u']) this.velocities.z = -0.6;
+        if (this.keyStates['j']) this.velocities.z = 0.6;
+    }
+    
+    resetVelocities() {
+        this.velocities = { x: 0, y: 0, z: 0 };
+        Object.keys(this.keyStates).forEach(key => {
+            this.keyStates[key] = false;
+        });
+    }
+    
+    startControlLoop() {
+        if (this.controlInterval) return;
+        
+        this.controlInterval = setInterval(() => {
+            if (this.isEnabled && this.activeTargets.size > 0) {
+                this.sendVelocityCommands();
+            }
+        }, 800); // Send commands every 0.8 seconds
+    }
+    
+    stopControlLoop() {
+        if (this.controlInterval) {
+            clearInterval(this.controlInterval);
+            this.controlInterval = null;
+        }
+    }
+    
+    sendVelocityCommands() {
+        this.activeTargets.forEach(target => {
+            const command = `${this.velocities.x},${this.velocities.y},${this.velocities.z}`;
+            send_command(target, 'NED', command);
+        });
+    }
+}
+
+// Initialize NED Control when DOM is loaded
+document.addEventListener('DOMContentLoaded', () => {
+    window.nedControl = new NEDControl();
+});
+
