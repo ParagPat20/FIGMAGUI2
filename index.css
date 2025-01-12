@@ -1010,22 +1010,26 @@ button {
 }
 
 .drone-toggle {
-    padding: 6px 12px;
-    background: #f05151;
-    color: white;
-    border: none;
-    border-radius: 6px;
+    padding: 5px 10px;
+    margin: 0 5px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
     cursor: pointer;
-    font-family: 'IBM Plex Mono', monospace;
-    font-size: 13px;
-    font-weight: 500;
-    transition: all 0.3s ease;
-    min-width: 60px;
-    text-align: center;
+    background-color: #f0f0f0;
+    transition: background-color 0.3s ease;
 }
 
 .drone-toggle.active {
-    background: #70c172;
+    background-color: #4CAF50;
+    color: white;
+}
+
+.drone-toggle:hover {
+    background-color: #e0e0e0;
+}
+
+.drone-toggle.active:hover {
+    background-color: #45a049;
 }
 
 .ned-info {
@@ -4626,18 +4630,26 @@ input[type="range"]::-webkit-slider-thumb:hover {
 }
 
 .drone-toggle {
-    padding: 6px 12px;
-    background: #f05151;
-    color: white;
-    border: none;
+    padding: 5px 10px;
+    margin: 0 5px;
+    border: 1px solid #ccc;
     border-radius: 4px;
     cursor: pointer;
-    font-family: 'IBM Plex Mono', monospace;
-    transition: background 0.3s;
+    background-color: #f0f0f0;
+    transition: background-color 0.3s ease;
 }
 
 .drone-toggle.active {
-    background: #70c172;
+    background-color: #4CAF50;
+    color: white;
+}
+
+.drone-toggle:hover {
+    background-color: #e0e0e0;
+}
+
+.drone-toggle.active:hover {
+    background-color: #45a049;
 }
 
 .ned-info {

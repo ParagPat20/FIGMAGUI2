@@ -2504,6 +2504,10 @@ function handleDroneMessage(parsedMsg) {
             case 'HB':
                 handleDroneHeartbeat(source);
                 break;
+
+            case 'NED_ACK':
+                console.log(`Received NED acknowledgment from ${source}:`, payload);
+                return;
         }
     } catch (error) {
         console.error(`Error processing ${command} message:`, error);
@@ -3500,13 +3504,18 @@ class NEDControl {
     }
     
     handleKeyDown(e) {
-        if (!this.isEnabled) return;
+        if (!this.isEnabled) {
+            console.log('NED Control is disabled');
+            return;
+        }
         
         const key = e.key.toLowerCase();
+        console.log('Key pressed:', key); // Debug key press
         
         // Handle number keys for drone toggling
         if (this.droneKeys[e.key]) {
             e.preventDefault();
+            console.log('Toggling drone:', this.droneKeys[e.key]); // Debug drone toggle
             this.toggleDroneControl(this.droneKeys[e.key]);
             return;
         }
@@ -3516,6 +3525,7 @@ class NEDControl {
             e.preventDefault();
             this.keyStates[key] = true;
             this.updateVelocities();
+            console.log('Updated velocities:', this.velocities); // Debug velocities
         }
     }
     
@@ -3578,8 +3588,8 @@ class NEDControl {
     
     sendVelocityCommands() {
         this.activeTargets.forEach(target => {
-            // Include yaw in command string
             const command = `${this.velocities.x},${this.velocities.y},${this.velocities.z},${this.velocities.yaw || 0}`;
+            console.log(`Sending NED command to ${target}:`, command); // Debug command sending
             send_command(target, 'NED', command);
         });
     }
@@ -3598,5 +3608,27 @@ class NEDControl {
 // Initialize NED Control when DOM is loaded
 document.addEventListener('DOMContentLoaded', () => {
     window.nedControl = new NEDControl();
+});
+
+// Add event listeners for drone toggle buttons
+document.querySelectorAll('.drone-toggle').forEach(button => {
+    button.addEventListener('click', function() {
+        const droneId = this.getAttribute('data-drone');
+        const isCurrentlyOn = this.textContent.includes('ON');
+        
+        // Toggle the state
+        const newState = isCurrentlyOn ? 'OFF' : 'ON';
+        this.textContent = `${droneId}: ${newState}`;
+        
+        // Add visual feedback with classes
+        if (newState === 'ON') {
+            this.classList.add('active');
+        } else {
+            this.classList.remove('active');
+        }
+        
+        // Here you can add your logic to actually control the drone
+        console.log(`${droneId} toggled to ${newState}`);
+    });
 });
 
