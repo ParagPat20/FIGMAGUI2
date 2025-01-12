@@ -3419,15 +3419,17 @@ class NEDControl {
     constructor() {
         this.isEnabled = false;
         this.activeTargets = new Set();
-        this.velocities = { x: 0, y: 0, z: 0 };
+        this.velocities = { x: 0, y: 0, z: 0, yaw: 0 };
         this.controlInterval = null;
         this.keyStates = {
-            'w': false, // +x
-            's': false, // -x
-            'a': false, // +y
-            'd': false, // -y
-            'u': false, // -z
-            'j': false  // +z
+            'w': false, // Forward (+x)
+            's': false, // Backward (-x)
+            'a': false, // Left (+y)
+            'd': false, // Right (-y)
+            'q': false, // Up (-z)
+            'e': false, // Down (+z)
+            'z': false, // Yaw left
+            'c': false  // Yaw right
         };
         
         // Map number keys to drone IDs
@@ -3485,10 +3487,15 @@ class NEDControl {
             this.activeTargets.delete(droneId);
             button.textContent = `${droneId}: OFF`;
             button.classList.remove('active');
+            // Send zero velocity when disabling control
+            send_command(droneId, 'NED', '0,0,0,0');
         } else {
-            this.activeTargets.add(droneId);
-            button.textContent = `${droneId}: ON`;
-            button.classList.add('active');
+            // Check if drone is in GUIDED mode before enabling control
+            if (this.checkDroneMode(droneId)) {
+                this.activeTargets.add(droneId);
+                button.textContent = `${droneId}: ON`;
+                button.classList.add('active');
+            }
         }
     }
     
@@ -3524,24 +3531,28 @@ class NEDControl {
     }
     
     updateVelocities() {
-        // Update X velocity (W/S)
-        this.velocities.x = 0;
+        // Reset velocities
+        this.velocities = { x: 0, y: 0, z: 0, yaw: 0 };
+        
+        // Forward/Backward (X-axis)
         if (this.keyStates['w']) this.velocities.x = 0.6;
         if (this.keyStates['s']) this.velocities.x = -0.6;
         
-        // Update Y velocity (A/D)
-        this.velocities.y = 0;
+        // Left/Right (Y-axis)
         if (this.keyStates['a']) this.velocities.y = 0.6;
         if (this.keyStates['d']) this.velocities.y = -0.6;
         
-        // Update Z velocity (U/J)
-        this.velocities.z = 0;
-        if (this.keyStates['u']) this.velocities.z = -0.6;
-        if (this.keyStates['j']) this.velocities.z = 0.6;
+        // Up/Down (Z-axis)
+        if (this.keyStates['q']) this.velocities.z = -0.6;
+        if (this.keyStates['e']) this.velocities.z = 0.6;
+        
+        // Yaw control
+        if (this.keyStates['z']) this.velocities.yaw = -0.2;
+        if (this.keyStates['c']) this.velocities.yaw = 0.2;
     }
     
     resetVelocities() {
-        this.velocities = { x: 0, y: 0, z: 0 };
+        this.velocities = { x: 0, y: 0, z: 0, yaw: 0 };
         Object.keys(this.keyStates).forEach(key => {
             this.keyStates[key] = false;
         });
@@ -3550,11 +3561,12 @@ class NEDControl {
     startControlLoop() {
         if (this.controlInterval) return;
         
+        // Increase update frequency
         this.controlInterval = setInterval(() => {
             if (this.isEnabled && this.activeTargets.size > 0) {
                 this.sendVelocityCommands();
             }
-        }, 800); // Send commands every 0.8 seconds
+        }, 100); // Reduced from 800ms to 100ms for more responsive control
     }
     
     stopControlLoop() {
@@ -3566,9 +3578,20 @@ class NEDControl {
     
     sendVelocityCommands() {
         this.activeTargets.forEach(target => {
-            const command = `${this.velocities.x},${this.velocities.y},${this.velocities.z}`;
+            // Include yaw in command string
+            const command = `${this.velocities.x},${this.velocities.y},${this.velocities.z},${this.velocities.yaw || 0}`;
             send_command(target, 'NED', command);
         });
+    }
+
+    // Add method to check if drone is in GUIDED mode
+    checkDroneMode(droneId) {
+        const drone = droneStates[droneId];
+        if (!drone || drone.mode !== 'GUIDED') {
+            customAlert.warning(`${droneId} must be in GUIDED mode for NED control`);
+            return false;
+        }
+        return true;
     }
 }
 
