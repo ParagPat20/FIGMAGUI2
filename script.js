@@ -338,42 +338,387 @@ function handleProgramChange(e) {
     updateFormation();
 }
 
-function handleStart() {
-    const startBtn = elements.startBtn;
-    const startLabel = startBtn.querySelector('.start-label');
-    const pauseBtn = elements.pauseBtn;
-    
-    // Toggle between start and stop states
-    const isStarted = startBtn.classList.contains('stop');
-    
-    if (!isStarted) {
-        // Change to stop state
-        startBtn.classList.add('stop');
-        startBtn.style.background = '#f05151';
-        startLabel.textContent = 'STOP';
-        startBtn.classList.add('active');
-        pauseBtn.disabled = false;
+// Add mission decoder instance
+let missionDecoder = null;
+let isExecutingMission = false;
+let isPausedMission = false;
+
+// Function to load available missions
+async function loadAvailableMissions() {
+    try {
+        const response = await fetch('http://127.0.0.1:5000/list_missions');
+        if (!response.ok) {
+            throw new Error(`Failed to fetch missions: ${response.statusText}`);
+        }
+        const missions = await response.json();
         
-        // Start the mission
-        startMission();
-    } else {
-        // Change back to start state
-        startBtn.classList.remove('stop');
-        startBtn.style.background = '#70c172';
-        startLabel.textContent = 'START';
-        startBtn.classList.remove('active');
-        pauseBtn.disabled = true;
+        // Update program select dropdown
+        const programSelect = document.querySelector('.program-select');
+        programSelect.innerHTML = '<option value="">Select Mission</option>';
         
-        // Stop the mission
-        stopMission();
+        missions.forEach(mission => {
+            const option = document.createElement('option');
+            option.value = mission.path;  // Store just the path
+            option.textContent = mission.name;
+            programSelect.appendChild(option);
+        });
+    } catch (error) {
+        console.error('Error loading missions:', error);
+        customAlert.error('Failed to load missions: ' + error.message);
     }
 }
 
-function handlePause() {
-    elements.pauseBtn.disabled = true;
-    elements.startBtn.disabled = false;
-    pauseMission();
+// Function to execute mission commands
+async function executeMissionCommands(commands) {
+    if (!commands || commands.length === 0) return;
+    
+    for (const cmd of commands) {
+        try {
+            const formattedCmd = `{T:${cmd.target};C:${cmd.command};P:${cmd.payload}}`;
+            console.log('Executing command:', formattedCmd);
+            
+            const response = await fetch('http://127.0.0.1:5000/send_command', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ command: formattedCmd })
+            });
+            
+            if (!response.ok) {
+                throw new Error(`Failed to send command: ${response.statusText}`);
+            }
+            
+            await new Promise(resolve => setTimeout(resolve, 100)); // Small delay between commands
+        } catch (error) {
+            console.error('Error executing command:', error);
+            customAlert.error('Command execution failed: ' + error.message);
+            throw error; // Re-throw to stop mission execution
+        }
+    }
 }
+
+// Add mission viewer class
+class MissionViewer {
+    constructor() {
+        // Create styles
+        const style = document.createElement('style');
+        style.textContent = `
+            .mission-viewer {
+                position: fixed;
+                top: 50%;
+                right: 20px;
+                transform: translateY(-50%);
+                background: var(--darker-blue, #1a1a2e);
+                border: 1px solid #95bdf8;
+                border-radius: 8px;
+                padding: 20px;
+                width: 300px;
+                box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+                z-index: 1000;
+                color: white;
+                font-family: 'IBM Plex Mono', monospace;
+            }
+            
+            .mission-viewer-header {
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+                margin-bottom: 20px;
+                border-bottom: 1px solid #95bdf8;
+                padding-bottom: 10px;
+            }
+            
+            .mission-viewer-header h3 {
+                margin: 0;
+                color: #95bdf8;
+                font-size: 16px;
+            }
+            
+            .close-viewer {
+                background: none;
+                border: none;
+                color: #95bdf8;
+                font-size: 20px;
+                cursor: pointer;
+                padding: 0;
+                line-height: 1;
+            }
+            
+            .close-viewer:hover {
+                color: #fff;
+            }
+            
+            .progress-bar {
+                background: #1a2634;
+                height: 6px;
+                border-radius: 3px;
+                margin: 15px 0;
+                overflow: hidden;
+            }
+            
+            .progress {
+                background: #4a90e2;
+                height: 100%;
+                border-radius: 3px;
+                transition: width 0.3s ease;
+                width: 0%;
+            }
+            
+            .status-text {
+                color: #95bdf8;
+                font-size: 14px;
+                margin-bottom: 15px;
+                text-align: center;
+            }
+            
+            .current-commands {
+                max-height: 200px;
+                overflow-y: auto;
+                padding-right: 10px;
+            }
+            
+            .current-commands::-webkit-scrollbar {
+                width: 6px;
+            }
+            
+            .current-commands::-webkit-scrollbar-track {
+                background: #1a2634;
+                border-radius: 3px;
+            }
+            
+            .current-commands::-webkit-scrollbar-thumb {
+                background: #4a90e2;
+                border-radius: 3px;
+            }
+            
+            .command-item {
+                display: grid;
+                grid-template-columns: auto 1fr auto;
+                gap: 10px;
+                padding: 8px;
+                background: #1a2634;
+                border-radius: 4px;
+                margin-bottom: 5px;
+                font-size: 12px;
+                align-items: center;
+            }
+            
+            .command-item:last-child {
+                margin-bottom: 0;
+            }
+            
+            .command-item .target {
+                color: #4a90e2;
+                font-weight: 500;
+            }
+            
+            .command-item .command {
+                color: #95bdf8;
+            }
+            
+            .command-item .payload {
+                color: #6c757d;
+                font-family: monospace;
+            }
+        `;
+        document.head.appendChild(style);
+        
+        // Create container
+        this.container = document.createElement('div');
+        this.container.className = 'mission-viewer';
+        this.container.innerHTML = `
+            <div class="mission-viewer-header">
+                <h3>Mission Progress</h3>
+                <button class="close-viewer">&times;</button>
+            </div>
+            <div class="mission-status">
+                <div class="status-text">Frame: <span class="current-frame">0</span> / <span class="total-frames">0</span></div>
+                <div class="progress-bar">
+                    <div class="progress"></div>
+                </div>
+                <div class="current-commands"></div>
+            </div>
+        `;
+        
+        document.body.appendChild(this.container);
+        
+        // Add close button handler
+        this.container.querySelector('.close-viewer').addEventListener('click', () => {
+            this.hide();
+        });
+        
+        this.hide(); // Initially hidden
+    }
+    
+    show() {
+        this.container.style.display = 'block';
+        // Reset progress
+        this.updateProgress(0, 0);
+        this.showCommands([]);
+    }
+    
+    hide() {
+        this.container.style.display = 'none';
+    }
+    
+    updateProgress(current, total) {
+        const progress = total > 0 ? (current / total) * 100 : 0;
+        this.container.querySelector('.progress').style.width = `${progress}%`;
+        this.container.querySelector('.current-frame').textContent = current;
+        this.container.querySelector('.total-frames').textContent = total;
+    }
+    
+    showCommands(commands) {
+        const commandsDiv = this.container.querySelector('.current-commands');
+        if (!commands || commands.length === 0) {
+            commandsDiv.innerHTML = '<div class="command-item">No commands in this frame</div>';
+            return;
+        }
+        
+        commandsDiv.innerHTML = commands.map(cmd => 
+            `<div class="command-item">
+                <span class="target">${cmd.target}</span>
+                <span class="command">${cmd.command}</span>
+                <span class="payload">${cmd.payload}</span>
+            </div>`
+        ).join('');
+    }
+}
+
+// Create mission viewer instance
+const missionViewer = new MissionViewer();
+
+// Update handleStart function
+async function handleStart() {
+    const programSelect = document.querySelector('.program-select');
+    const startButton = document.querySelector('.start');
+    const pauseButton = document.querySelector('.pause');
+    
+    if (!programSelect.value) {
+        customAlert.error('Please select a mission');
+        return;
+    }
+    
+    if (!isExecutingMission) {
+        try {
+            startButton.disabled = true;
+            
+            // Initialize mission decoder if not already initialized
+            if (!missionDecoder) {
+                const response = await fetch(`http://127.0.0.1:5000${programSelect.value}`);
+                if (!response.ok) {
+                    throw new Error(`Failed to load mission: ${response.statusText}`);
+                }
+                const missionData = await response.json();
+                missionDecoder = new MissionDecoder();
+                await missionDecoder.load_mission(missionData);
+            }
+            
+            isExecutingMission = true;
+            isPausedMission = false;
+            
+            // Update button states
+            startButton.textContent = 'Stop';
+            startButton.classList.add('stop');
+            startButton.disabled = false;
+            pauseButton.style.display = 'inline-block';
+            pauseButton.textContent = 'Pause';
+            
+            // Show mission viewer
+            missionViewer.show();
+            
+            customAlert.success('Mission started');
+            
+            // Start mission execution loop
+            let frameIndex = 0;
+            const totalFrames = missionDecoder.frames.length;
+            
+            while (isExecutingMission && !isPausedMission) {
+                const frameData = missionDecoder.get_next_frame_commands();
+                if (!frameData) {
+                    // Mission complete
+                    customAlert.success('Mission completed successfully');
+                    handleStop();
+                    break;
+                }
+                
+                // Update mission viewer
+                frameIndex++;
+                missionViewer.updateProgress(frameIndex, totalFrames);
+                missionViewer.showCommands(frameData.commands);
+                
+                // Execute all commands for this frame
+                await executeMissionCommands(frameData.commands);
+                
+                // Wait for frame delay
+                await new Promise(resolve => setTimeout(resolve, frameData.delay));
+            }
+        } catch (error) {
+            console.error('Error executing mission:', error);
+            customAlert.error('Failed to execute mission: ' + error.message);
+            handleStop();
+        }
+    } else {
+        // Stop mission
+        handleStop();
+    }
+}
+
+// Update handleStop function
+async function handleStop() {
+    if (missionDecoder) {
+        const landCommands = missionDecoder.stop_mission();
+        await executeMissionCommands(landCommands);
+    }
+    
+    isExecutingMission = false;
+    isPausedMission = false;
+    missionDecoder = null;
+    
+    const startButton = document.querySelector('.start');
+    const pauseButton = document.querySelector('.pause');
+    
+    // Update button states
+    startButton.textContent = 'Start';
+    startButton.classList.remove('stop');
+    startButton.disabled = false;
+    pauseButton.style.display = 'none';
+    pauseButton.textContent = 'Pause';
+    
+    // Hide mission viewer
+    missionViewer.hide();
+}
+
+// Update handlePause function
+function handlePause() {
+    const pauseButton = document.querySelector('.pause');
+    
+    if (isExecutingMission) {
+        if (!isPausedMission) {
+            // Pause mission
+            isPausedMission = true;
+            missionDecoder?.pause_mission();
+            pauseButton.textContent = 'Resume';
+            customAlert.info('Mission paused');
+        } else {
+            // Resume mission
+            isPausedMission = false;
+            missionDecoder?.resume_mission();
+            pauseButton.textContent = 'Pause';
+            customAlert.info('Mission resumed');
+        }
+    }
+}
+
+// Initialize event listeners
+document.addEventListener('DOMContentLoaded', () => {
+    loadAvailableMissions();
+    
+    // Add event listeners for mission control buttons
+    document.querySelector('.start').addEventListener('click', handleStart);
+    document.querySelector('.pause').addEventListener('click', handlePause);
+});
 
 // Sidebar Menu Functions
 function handleMenuClick(e) {
@@ -2215,54 +2560,49 @@ class MissionPlanner {
     }
 
     saveMission() {
-        try {
-            const missionData = {
-                version: "1.0",
-                timestamp: Date.now(),
-                settings: {
-                    gridSize: this.gridSize,
-                    gridSpacing: this.gridSpacing,
-                    playbackSpeed: this.playbackSpeed
-                },
-                drones: {},
-                customCommands: Array.from(this.customCommands.entries())
+        const missionData = {
+            version: "1.0",
+            timestamp: Date.now(),
+            settings: {
+                gridSize: this.gridSize,
+                gridSpacing: this.gridSpacing
+            },
+            drones: {}
+        };
+
+        // Save drone keyframes
+        this.keyframes.forEach((frames, droneId) => {
+            missionData.drones[droneId] = {
+                color: this.getDroneColor(droneId),
+                frames: frames.map(frame => ({
+                    position: { ...frame.position },
+                    heading: frame.heading,
+                    delay: frame.delay || 1000
+                }))
             };
+        });
 
-            // Save keyframes for each drone
-            this.defaultDrones.forEach(droneId => {
-                const frames = this.keyframes.get(droneId);
-                if (frames) {
-                    missionData.drones[droneId] = {
-                        color: this.getDroneColor(droneId),
-                        frames: frames.map(frame => ({
-                            position: {
-                                x: parseFloat(frame.position.x.toFixed(2)),
-                                y: parseFloat(frame.position.y.toFixed(2)),
-                                z: parseFloat(frame.position.z.toFixed(2))
-                            },
-                            heading: parseFloat(frame.heading.toFixed(4)),
-                            delay: frame.delay || 1000
-                        }))
-                    };
-                }
+        // Save custom commands organized by keyframe
+        if (this.customCommands.size > 0) {
+            missionData.customCommands = Array.from(this.customCommands.entries()).map(([frameIndex, commands]) => {
+                return [frameIndex, commands.map(cmd => ({
+                    droneId: cmd.droneId,
+                    command: cmd.command,
+                    payload: cmd.payload
+                }))];
             });
-
-            // Create and download file
-            const blob = new Blob([JSON.stringify(missionData, null, 2)], { type: 'application/json' });
-            const url = URL.createObjectURL(blob);
-            const a = document.createElement('a');
-            a.href = url;
-            a.download = `swarm_mission_${new Date().toISOString().slice(0,19).replace(/:/g, '-')}.json`;
-            document.body.appendChild(a);
-            a.click();
-            document.body.removeChild(a);
-            URL.revokeObjectURL(url);
-
-            customAlert.success('Mission saved successfully');
-        } catch (error) {
-            console.error('Error saving mission:', error);
-            customAlert.error('Failed to save mission: ' + error.message);
         }
+
+        // Save mission file
+        const blob = new Blob([JSON.stringify(missionData, null, 2)], { type: 'application/json' });
+        const timestamp = new Date().toISOString().replace(/[:.]/g, '-');
+        const filename = `swarm_mission_${timestamp}.json`;
+        
+        const a = document.createElement('a');
+        a.href = URL.createObjectURL(blob);
+        a.download = filename;
+        a.click();
+        URL.revokeObjectURL(a.href);
     }
 
     loadMission(file) {
@@ -2282,7 +2622,9 @@ class MissionPlanner {
                 
                 // Load custom commands if they exist
                 if (missionData.customCommands) {
-                    this.customCommands = new Map(missionData.customCommands);
+                    missionData.customCommands.forEach(([frameIndex, commands]) => {
+                        this.customCommands.set(frameIndex, commands);
+                    });
                 }
                 
                 // Reset to first keyframe
@@ -3845,4 +4187,105 @@ class NEDControl {
 document.addEventListener('DOMContentLoaded', () => {
     window.nedControl = new NEDControl();
 });
+
+class MissionDecoder {
+    constructor() {
+        this.missionData = null;
+        this.currentFrameIndex = 0;
+        this.isPaused = false;
+        this.frames = [];
+    }
+
+    async load_mission(data) {
+        this.missionData = data;
+        this.currentFrameIndex = 0;
+        this.isPaused = false;
+        
+        // Convert mission data to frames with commands
+        this.frames = [];
+        const maxFrames = Math.max(...Object.values(data.drones).map(drone => drone.frames.length));
+        
+        for (let i = 0; i < maxFrames; i++) {
+            const frameCommands = [];
+            
+            // Add position commands for each drone
+            Object.entries(data.drones).forEach(([droneId, droneData]) => {
+                if (i < droneData.frames.length) {
+                    const frame = droneData.frames[i];
+                    frameCommands.push({
+                        target: droneId,
+                        command: 'POS',
+                        payload: `${frame.position.x},${frame.position.y},${frame.position.z},${frame.heading}`
+                    });
+                }
+            });
+            
+            // Add custom commands for this frame if they exist
+            if (data.customCommands) {
+                const customCmds = data.customCommands.find(([frameIdx]) => frameIdx === i);
+                if (customCmds) {
+                    customCmds[1].forEach(cmd => {
+                        frameCommands.push({
+                            target: cmd.droneId,
+                            command: cmd.command,
+                            payload: cmd.payload
+                        });
+                    });
+                }
+            }
+            
+            // Get delay from any drone's frame (they should all be the same)
+            const delay = Object.values(data.drones)[0].frames[i]?.delay || 1000;
+            
+            this.frames.push({
+                commands: frameCommands,
+                delay: delay
+            });
+        }
+        
+        console.log('Processed frames:', this.frames);
+    }
+
+    get_next_frame_commands() {
+        if (!this.frames || this.isPaused) return null;
+        
+        if (this.currentFrameIndex >= this.frames.length) {
+            return null; // Mission complete
+        }
+        
+        const frame = this.frames[this.currentFrameIndex];
+        this.currentFrameIndex++;
+        
+        return frame;
+    }
+
+    pause_mission() {
+        this.isPaused = true;
+    }
+
+    resume_mission() {
+        this.isPaused = false;
+    }
+
+    stop_mission() {
+        // Generate land commands for all drones
+        const landCommands = [];
+        if (this.missionData && this.missionData.drones) {
+            Object.keys(this.missionData.drones).forEach(droneId => {
+                landCommands.push({
+                    target: droneId,
+                    command: 'LAND',
+                    payload: '1'
+                });
+            });
+        }
+        
+        this.missionData = null;
+        this.currentFrameIndex = 0;
+        this.isPaused = false;
+        this.frames = [];
+        
+        return landCommands;
+    }
+}
 

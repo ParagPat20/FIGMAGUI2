@@ -160,6 +160,45 @@ class DroneSerialHandler(SimpleHTTPRequestHandler):
                 self.wfile.write(log_content.encode())
             else:
                 self.send_error(404, "Log file not found")
+        elif self.path == '/list_missions':
+            try:
+                missions_dir = os.path.join(BASE_DIR, 'Missions')
+                missions = []
+                if os.path.exists(missions_dir):
+                    for file in os.listdir(missions_dir):
+                        if file.endswith('.json'):
+                            missions.append({
+                                'name': file,
+                                'path': f'/Missions/{file}'  # Use relative path
+                            })
+                
+                self.send_response(200)
+                self.send_header('Content-type', 'application/json')
+                self.send_cors_headers()
+                self.end_headers()
+                self.wfile.write(json.dumps(missions).encode())
+            except Exception as e:
+                print(f"Error listing missions: {e}")
+                self.send_error(500, str(e))
+            return
+        elif self.path.startswith('/Missions/'):
+            try:
+                file_path = os.path.join(BASE_DIR, self.path.lstrip('/'))
+                if os.path.exists(file_path):
+                    with open(file_path, 'r') as f:
+                        mission_data = f.read()
+                    
+                    self.send_response(200)
+                    self.send_header('Content-type', 'application/json')
+                    self.send_cors_headers()
+                    self.end_headers()
+                    self.wfile.write(mission_data.encode())
+                else:
+                    self.send_error(404, "Mission file not found")
+            except Exception as e:
+                print(f"Error reading mission file: {e}")
+                self.send_error(500, str(e))
+            return
         else:
             # Handle API endpoints
             if self.path == '/list_ports':

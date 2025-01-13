@@ -1,0 +1,137 @@
+=== ESP Terminal Log Started at 2025-01-13_22-58-32 ===
+[2025-01-13 22:58:49.133] {"command":"{T:MCU;C:POS;P:1,0,2,0}"}
+[2025-01-13 22:58:49.137] TargetInvalid target specified
+[2025-01-13 22:58:49.249] {"command":"{T:CD1;C:POS;P:2,0,2,0}"}
+[2025-01-13 22:58:49.257] TargetInvalid target specified
+[2025-01-13 22:58:49.360] {"command":"{T:CD2;C:POS;P:3,0,2,0}"}
+[2025-01-13 22:58:49.360] TargetInvalid target specified
+[2025-01-13 22:58:49.477] {"command":"{T:CD3;C:POS;P:4,0,2,0}"}
+[2025-01-13 22:58:49.477] TargetInvalid target specified
+[2025-01-13 22:58:49.586] {"command":"{T:CD4;C:POS;P:5,0,2,0}"}
+[2025-01-13 22:58:49.588] TargetInvalid target specified
+[2025-01-13 22:58:49.692] {"command":"{T:MCU;C:LIGHT;P:ab3b3b}"}
+[2025-01-13 22:58:49.695] TargetInvalid target specified
+[2025-01-13 22:58:49.811] {"command":"{T:MCU;C:FLIP;P:1}"}
+[2025-01-13 22:58:49.812] TargetInvalid target specified
+[2025-01-13 22:58:49.924] {"command":"{T:MCU;C:LIGHT;P:2080fe}"}
+[2025-01-13 22:58:49.930] TargetInvalid target specified
+[2025-01-13 22:58:51.043] {"command":"{T:MCU;C:POS;P:1,0,2,0}"}
+[2025-01-13 22:58:51.047] TargetInvalid target specified
+[2025-01-13 22:58:51.146] {"command":"{T:CD1;C:POS;P:2,0,2,0}"}
+[2025-01-13 22:58:51.146] TargetInvalid target specified
+[2025-01-13 22:58:51.257] {"command":"{T:CD2;C:POS;P:3,0,2,0}"}
+[2025-01-13 22:58:51.260] TargetInvalid target specified
+[2025-01-13 22:58:51.370] {"command":"{T:CD3;C:POS;P:4,0,2,0}"}
+[2025-01-13 22:58:51.374] TargetInvalid target specified
+[2025-01-13 22:58:51.476] {"command":"{T:CD4;C:POS;P:5,0,2,0}"}
+[2025-01-13 22:58:51.479] TargetInvalid target specified
+[2025-01-13 22:58:52.584] {"command":"{T:MCU;C:POS;P:1,0,2,0}"}
+[2025-01-13 22:58:52.590] TargetInvalid target specified
+[2025-01-13 22:58:52.694] {"command":"{T:CD1;C:POS;P:2,0,2,0}"}
+[2025-01-13 22:58:52.701] TargetInvalid target specified
+[2025-01-13 22:58:52.807] {"command":"{T:CD2;C:POS;P:3,0,2,0}"}
+[2025-01-13 22:58:52.807] TargetInvalid target specified
+[2025-01-13 22:58:52.904] {"command":"{T:CD3;C:POS;P:4,0,2,0}"}
+[2025-01-13 22:58:52.940] TargetInvalid target specified
+[2025-01-13 22:58:53.027] {"command":"{T:CD4;C:POS;P:5,0,2,0}"}
+[2025-01-13 22:58:53.032] TargetInvalid target specified
+[2025-01-13 22:58:54.146] {"command":"{T:MCU;C:POS;P:0.87,0.5,2,24}"}
+[2025-01-13 22:58:54.149] TargetInvalid target specified
+[2025-01-13 22:58:54.248] {"command":"{T:CD1;C:POS;P:1.73,1,2,24}"}
+[2025-01-13 22:58:54.258] TargetInvalid target specified
+[2025-01-13 22:58:54.355] {"command":"{T:CD2;C:POS;P:2.6,1.5,2,24}"}
+[2025-01-13 22:58:54.363] TargetInvalid target specified
+[2025-01-13 22:58:54.472] {"command":"{T:CD3;C:POS;P:3.46,2,2,24}"}
+[2025-01-13 22:58:54.476] TargetInvalid target specified
+[2025-01-13 22:58:54.583] {"command":"{T:CD4;C:POS;P:4.33,2.5,2,24}"}
+[2025-01-13 22:58:54.583] TargetInvalid target specified
+[2025-01-13 22:58:55.706] {"command":"{T:MCU;C:POS;P:0.5,0.87,2,48}"}
+[2025-01-13 22:58:55.709] TargetInvalid target specified
+[2025-01-13 22:58:55.810] {"command":"{T:CD1;C:POS;P:1,1.73,2,48}"}
+[2025-01-13 22:58:55.824] TargetInvalid target specified
+[2025-01-13 22:58:55.931] {"command":"{T:CD2;C:POS;P:1.5,2.6,2,48}"}
+[2025-01-13 22:58:55.936] TargetInvalid target specified
+[2025-01-13 22:58:56.042] {"command":"{T:CD3;C:POS;P:2,3.46,2,48}"}
+[2025-01-13 22:58:56.042] TargetInvalid target specified
+[2025-01-13 22:58:56.143] {"command":"{T:CD4;C:POS;P:2.5,4.33,2,48}"}
+[2025-01-13 22:58:56.143] TargetInvalid target specified
+[2025-01-13 22:58:57.265] {"command":"{T:MCU;C:POS;P:0,1,2,72}"}
+[2025-01-13 22:58:57.266] TargetInvalid target specified
+[2025-01-13 22:58:57.376] {"command":"{T:CD1;C:POS;P:0,2,2,72}"}
+[2025-01-13 22:58:57.381] TargetInvalid target specified
+[2025-01-13 22:58:57.483] {"command":"{T:CD2;C:POS;P:0,3,2,72}"}
+[2025-01-13 22:58:57.484] TargetInvalid target specified
+[2025-01-13 22:58:57.593] {"command":"{T:CD3;C:POS;P:0,4,2,72}"}
+[2025-01-13 22:58:57.593] TargetInvalid target specified
+[2025-01-13 22:58:57.699] {"command":"{T:CD4;C:POS;P:0,5,2,72}"}
+[2025-01-13 22:58:57.699] TargetInvalid target specified
+[2025-01-13 22:58:58.825] {"command":"{T:MCU;C:POS;P:-0.5,0.87,2,96}"}
+[2025-01-13 22:58:58.828] TargetInvalid target specified
+[2025-01-13 22:58:58.940] {"command":"{T:CD1;C:POS;P:-1,1.73,2,96}"}
+[2025-01-13 22:58:58.945] TargetInvalid target specified
+[2025-01-13 22:58:59.052] {"command":"{T:CD2;C:POS;P:-1.5,2.6,2,96}"}
+[2025-01-13 22:58:59.058] TargetInvalid target specified
+[2025-01-13 22:58:59.170] {"command":"{T:CD3;C:POS;P:-2,3.46,2,96}"}
+[2025-01-13 22:58:59.173] TargetInvalid target specified
+[2025-01-13 22:58:59.278] {"command":"{T:CD4;C:POS;P:-2.5,4.33,2,96}"}
+[2025-01-13 22:58:59.278] TargetInvalid target specified
+[2025-01-13 22:59:00.403] {"command":"{T:MCU;C:POS;P:-0.87,0.5,2,120}"}
+[2025-01-13 22:59:00.405] TargetInvalid target specified
+[2025-01-13 22:59:00.516] {"command":"{T:CD1;C:POS;P:-1.73,1,2,120}"}
+[2025-01-13 22:59:00.519] TargetInvalid target specified
+[2025-01-13 22:59:00.622] {"command":"{T:CD2;C:POS;P:-2.6,1.5,2,120}"}
+[2025-01-13 22:59:00.627] TargetInvalid target specified
+[2025-01-13 22:59:00.726] {"command":"{T:CD3;C:POS;P:-3.46,2,2,120}"}
+[2025-01-13 22:59:00.733] TargetInvalid target specified
+[2025-01-13 22:59:00.831] {"command":"{T:CD4;C:POS;P:-4.33,2.5,2,120}"}
+[2025-01-13 22:59:00.846] TargetInvalid target specified
+[2025-01-13 22:59:01.960] {"command":"{T:MCU;C:POS;P:-1,0,2,144}"}
+[2025-01-13 22:59:01.962] TargetInvalid target specified
+[2025-01-13 22:59:02.062] {"command":"{T:CD1;C:POS;P:-2,0,2,144}"}
+[2025-01-13 22:59:02.072] TargetInvalid target specified
+[2025-01-13 22:59:02.180] {"command":"{T:CD2;C:POS;P:-3,0,2,144}"}
+[2025-01-13 22:59:02.184] TargetInvalid target specified
+[2025-01-13 22:59:02.285] {"command":"{T:CD3;C:POS;P:-4,0,2,144}"}
+[2025-01-13 22:59:02.285] TargetInvalid target specified
+[2025-01-13 22:59:02.395] {"command":"{T:CD4;C:POS;P:-5,0,2,144}"}
+[2025-01-13 22:59:02.395] TargetInvalid target specified
+[2025-01-13 22:59:03.521] {"command":"{T:MCU;C:POS;P:-0.87,-0.5,2,168}"}
+[2025-01-13 22:59:03.524] TargetInvalid target specified
+[2025-01-13 22:59:03.627] {"command":"{T:CD1;C:POS;P:-1.73,-1,2,168}"}
+[2025-01-13 22:59:03.631] TargetInvalid target specified
+[2025-01-13 22:59:03.731] {"command":"{T:CD2;C:POS;P:-2.6,-1.5,2,168}"}
+[2025-01-13 22:59:03.736] TargetInvalid target specified
+[2025-01-13 22:59:03.847] {"command":"{T:CD3;C:POS;P:-3.46,-2,2,168}"}
+[2025-01-13 22:59:03.850] TargetInvalid target specified
+[2025-01-13 22:59:03.960] {"command":"{T:CD4;C:POS;P:-4.33,-2.5,2,168}"}
+[2025-01-13 22:59:03.963] TargetInvalid target specified
+[2025-01-13 22:59:05.077] {"command":"{T:MCU;C:POS;P:-0.5,-0.87,2,192}"}
+[2025-01-13 22:59:05.083] TargetInvalid target specified
+[2025-01-13 22:59:05.192] {"command":"{T:CD1;C:POS;P:-1,-1.73,2,192}"}
+[2025-01-13 22:59:05.197] TargetInvalid target specified
+[2025-01-13 22:59:05.299] {"command":"{T:CD2;C:POS;P:-1.5,-2.6,2,192}"}
+[2025-01-13 22:59:05.312] TargetInvalid target specified
+[2025-01-13 22:59:05.420] {"command":"{T:CD3;C:POS;P:-2,-3.46,2,192}"}
+[2025-01-13 22:59:05.426] TargetInvalid target specified
+[2025-01-13 22:59:05.532] {"command":"{T:CD4;C:POS;P:-2.5,-4.33,2,192}"}
+[2025-01-13 22:59:05.537] TargetInvalid target specified
+[2025-01-13 22:59:06.644] {"command":"{T:MCU;C:POS;P:0,-1,2,216}"}
+[2025-01-13 22:59:06.653] TargetInvalid target specified
+[2025-01-13 22:59:06.759] {"command":"{T:CD1;C:POS;P:0,-2,2,216}"}
+[2025-01-13 22:59:06.761] TargetInvalid target specified
+[2025-01-13 22:59:06.863] {"command":"{T:CD2;C:POS;P:0,-3,2,216}"}
+[2025-01-13 22:59:06.871] TargetInvalid target specified
+[2025-01-13 22:59:06.973] {"command":"{T:CD3;C:POS;P:0,-4,2,216}"}
+[2025-01-13 22:59:06.976] TargetInvalid target specified
+[2025-01-13 22:59:07.079] {"command":"{T:CD4;C:POS;P:0,-5,2,216}"}
+[2025-01-13 22:59:07.079] TargetInvalid target specified
+[2025-01-13 22:59:27.868] {"command":"{T:MCU;C:LAND;P:1}"}
+[2025-01-13 22:59:27.868] TargetInvalid target specified
+[2025-01-13 22:59:27.978] {"command":"{T:CD1;C:LAND;P:1}"}
+[2025-01-13 22:59:27.982] TargetInvalid target specified
+[2025-01-13 22:59:28.090] {"command":"{T:CD2;C:LAND;P:1}"}
+[2025-01-13 22:59:28.091] TargetInvalid target specified
+[2025-01-13 22:59:28.204] {"command":"{T:CD3;C:LAND;P:1}"}
+[2025-01-13 22:59:28.206] TargetInvalid target specified
+[2025-01-13 22:59:28.312] {"command":"{T:CD4;C:LAND;P:1}"}
+[2025-01-13 22:59:28.312] TargetInvalid target specified

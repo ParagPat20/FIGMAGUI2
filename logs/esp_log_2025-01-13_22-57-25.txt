@@ -1,0 +1,21 @@
+=== ESP Terminal Log Started at 2025-01-13_22-57-25 ===
+[2025-01-13 22:57:43.973] {"command":"{T:MCU;C:LAND;P:1}"}
+[2025-01-13 22:57:43.977] TargetInvalid target specified
+[2025-01-13 22:57:44.079] {"command":"{T:CD1;C:LAND;P:1}"}
+[2025-01-13 22:57:44.079] TargetInvalid target specified
+[2025-01-13 22:57:44.193] {"command":"{T:CD2;C:LAND;P:1}"}
+[2025-01-13 22:57:44.193] TargetInvalid target specified
+[2025-01-13 22:57:44.311] {"command":"{T:CD3;C:LAND;P:1}"}
+[2025-01-13 22:57:44.311] TargetInvalid target specified
+[2025-01-13 22:57:44.428] {"command":"{T:CD4;C:LAND;P:1}"}
+[2025-01-13 22:57:44.430] TargetInvalid target specified
+[2025-01-13 22:58:04.931] {"command":"{T:MCU;C:LAND;P:1}"}
+[2025-01-13 22:58:04.935] TargetInvalid target specified
+[2025-01-13 22:58:05.041] {"command":"{T:CD1;C:LAND;P:1}"}
+[2025-01-13 22:58:05.041] TargetInvalid target specified
+[2025-01-13 22:58:05.156] {"command":"{T:CD2;C:LAND;P:1}"}
+[2025-01-13 22:58:05.158] TargetInvalid target specified
+[2025-01-13 22:58:05.275] {"command":"{T:CD3;C:LAND;P:1}"}
+[2025-01-13 22:58:05.275] TargetInvalid target specified
+[2025-01-13 22:58:05.381] {"command":"{T:CD4;C:LAND;P:1}"}
+[2025-01-13 22:58:05.383] TargetInvalid target specified
