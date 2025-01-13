@@ -1,0 +1,47 @@
+=== ESP Terminal Log Started at 2025-01-13_23-26-35 ===
+[2025-01-13 23:26:50.876] {"command":"{T:MCU;C:POS;P:0,0,2,0}"}
+[2025-01-13 23:26:50.880] TargetInvalid target specified
+[2025-01-13 23:26:50.986] {"command":"{T:CD1;C:POS;P:1,0,2,0}"}
+[2025-01-13 23:26:50.987] TargetInvalid target specified
+[2025-01-13 23:26:51.093] {"command":"{T:CD2;C:POS;P:2,0,2,0}"}
+[2025-01-13 23:26:51.093] TargetInvalid target specified
+[2025-01-13 23:26:51.202] {"command":"{T:CD3;C:POS;P:3,0,2,0}"}
+[2025-01-13 23:26:51.205] TargetInvalid target specified
+[2025-01-13 23:26:51.314] {"command":"{T:CD4;C:POS;P:4,0,2,0}"}
+[2025-01-13 23:26:51.316] TargetInvalid target specified
+[2025-01-13 23:26:51.423] {"command":"{T:CD1;C:LIGHT;P:ff0000}"}
+[2025-01-13 23:26:51.425] TargetInvalid target specified
+[2025-01-13 23:26:52.531] {"command":"{T:MCU;C:POS;P:0,0,2,0}"}
+[2025-01-13 23:26:52.534] TargetInvalid target specified
+[2025-01-13 23:26:52.638] {"command":"{T:CD1;C:POS;P:1,0,2,0}"}
+[2025-01-13 23:26:52.638] TargetInvalid target specified
+[2025-01-13 23:26:52.749] {"command":"{T:CD2;C:POS;P:2,0,2,0}"}
+[2025-01-13 23:26:52.752] TargetInvalid target specified
+[2025-01-13 23:26:52.857] {"command":"{T:CD3;C:POS;P:3,0,2,0}"}
+[2025-01-13 23:26:52.860] TargetInvalid target specified
+[2025-01-13 23:26:52.962] {"command":"{T:CD4;C:POS;P:4,0,2,0}"}
+[2025-01-13 23:26:52.966] TargetInvalid target specified
+[2025-01-13 23:26:53.070] {"command":"{T:MCU;C:LIGHT;P:6b0000}"}
+[2025-01-13 23:26:53.073] TargetInvalid target specified
+[2025-01-13 23:26:53.181] {"command":"{T:CD1;C:LIGHT;P:4400ff}"}
+[2025-01-13 23:26:53.181] TargetInvalid target specified
+[2025-01-13 23:26:54.302] {"command":"{T:MCU;C:POS;P:0,0,2,0}"}
+[2025-01-13 23:26:54.303] TargetInvalid target specified
+[2025-01-13 23:26:54.412] {"command":"{T:CD1;C:POS;P:1,0,2,0}"}
+[2025-01-13 23:26:54.415] TargetInvalid target specified
+[2025-01-13 23:26:54.527] {"command":"{T:CD2;C:POS;P:2,0,2,0}"}
+[2025-01-13 23:26:54.529] TargetInvalid target specified
+[2025-01-13 23:26:54.632] {"command":"{T:CD3;C:POS;P:3,0,2,0}"}
+[2025-01-13 23:26:54.664] TargetInvalid target specified
+[2025-01-13 23:26:54.743] {"command":"{T:CD4;C:POS;P:4,0,2,0}"}
+[2025-01-13 23:26:54.746] TargetInvalid target specified
+[2025-01-13 23:26:55.858] {"command":"{T:MCU;C:LAND;P:1}"}
+[2025-01-13 23:26:55.858] TargetInvalid target specified
+[2025-01-13 23:26:55.973] {"command":"{T:CD1;C:LAND;P:1}"}
+[2025-01-13 23:26:55.973] TargetInvalid target specified
+[2025-01-13 23:26:56.086] {"command":"{T:CD2;C:LAND;P:1}"}
+[2025-01-13 23:26:56.086] TargetInvalid target specified
+[2025-01-13 23:26:56.200] {"command":"{T:CD3;C:LAND;P:1}"}
+[2025-01-13 23:26:56.200] TargetInvalid target specified
+[2025-01-13 23:26:56.317] {"command":"{T:CD4;C:LAND;P:1}"}
+[2025-01-13 23:26:56.317] TargetInvalid target specified

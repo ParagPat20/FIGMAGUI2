@@ -377,16 +377,24 @@ async function executeMissionCommands(commands) {
             const formattedCmd = `{T:${cmd.target};C:${cmd.command};P:${cmd.payload}}`;
             console.log('Executing command:', formattedCmd);
             
+            // Send command directly without wrapping in JSON
             const response = await fetch('http://127.0.0.1:5000/send_command', {
                 method: 'POST',
                 headers: {
-                    'Content-Type': 'application/json'
+                    'Content-Type': 'text/plain'  // Changed to text/plain
                 },
-                body: JSON.stringify({ command: formattedCmd })
+                body: formattedCmd  // Send the formatted command directly
             });
             
             if (!response.ok) {
-                throw new Error(`Failed to send command: ${response.statusText}`);
+                const errorText = await response.text();
+                throw new Error(`Failed to send command: ${errorText}`);
+            }
+            
+            // Check response for target invalid error
+            const responseText = await response.text();
+            if (responseText.includes('TargetInvalid')) {
+                throw new Error(`Invalid target: ${cmd.target}`);
             }
             
             await new Promise(resolve => setTimeout(resolve, 100)); // Small delay between commands
