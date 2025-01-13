@@ -1,6 +1,22 @@
 #include <esp_now.h>
 #include <WiFi.h>
 #include <ArduinoJson.h>
+#include <Adafruit_NeoPixel.h>
+
+// Define LED strip parameters
+#define LED_PIN 32
+#define LED_COUNT 90
+
+// Create NeoPixel object
+Adafruit_NeoPixel strip(LED_COUNT, LED_PIN, NEO_GRB + NEO_KHZ800);
+
+// LED animation variables
+unsigned long previousMillis = 0;
+int rainbowIndex = 0;
+int chaseIndex = 0;
+bool isRainbowActive = false;
+bool isChaseActive = false;
+uint32_t currentColor = strip.Color(0, 0, 0);
 
 // MAC addresses of other ESP32 devices
 uint8_t gcsMAC[] = { 0x08, 0xF9, 0xE0, 0x9F, 0x24, 0x20 };  // GCS MAC address
@@ -147,10 +163,61 @@ String serializeCommandPacket(const CommandPacket &packet) {
   return serialized;
 }
 
+// Function to update rainbow effect without delays
+void updateRainbow() {
+  if (!isRainbowActive) return;
+  
+  unsigned long currentMillis = millis();
+  if (currentMillis - previousMillis >= 20) {  // Update every 20ms
+    previousMillis = currentMillis;
+    for (int i = 0; i < strip.numPixels(); i++) {
+      int pixelHue = (i * 65536L / strip.numPixels() + rainbowIndex) & 65535;
+      strip.setPixelColor(i, strip.gamma32(strip.ColorHSV(pixelHue)));
+    }
+    strip.show();
+    rainbowIndex += 256;
+  }
+}
+
+// Function to update chase effect without delays
+void updateChase() {
+  if (!isChaseActive) return;
+  
+  unsigned long currentMillis = millis();
+  if (currentMillis - previousMillis >= 30) {  // Update every 30ms
+    previousMillis = currentMillis;
+    strip.clear();
+    
+    // Create 3-LED chase
+    strip.setPixelColor(chaseIndex, strip.Color(0, 0, 255));
+    if (chaseIndex > 0) strip.setPixelColor(chaseIndex-1, strip.Color(0, 0, 128));
+    if (chaseIndex > 1) strip.setPixelColor(chaseIndex-2, strip.Color(0, 0, 64));
+    
+    strip.show();
+    chaseIndex++;
+    if (chaseIndex >= strip.numPixels()) chaseIndex = 0;
+  }
+}
+
+// Function to set solid color
+void setSolidColor(uint32_t color) {
+  isRainbowActive = false;
+  isChaseActive = false;
+  currentColor = color;
+  for (int i = 0; i < strip.numPixels(); i++) {
+    strip.setPixelColor(i, color);
+  }
+  strip.show();
+}
 
 void setup() {
   Serial.begin(115200);
   WiFi.mode(WIFI_STA);
+
+  // Initialize LED strip
+  strip.begin();
+  strip.setBrightness(50);  // Set to 50% brightness
+  strip.show();
 
   if (esp_now_init() != ESP_OK) {
     Serial.println("Error initializing ESP-NOW");
@@ -167,18 +234,36 @@ void setup() {
   senderIdentity = getSenderBasedOnMAC();
   Serial.print("ESP-NOW Ready for ");
   Serial.println(senderIdentity);
+
+  // Start rainbow effect
+  isRainbowActive = true;
+  
+  // Schedule chase effect after 4 seconds
+  previousMillis = millis();
 }
 
 void loop() {
+  // Handle LED animations
+  if (isRainbowActive) {
+    updateRainbow();
+  } else if (isChaseActive) {
+    updateChase();
+  }
 
+  // Check if it's time to start chase effect (after 4 seconds)
+  if (millis() - previousMillis >= 4000 && isRainbowActive) {
+    isRainbowActive = false;
+    isChaseActive = true;
+    chaseIndex = 0;
+  }
+
+  // Handle serial input
   if (Serial.available()) {
     String inputData = Serial.readStringUntil('\n');
     CommandPacket packet;
     parseInputData(inputData, packet);
 
-    // Set the sender field in the packet to the identified sender
     packet.S = senderIdentity;
-
     uint8_t *targetMAC = getTargetMAC(packet.T);
     if (targetMAC != nullptr) {
       String serializedData = serializeCommandPacket(packet);
@@ -214,9 +299,14 @@ void OnDataRecv(const uint8_t *mac, const uint8_t *incomingData, int len) {
   CommandPacket packet;
   parseInputData(receivedData, packet);
 
-  // Manually format the string without quotes
-  String formattedData = "{S:" + packet.S + ";C:" + packet.C + ";P:" + packet.P + "}";
+  // Handle LED colors based on commands
+  if (packet.C == "ARM") {
+    setSolidColor(strip.Color(0, 255, 0));  // Green
+  } else if (packet.C == "LAND") {
+    setSolidColor(strip.Color(255, 0, 0));  // Red
+  }
 
-  // Print the formatted string without quotes
+  // Print the formatted string
+  String formattedData = "{S:" + packet.S + ";T:" + packet.T + ";C:" + packet.C + ";P:" + packet.P + "}";
   Serial.println(formattedData);
 }

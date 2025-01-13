@@ -903,16 +903,10 @@ class MissionPlanner {
         this.keyframes = new Map(); // Map of drone ID to array of keyframes
         this.currentKeyframe = 0;
         this.isPlaying = false;
-        this.playbackSpeed = 1000; // milliseconds between keyframes
-        
-        // Add zoom settings
-        this.zoomLevel = 1;
-        this.minZoom = 0.1;
-        this.maxZoom = 5;
-        this.zoomStep = 0.1;
-        
-        // Initialize keyboard controls
-        initializeKeyboardControls();
+
+        // Custom commands
+        this.customCommands = new Map(); // Map of keyframe index to array of commands
+        this.selectedDroneId = null;
     }
 
     initialize() {
@@ -951,6 +945,239 @@ class MissionPlanner {
         
         // Add zoom event listener to 2D canvas
         this.canvas2D?.addEventListener('wheel', this.handleZoom.bind(this));
+        
+        // Initialize custom command handlers
+        const commandSelect = document.getElementById('custom-command');
+        const lightColorPicker = document.getElementById('light-color-picker');
+        const addCommandBtn = document.getElementById('add-command');
+
+        // Update selected drone when drone is clicked
+        this.droneList?.addEventListener('click', (e) => {
+            const droneItem = e.target.closest('.drone-item');
+            if (droneItem) {
+                this.selectedDroneId = droneItem.dataset.droneId;
+                // Update UI to show selected drone
+                document.querySelectorAll('.drone-item').forEach(item => {
+                    item.classList.toggle('selected', item === droneItem);
+                });
+            }
+        });
+
+        commandSelect?.addEventListener('change', (e) => {
+            if (e.target.value === 'LIGHT') {
+                lightColorPicker.style.display = 'block';
+            } else {
+                lightColorPicker.style.display = 'none';
+            }
+        });
+
+        addCommandBtn?.addEventListener('click', () => {
+            if (!this.selectedDroneId) {
+                customAlert.warning('Please select a drone first');
+                return;
+            }
+
+            const command = commandSelect.value;
+            if (!command) {
+                customAlert.warning('Please select a command');
+                return;
+            }
+
+            let payload = '1'; // Default payload
+            if (command === 'LIGHT') {
+                const color = document.getElementById('light-color').value;
+                payload = color.substring(1); // Remove # from hex color
+            }
+
+            this.addCustomCommand(this.currentKeyframe, this.selectedDroneId, command, payload);
+            this.updateCommandList();
+            customAlert.success(`Added ${command} command for ${this.selectedDroneId}`);
+        });
+
+        // Add CSS styles for command list
+        const styleSheet = document.createElement('style');
+        styleSheet.textContent = `
+            .custom-command-settings {
+                margin-top: 20px;
+                padding: 15px;
+                background: #1a1a1a;
+                border-radius: 8px;
+            }
+
+            .command-inputs {
+                display: flex;
+                flex-direction: column;
+                gap: 10px;
+            }
+
+            .command-list {
+                margin-top: 15px;
+                max-height: 150px;
+                overflow-y: auto;
+                border: 1px solid #333;
+                border-radius: 4px;
+                padding: 5px;
+            }
+
+            .command-item {
+                display: flex;
+                align-items: center;
+                padding: 8px;
+                margin: 5px 0;
+                background: #2a2a2a;
+                border-radius: 4px;
+                border-left: 3px solid #00ff00;
+            }
+
+            .command-drone {
+                font-weight: bold;
+                color: #00ff00;
+                margin-right: 15px;
+                min-width: 60px;
+            }
+
+            .command-name {
+                color: #ffffff;
+                margin-right: 15px;
+                min-width: 80px;
+            }
+
+            .command-payload {
+                flex: 1;
+                display: flex;
+                align-items: center;
+                color: #888;
+            }
+
+            .color-preview {
+                display: inline-block;
+                width: 20px;
+                height: 20px;
+                border-radius: 50%;
+                border: 2px solid #444;
+                margin-left: 10px;
+            }
+
+            .delete-command {
+                background: none;
+                border: none;
+                color: #ff4444;
+                cursor: pointer;
+                font-size: 18px;
+                padding: 0 8px;
+                margin-left: 10px;
+                opacity: 0.7;
+                transition: opacity 0.2s;
+            }
+
+            .delete-command:hover {
+                opacity: 1;
+                color: #ff0000;
+            }
+
+            #custom-command {
+                width: 100%;
+                padding: 8px;
+                background: #2a2a2a;
+                color: white;
+                border: 1px solid #444;
+                border-radius: 4px;
+                cursor: pointer;
+            }
+
+            #custom-command option {
+                background: #2a2a2a;
+                color: white;
+                padding: 5px;
+            }
+
+            #light-color {
+                width: 100%;
+                height: 35px;
+                padding: 2px;
+                border: 1px solid #444;
+                border-radius: 4px;
+                cursor: pointer;
+            }
+
+            .add-command {
+                margin-top: 10px;
+                width: 100%;
+                padding: 10px;
+                background: #2d2d2d;
+                color: white;
+                border: 1px solid #444;
+                border-radius: 4px;
+                cursor: pointer;
+                transition: background 0.2s;
+            }
+
+            .add-command:hover {
+                background: #3d3d3d;
+            }
+
+            .add-command:active {
+                background: #4d4d4d;
+            }
+
+            /* Scrollbar styling */
+            .command-list::-webkit-scrollbar {
+                width: 8px;
+            }
+
+            .command-list::-webkit-scrollbar-track {
+                background: #1a1a1a;
+                border-radius: 4px;
+            }
+
+            .command-list::-webkit-scrollbar-thumb {
+                background: #444;
+                border-radius: 4px;
+            }
+
+            .command-list::-webkit-scrollbar-thumb:hover {
+                background: #555;
+            }
+        `;
+        document.head.appendChild(styleSheet);
+        
+        // Add delete all commands button
+        const commandInputs = document.querySelector('.command-inputs');
+        if (commandInputs) {
+            const deleteAllBtn = document.createElement('button');
+            deleteAllBtn.className = 'delete-all-commands';
+            deleteAllBtn.textContent = 'Delete All Commands';
+            deleteAllBtn.addEventListener('click', () => {
+                if (this.customCommands.has(this.currentKeyframe)) {
+                    this.customCommands.delete(this.currentKeyframe);
+                    this.updateCommandList();
+                    this.updateKeyframeList();
+                    customAlert.success('All commands deleted for current keyframe');
+                }
+            });
+            commandInputs.appendChild(deleteAllBtn);
+        }
+
+        // Add CSS for delete all button
+        const deleteAllStyle = document.createElement('style');
+        deleteAllStyle.textContent = `
+            .delete-all-commands {
+                margin-top: 10px;
+                width: 100%;
+                padding: 8px;
+                background: #3a1a1a;
+                color: #ff4444;
+                border: 1px solid #662222;
+                border-radius: 4px;
+                cursor: pointer;
+                transition: all 0.2s;
+            }
+            .delete-all-commands:hover {
+                background: #4a2a2a;
+                color: #ff6666;
+            }
+        `;
+        document.head.appendChild(deleteAllStyle);
         
         return true;
     }
@@ -1152,6 +1379,7 @@ class MissionPlanner {
         const counter = document.getElementById('keyframe-counter');
         const maxFrames = Math.max(...Array.from(this.keyframes.values()).map(k => k.length));
         counter.textContent = `${this.currentKeyframe + 1} / ${maxFrames}`;
+        this.updateCommandList(); // Add this line to update command list when keyframe changes
     }
 
     updateAvailableDrones() {
@@ -1625,46 +1853,45 @@ class MissionPlanner {
     }
 
     updateKeyframeList() {
-        if (!this.keyframeList) {
-            console.warn('Keyframe list element not found');
-            return;
-        }
-
+        if (!this.keyframeList) return;
         this.keyframeList.innerHTML = '';
-        
-        // Get maximum number of keyframes from all drones
+
+        // Get maximum number of frames
         let maxFrames = 0;
         this.keyframes.forEach(frames => {
             maxFrames = Math.max(maxFrames, frames.length);
         });
 
-        // Create a container for each keyframe
+        // Create frames
         for (let i = 0; i < maxFrames; i++) {
-            const keyframeContainer = document.createElement('div');
-            keyframeContainer.className = 'keyframe-container';
-            keyframeContainer.classList.toggle('current', i === this.currentKeyframe);
-            
-            // Create frame header
+            const frameWrapper = document.createElement('div');
+            frameWrapper.className = 'frame-wrapper';
+
+            const frameContainer = document.createElement('div');
+            frameContainer.className = 'keyframe-container';
+            if (i === this.currentKeyframe) {
+                frameContainer.classList.add('current');
+            }
+
+            // Frame header
             const frameHeader = document.createElement('div');
             frameHeader.className = 'frame-header';
             frameHeader.innerHTML = `
-                <div class="frame-info">
-                    <span class="frame-title">Frame ${i + 1}</span>
-                </div>
+                <span class="frame-title">Frame <span class="frame-number">${i + 1}</span></span>
                 <div class="frame-actions">
-                    <button class="frame-btn edit-frame" data-frame="${i}">
+                    <button class="frame-btn edit-frame">
                         <i class="fas fa-edit"></i> Edit
                     </button>
-                    <button class="frame-btn delete-frame" data-frame="${i}">
+                    <button class="frame-btn delete-frame">
                         <i class="fas fa-trash"></i> Delete
                     </button>
                 </div>
             `;
-            
+
+            // Drone positions
             const dronePositions = document.createElement('div');
             dronePositions.className = 'drone-positions';
-            
-            // Add each drone's position in this keyframe
+
             this.defaultDrones.forEach(droneId => {
                 const frames = this.keyframes.get(droneId);
                 if (frames && frames[i]) {
@@ -1675,83 +1902,102 @@ class MissionPlanner {
                         <span class="drone-id">${droneId}</span>
                         <span class="position">X: ${frame.position.x.toFixed(1)}, Y: ${frame.position.y.toFixed(1)}, Z: ${frame.position.z.toFixed(1)}</span>
                         <span class="heading">H: ${(frame.heading * 180 / Math.PI).toFixed(0)}°</span>
-                        <button class="edit-drone" data-drone="${droneId}" data-frame="${i}">Edit</button>
+                        <button class="edit-drone">Edit</button>
                     `;
                     dronePositions.appendChild(dronePosition);
                 }
             });
-            
-            keyframeContainer.appendChild(frameHeader);
-            keyframeContainer.appendChild(dronePositions);
-            
-            // Add click handler for frame selection
-            keyframeContainer.addEventListener('click', () => {
-                this.currentKeyframe = i;
-                this.updateViews();
-                this.updateKeyframeSlider();
-                this.updateKeyframeCounter();
-                this.updateKeyframeList();
-            });
 
-            // Add click handlers for edit buttons
-            const editFrameBtn = keyframeContainer.querySelector('.edit-frame');
-            editFrameBtn.addEventListener('click', (e) => {
-                e.stopPropagation();
-                const frameIndex = parseInt(e.target.dataset.frame);
-                this.editFrame(frameIndex);
-            });
-
-            // Add click handlers for delete buttons
-            const deleteFrameBtn = keyframeContainer.querySelector('.delete-frame');
-            deleteFrameBtn.addEventListener('click', (e) => {
-                e.stopPropagation();
-                const frameIndex = parseInt(e.target.dataset.frame);
-                this.deleteFrame(frameIndex);
-            });
-
-            // Add click handlers for individual drone edit buttons
-            const editDroneButtons = keyframeContainer.querySelectorAll('.edit-drone');
-            editDroneButtons.forEach(button => {
-                button.addEventListener('click', (e) => {
-                    e.stopPropagation();
-                    const droneId = e.target.dataset.drone;
-                    const frameIndex = parseInt(e.target.dataset.frame);
-                    this.editDroneInFrame(droneId, frameIndex);
-                });
-            });
-            
-            this.keyframeList.appendChild(keyframeContainer);
-
-            // Add delay container after each frame (except the last one)
-            if (i < maxFrames - 1) {
-                const delayContainer = document.createElement('div');
-                delayContainer.className = 'frame-delay-container';
-                delayContainer.innerHTML = `
-                    <div class="delay-input-container">
-                        <input type="number" class="delay-input" value="${this.getFrameDelay(i)}" min="100" max="10000" step="100" data-frame="${i}">
-                        <span class="delay-unit">ms</span>
-                    </div>
-                `;
-
-                // Add delay input handler
-                const delayInput = delayContainer.querySelector('.delay-input');
-                delayInput.addEventListener('change', (e) => {
-                    e.stopPropagation();
-                    const frameIndex = parseInt(e.target.dataset.frame);
-                    const newDelay = parseInt(e.target.value) || 1000;
+            // Add custom commands to frame if they exist
+            const commands = this.customCommands.get(i);
+            if (commands && commands.length > 0) {
+                const commandsContainer = document.createElement('div');
+                commandsContainer.className = 'frame-commands';
+                commandsContainer.innerHTML = '<div class="commands-header">Commands:</div>';
+                
+                commands.forEach(cmd => {
+                    const cmdElement = document.createElement('div');
+                    cmdElement.className = 'frame-command';
                     
-                    // Update delay for all drones in this frame
-                    this.defaultDrones.forEach(droneId => {
-                        const frames = this.keyframes.get(droneId);
-                        if (frames && frames[frameIndex]) {
-                            frames[frameIndex].delay = newDelay;
-                        }
-                    });
+                    let displayPayload = cmd.payload;
+                    if (cmd.command === 'LIGHT') {
+                        displayPayload = `<span class="color-preview" style="background-color: #${cmd.payload}"></span>`;
+                    }
+                    
+                    cmdElement.innerHTML = `
+                        <span class="command-drone">${cmd.droneId}</span>
+                        <span class="command-name">${cmd.command}</span>
+                        <span class="command-payload">${displayPayload}</span>
+                    `;
+                    commandsContainer.appendChild(cmdElement);
                 });
-
-                this.keyframeList.appendChild(delayContainer);
+                dronePositions.appendChild(commandsContainer);
             }
+
+            frameContainer.appendChild(frameHeader);
+            frameContainer.appendChild(dronePositions);
+            frameWrapper.appendChild(frameContainer);
+
+            // Frame delay (now outside the keyframe container)
+            const delayContainer = document.createElement('div');
+            delayContainer.className = 'frame-delay-container';
+            delayContainer.innerHTML = `
+                <div class="delay-input-container">
+                    <input type="number" class="delay-input" value="${this.getFrameDelay(i)}" min="100" max="10000" step="100">
+                    <span class="delay-unit">ms</span>
+                </div>
+            `;
+            frameWrapper.appendChild(delayContainer);
+
+            this.keyframeList.appendChild(frameWrapper);
+
+            // Add event listeners
+            frameContainer.querySelector('.edit-frame').addEventListener('click', () => this.editFrame(i));
+            frameContainer.querySelector('.delete-frame').addEventListener('click', () => this.deleteFrame(i));
+            frameContainer.querySelectorAll('.edit-drone').forEach(btn => {
+                const droneId = btn.parentElement.querySelector('.drone-id').textContent;
+                btn.addEventListener('click', () => this.editDroneInFrame(droneId, i));
+            });
         }
+
+        // Add CSS for frame wrapper and delay container
+        const style = document.createElement('style');
+        style.textContent = `
+            .frame-wrapper {
+                display: flex;
+                align-items: center;
+                gap: 10px;
+                margin-bottom: 10px;
+            }
+            .keyframe-container {
+                flex: 1;
+            }
+            .frame-delay-container {
+                min-width: 120px;
+                padding: 5px;
+                background: #1a1a1a;
+                border-radius: 4px;
+            }
+            .delay-input-container {
+                display: flex;
+                align-items: center;
+                gap: 5px;
+            }
+            .delay-input {
+                width: 70px;
+                padding: 4px;
+                background: #2a2a2a;
+                color: white;
+                border: 1px solid #444;
+                border-radius: 4px;
+            }
+            .delay-unit {
+                color: #888;
+                font-size: 0.9em;
+            }
+            // ... existing styles ...
+        `;
+        document.head.appendChild(style);
     }
 
     // Helper method to get frame delay
@@ -1835,13 +2081,16 @@ class MissionPlanner {
 
     playKeyframes() {
         if (this.isPlaying) return;
-        
         this.isPlaying = true;
-        let currentTime = 0;
-        let startFrame = this.currentKeyframe;
-        
+
         const animate = async () => {
             if (!this.isPlaying) return;
+
+            // Execute custom commands for current frame
+            const commands = this.customCommands.get(this.currentKeyframe) || [];
+            for (const cmd of commands) {
+                await send_command(cmd.droneId, cmd.command, cmd.payload);
+            }
 
             // Get maximum frames across all drones
             let maxFrames = 0;
@@ -1937,7 +2186,6 @@ class MissionPlanner {
             animate3DTransition();
         };
 
-        // Start the animation sequence
         animate();
     }
 
@@ -1976,7 +2224,8 @@ class MissionPlanner {
                     gridSpacing: this.gridSpacing,
                     playbackSpeed: this.playbackSpeed
                 },
-                drones: {}
+                drones: {},
+                customCommands: Array.from(this.customCommands.entries())
             };
 
             // Save keyframes for each drone
@@ -2022,66 +2271,19 @@ class MissionPlanner {
             try {
                 const missionData = JSON.parse(e.target.result);
                 
-                // Validate mission data format
-                if (!missionData.drones || typeof missionData.drones !== 'object') {
-                    throw new Error('Invalid mission file format');
-                }
-
-                // Update settings if available
-                if (missionData.settings) {
-                    this.gridSize = missionData.settings.gridSize || this.gridSize;
-                    this.gridSpacing = missionData.settings.gridSpacing || this.gridSpacing;
-                    this.playbackSpeed = missionData.settings.playbackSpeed || this.playbackSpeed;
-                }
-                
-                // Clear existing keyframes
+                // Clear existing data
                 this.keyframes.clear();
-                this.droneMarkers.clear();
+                this.customCommands.clear();
                 
                 // Load drone keyframes
-                Object.entries(missionData.drones).forEach(([droneId, droneData]) => {
-                    if (!this.defaultDrones.includes(droneId)) {
-                        console.warn(`Skipping unknown drone: ${droneId}`);
-                        return;
-                    }
-
-                    // Validate and load frames
-                    const validatedFrames = droneData.frames.map(frame => ({
-                        position: {
-                            x: parseFloat(frame.position.x) || 0,
-                            y: parseFloat(frame.position.y) || 0,
-                            z: parseFloat(frame.position.z) || 2
-                        },
-                        heading: parseFloat(frame.heading) || 0,
-                        delay: parseInt(frame.delay) || 1000
-                    }));
-
-                    // Set frames for this drone
-                    this.keyframes.set(droneId, validatedFrames);
-                    
-                    // Create or update drone marker
-                    const marker = {
-                        position: { 
-                            x: validatedFrames[0].position.x,
-                            y: validatedFrames[0].position.y
-                        },
-                        heading: validatedFrames[0].heading,
-                        color: this.getDroneColor(droneId)
-                    };
-                    this.droneMarkers.set(droneId, marker);
-                    
-                    // Update 3D model if it exists
-                    const model = this.droneModels.get(droneId);
-                    if (model && validatedFrames.length > 0) {
-                        const firstFrame = validatedFrames[0];
-                        model.position.set(
-                            firstFrame.position.x,
-                            firstFrame.position.z,
-                            -firstFrame.position.y
-                        );
-                        model.rotation.y = -firstFrame.heading;
-                    }
+                Object.entries(missionData.drones).forEach(([droneId, data]) => {
+                    this.keyframes.set(droneId, data.frames);
                 });
+                
+                // Load custom commands if they exist
+                if (missionData.customCommands) {
+                    this.customCommands = new Map(missionData.customCommands);
+                }
                 
                 // Reset to first keyframe
                 this.currentKeyframe = 0;
@@ -2092,6 +2294,7 @@ class MissionPlanner {
                 this.updateKeyframeCounter();
                 this.updateKeyframeList();
                 this.updateViews();
+                this.updateCommandList();
                 
                 // Update input fields for selected drone
                 const selectedDrone = document.querySelector('.drone-item.selected');
@@ -2103,24 +2306,12 @@ class MissionPlanner {
                     }
                 }
                 
-                // Update playback speed input
-                const speedInput = document.getElementById('playback-speed');
-                if (speedInput) {
-                    speedInput.value = this.playbackSpeed;
-                }
-                
                 customAlert.success('Mission loaded successfully');
             } catch (error) {
                 console.error('Error loading mission:', error);
                 customAlert.error('Failed to load mission: ' + error.message);
             }
         };
-        
-        reader.onerror = (error) => {
-            console.error('Error reading file:', error);
-            customAlert.error('Failed to read mission file');
-        };
-        
         reader.readAsText(file);
     }
 
@@ -2130,6 +2321,8 @@ class MissionPlanner {
         this.currentKeyframe = 0;
         this.isPlaying = false;
         this.updateViews();
+        this.customCommands.clear();
+        this.updateCommandList();
     }
 
     updateViews() {
@@ -2152,6 +2345,59 @@ class MissionPlanner {
     }
 
     // ... (keep existing methods for handling mouse events, etc.)
+
+    addCustomCommand(frameIndex, droneId, command, payload) {
+        if (!this.customCommands.has(frameIndex)) {
+            this.customCommands.set(frameIndex, []);
+        }
+        
+        this.customCommands.get(frameIndex).push({
+            droneId,
+            command,
+            payload
+        });
+    }
+
+    updateCommandList() {
+        const commandList = document.querySelector('.command-list');
+        if (!commandList) return;
+        
+        commandList.innerHTML = '';
+        const commands = this.customCommands.get(this.currentKeyframe) || [];
+        
+        if (commands.length === 0) {
+            const emptyMessage = document.createElement('div');
+            emptyMessage.className = 'command-item empty';
+            emptyMessage.innerHTML = '<span style="color: #666; text-align: center; width: 100%;">No commands for this keyframe</span>';
+            commandList.appendChild(emptyMessage);
+            return;
+        }
+
+        commands.forEach((cmd, index) => {
+            const cmdElement = document.createElement('div');
+            cmdElement.className = 'command-item';
+            
+            let displayPayload = cmd.payload;
+            if (cmd.command === 'LIGHT') {
+                displayPayload = `<span class="color-preview" style="background-color: #${cmd.payload}"></span>`;
+            }
+
+            cmdElement.innerHTML = `
+                <span class="command-drone">${cmd.droneId}</span>
+                <span class="command-name">${cmd.command}</span>
+                <span class="command-payload">${displayPayload}</span>
+                <button class="delete-command" data-index="${index}" title="Delete command">×</button>
+            `;
+
+            cmdElement.querySelector('.delete-command').addEventListener('click', () => {
+                this.customCommands.get(this.currentKeyframe).splice(index, 1);
+                this.updateCommandList();
+                customAlert.success('Command deleted');
+            });
+
+            commandList.appendChild(cmdElement);
+        });
+    }
 }
 
 // Initialize mission planner when menu item is clicked
@@ -2504,10 +2750,6 @@ function handleDroneMessage(parsedMsg) {
             case 'HB':
                 handleDroneHeartbeat(source);
                 break;
-
-            case 'NED_ACK':
-                console.log(`Received NED acknowledgment from ${source}:`, payload);
-                return;
         }
     } catch (error) {
         console.error(`Error processing ${command} message:`, error);
@@ -3504,18 +3746,13 @@ class NEDControl {
     }
     
     handleKeyDown(e) {
-        if (!this.isEnabled) {
-            console.log('NED Control is disabled');
-            return;
-        }
+        if (!this.isEnabled) return;
         
         const key = e.key.toLowerCase();
-        console.log('Key pressed:', key); // Debug key press
         
         // Handle number keys for drone toggling
         if (this.droneKeys[e.key]) {
             e.preventDefault();
-            console.log('Toggling drone:', this.droneKeys[e.key]); // Debug drone toggle
             this.toggleDroneControl(this.droneKeys[e.key]);
             return;
         }
@@ -3525,7 +3762,6 @@ class NEDControl {
             e.preventDefault();
             this.keyStates[key] = true;
             this.updateVelocities();
-            console.log('Updated velocities:', this.velocities); // Debug velocities
         }
     }
     
@@ -3588,8 +3824,8 @@ class NEDControl {
     
     sendVelocityCommands() {
         this.activeTargets.forEach(target => {
+            // Include yaw in command string
             const command = `${this.velocities.x},${this.velocities.y},${this.velocities.z},${this.velocities.yaw || 0}`;
-            console.log(`Sending NED command to ${target}:`, command); // Debug command sending
             send_command(target, 'NED', command);
         });
     }
@@ -3608,27 +3844,5 @@ class NEDControl {
 // Initialize NED Control when DOM is loaded
 document.addEventListener('DOMContentLoaded', () => {
     window.nedControl = new NEDControl();
-});
-
-// Add event listeners for drone toggle buttons
-document.querySelectorAll('.drone-toggle').forEach(button => {
-    button.addEventListener('click', function() {
-        const droneId = this.getAttribute('data-drone');
-        const isCurrentlyOn = this.textContent.includes('ON');
-        
-        // Toggle the state
-        const newState = isCurrentlyOn ? 'OFF' : 'ON';
-        this.textContent = `${droneId}: ${newState}`;
-        
-        // Add visual feedback with classes
-        if (newState === 'ON') {
-            this.classList.add('active');
-        } else {
-            this.classList.remove('active');
-        }
-        
-        // Here you can add your logic to actually control the drone
-        console.log(`${droneId} toggled to ${newState}`);
-    });
 });
 

@@ -1010,26 +1010,22 @@ button {
 }
 
 .drone-toggle {
-    padding: 5px 10px;
-    margin: 0 5px;
-    border: 1px solid #ccc;
-    border-radius: 4px;
+    padding: 6px 12px;
+    background: #f05151;
+    color: white;
+    border: none;
+    border-radius: 6px;
     cursor: pointer;
-    background-color: #f0f0f0;
-    transition: background-color 0.3s ease;
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 13px;
+    font-weight: 500;
+    transition: all 0.3s ease;
+    min-width: 60px;
+    text-align: center;
 }
 
 .drone-toggle.active {
-    background-color: #4CAF50;
-    color: white;
-}
-
-.drone-toggle:hover {
-    background-color: #e0e0e0;
-}
-
-.drone-toggle.active:hover {
-    background-color: #45a049;
+    background: #70c172;
 }
 
 .ned-info {
@@ -1050,7 +1046,7 @@ button {
     background: transparent;
     overflow: visible;
     z-index: 1;
-    pointer-events: auto; /* Enable pointer events for the content container */
+    pointer-events: none; /* Change to none to allow map interaction */
 }
 
 #map {
@@ -1063,29 +1059,31 @@ button {
     z-index: 0;
     border: 2px solid #95bdf8;
     border-radius: 8px;
-    pointer-events: auto; /* Ensure map interaction works */
+    pointer-events: auto; /* Keep auto for map interaction */
 }
 
 /* Customize map style */
 .leaflet-container {
     width: 100% !important;
     height: 100% !important;
-    z-index: 1; /* Ensure map controls are above other elements */
-    pointer-events: auto !important; /* Force enable map interaction */
+    z-index: 0;
 }
 
+/* Enable zoom controls */
 .leaflet-control-container {
-    pointer-events: auto !important; /* Force enable map controls */
+    z-index: 1000;
+    pointer-events: auto;
 }
 
-/* Ensure all map controls are interactive */
 .leaflet-control-zoom,
-.leaflet-control-zoom-in,
-.leaflet-control-zoom-out,
-.map-type-control,
-.map-type-button {
+.leaflet-control-zoom a {
     pointer-events: auto !important;
-    z-index: 1000 !important; /* Ensure controls are above other elements */
+}
+
+.leaflet-control-zoom-in,
+.leaflet-control-zoom-out {
+    pointer-events: auto !important;
+    cursor: pointer !important;
 }
 
 .leaflet-control-zoom-in,
@@ -4630,26 +4628,18 @@ input[type="range"]::-webkit-slider-thumb:hover {
 }
 
 .drone-toggle {
-    padding: 5px 10px;
-    margin: 0 5px;
-    border: 1px solid #ccc;
+    padding: 6px 12px;
+    background: #f05151;
+    color: white;
+    border: none;
     border-radius: 4px;
     cursor: pointer;
-    background-color: #f0f0f0;
-    transition: background-color 0.3s ease;
+    font-family: 'IBM Plex Mono', monospace;
+    transition: background 0.3s;
 }
 
 .drone-toggle.active {
-    background-color: #4CAF50;
-    color: white;
-}
-
-.drone-toggle:hover {
-    background-color: #e0e0e0;
-}
-
-.drone-toggle.active:hover {
-    background-color: #45a049;
+    background: #70c172;
 }
 
 .ned-info {

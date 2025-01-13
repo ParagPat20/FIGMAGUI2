@@ -225,6 +225,30 @@
                       <input type="number" id="wp-heading" min="0" max="360" step="1">
                     </div>
                   </div>
+                  
+                  <div class="custom-command-settings">
+                    <h3>Custom Commands</h3>
+                    <div class="command-inputs">
+                      <div class="input-group">
+                        <label>Command</label>
+                        <select id="custom-command">
+                          <option value="">Select Command</option>
+                          <option value="FLIP">FLIP</option>
+                          <option value="LAND">LAND</option>
+                          <option value="LIGHT">LIGHT</option>
+                        </select>
+                      </div>
+                      <div class="input-group" id="light-color-picker" style="display: none;">
+                        <label>Light Color</label>
+                        <input type="color" id="light-color" value="#ff0000">
+                      </div>
+                      <button class="add-command" id="add-command">Add Command</button>
+                    </div>
+                    <div class="command-list">
+                      <!-- Commands will be listed here -->
+                    </div>
+                  </div>
+
                   <div class="keyframe-controls">
                     <button class="add-keyframe" id="add-keyframe">Add Keyframe</button>
                   </div>
