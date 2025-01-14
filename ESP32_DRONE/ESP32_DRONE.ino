@@ -174,7 +174,7 @@ void updateRainbow() {
       int pixelHue = (i * 65536L / strip.numPixels() + rainbowIndex) & 65535;
       strip.setPixelColor(i, strip.gamma32(strip.ColorHSV(pixelHue)));
     }
-    strip.show();
+    strip.show();  // Ensure this is non-blocking
     rainbowIndex += 256;
   }
 }
@@ -193,7 +193,7 @@ void updateChase() {
     if (chaseIndex > 0) strip.setPixelColor(chaseIndex-1, strip.Color(0, 0, 128));
     if (chaseIndex > 1) strip.setPixelColor(chaseIndex-2, strip.Color(0, 0, 64));
     
-    strip.show();
+    strip.show();  // Ensure this is non-blocking
     chaseIndex++;
     if (chaseIndex >= strip.numPixels()) chaseIndex = 0;
   }
@@ -204,6 +204,33 @@ void setSolidColor(uint32_t color) {
   isRainbowActive = false;
   isChaseActive = false;
   currentColor = color;
+  for (int i = 0; i < strip.numPixels(); i++) {
+    strip.setPixelColor(i, color);
+  }
+  strip.show();
+}
+
+// Timer for temporary mode display
+unsigned long modeChangeMillis = 0;
+bool isModeChangeActive = false;
+
+// Function to handle temporary mode display
+void handleModeChange() {
+  if (isModeChangeActive && millis() - modeChangeMillis >= 1000) {  // 1 second
+    isModeChangeActive = false;
+    // Resume previous mode
+    if (isRainbowActive) {
+      updateRainbow();
+    } else if (isChaseActive) {
+      updateChase();
+    }
+  }
+}
+
+// Function to set solid color temporarily
+void setSolidColorTemporary(uint32_t color) {
+  isModeChangeActive = true;
+  modeChangeMillis = millis();
   for (int i = 0; i < strip.numPixels(); i++) {
     strip.setPixelColor(i, color);
   }
@@ -244,10 +271,14 @@ void setup() {
 
 void loop() {
   // Handle LED animations
-  if (isRainbowActive) {
-    updateRainbow();
-  } else if (isChaseActive) {
-    updateChase();
+  if (!isModeChangeActive) {
+    if (isRainbowActive) {
+      updateRainbow();
+    } else if (isChaseActive) {
+      updateChase();
+    }
+  } else {
+    handleModeChange();
   }
 
   // Check if it's time to start chase effect (after 4 seconds)
@@ -301,9 +332,9 @@ void OnDataRecv(const uint8_t *mac, const uint8_t *incomingData, int len) {
 
   // Handle LED colors based on commands
   if (packet.C == "ARM") {
-    setSolidColor(strip.Color(0, 255, 0));  // Green
+    setSolidColorTemporary(strip.Color(0, 255, 0));  // Green
   } else if (packet.C == "LAND") {
-    setSolidColor(strip.Color(255, 0, 0));  // Red
+    setSolidColorTemporary(strip.Color(255, 0, 0));  // Red
   }
 
   // Print the formatted string
