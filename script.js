@@ -4202,12 +4202,24 @@ class MissionDecoder {
         this.currentFrameIndex = 0;
         this.isPaused = false;
         this.frames = [];
+        this.lastPositions = {}; // Store last positions for each drone
     }
 
     async load_mission(data) {
         this.missionData = data;
         this.currentFrameIndex = 0;
         this.isPaused = false;
+        this.lastPositions = {}; // Reset last positions
+        
+        // Initialize last positions for each drone with their first position
+        Object.entries(data.drones).forEach(([droneId, droneData]) => {
+            if (droneData.frames.length > 0) {
+                this.lastPositions[droneId] = {
+                    x: droneData.frames[0].position.x,
+                    y: droneData.frames[0].position.y
+                };
+            }
+        });
         
         // Convert mission data to frames with commands
         this.frames = [];
@@ -4220,10 +4232,22 @@ class MissionDecoder {
             Object.entries(data.drones).forEach(([droneId, droneData]) => {
                 if (i < droneData.frames.length) {
                     const frame = droneData.frames[i];
+                    const lastPos = this.lastPositions[droneId];
+                    
+                    // Calculate relative x,y movement from last position
+                    const dx = frame.position.x - lastPos.x;
+                    const dy = frame.position.y - lastPos.y;
+                    
+                    // Update last position for next frame
+                    this.lastPositions[droneId] = {
+                        x: frame.position.x,
+                        y: frame.position.y
+                    };
+                    
                     frameCommands.push({
                         target: droneId,
                         command: 'POS',
-                        payload: `${frame.position.x},${frame.position.y},${frame.position.z},${frame.heading}`
+                        payload: `${dx},${dy},${frame.position.z},${frame.heading}`
                     });
                 }
             });
