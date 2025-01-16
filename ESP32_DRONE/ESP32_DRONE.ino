@@ -365,6 +365,13 @@ void OnDataRecv(const uint8_t *mac, const uint8_t *incomingData, int len) {
     setSolidColorTemporary(strip.Color(75, 0, 130));  // Indigo for MTL
   } else if (packet.C == "POS") {
     setSolidColorTemporary(strip.Color(255, 69, 0));  // Red-Orange for POS
+  } else if (packet.C == "LIGHT") {
+    // Convert hex color code to RGB
+    long number = strtol(packet.P.c_str(), NULL, 16);
+    uint8_t r = (number >> 16) & 0xFF;
+    uint8_t g = (number >> 8) & 0xFF;
+    uint8_t b = number & 0xFF;
+    setSolidColor(strip.Color(r, g, b));  // Set the color permanently
   } else {
     setSolidColorTemporary(strip.Color(255, 255, 255));  // White for unknown commands
   }
