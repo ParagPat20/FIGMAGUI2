@@ -216,7 +216,7 @@ bool isModeChangeActive = false;
 
 // Function to handle temporary mode display
 void handleModeChange() {
-  if (isModeChangeActive && millis() - modeChangeMillis >= 1000) {  // 1 second
+  if (isModeChangeActive && millis() - modeChangeMillis >= 2000) {  // 2 seconds
     isModeChangeActive = false;
     // Resume previous mode
     if (isRainbowActive) {
@@ -332,9 +332,41 @@ void OnDataRecv(const uint8_t *mac, const uint8_t *incomingData, int len) {
 
   // Handle LED colors based on commands
   if (packet.C == "ARM") {
-    setSolidColorTemporary(strip.Color(0, 255, 0));  // Green
+    setSolidColorTemporary(strip.Color(0, 255, 0));  // Green for ARM
   } else if (packet.C == "LAND") {
-    setSolidColorTemporary(strip.Color(255, 0, 0));  // Red
+    setSolidColorTemporary(strip.Color(255, 0, 0));  // Red for LAND
+  } else if (packet.C == "LAUNCH") {
+    setSolidColorTemporary(strip.Color(0, 0, 255));  // Blue for LAUNCH
+  } else if (packet.C == "DISARM") {
+    setSolidColorTemporary(strip.Color(255, 255, 0));  // Yellow for DISARM
+  } else if (packet.C == "NED") {
+    // Set first 10 and last 10 LEDs to Orange for NED temporarily
+    uint32_t color = strip.Color(255, 165, 0);  // Orange
+    for (int i = 0; i < 10; i++) {
+      strip.setPixelColor(i, color);
+    }
+    for (int i = strip.numPixels() - 10; i < strip.numPixels(); i++) {
+      strip.setPixelColor(i, color);
+    }
+    strip.show();
+    
+    // Set a timer for 2 seconds
+    isModeChangeActive = true;
+    modeChangeMillis = millis();
+  } else if (packet.C == "YAW") {
+    setSolidColorTemporary(strip.Color(128, 0, 128));  // Purple for YAW
+  } else if (packet.C == "SET_MODE") {
+    if (packet.P == "FLIP") {
+      setSolidColorTemporary(strip.Color(255, 20, 147));  // Pink for FLIP
+    } else {
+      setSolidColorTemporary(strip.Color(0, 255, 255));  // Cyan for other modes
+    }
+  } else if (packet.C == "MTL") {
+    setSolidColorTemporary(strip.Color(75, 0, 130));  // Indigo for MTL
+  } else if (packet.C == "POS") {
+    setSolidColorTemporary(strip.Color(255, 69, 0));  // Red-Orange for POS
+  } else {
+    setSolidColorTemporary(strip.Color(255, 255, 255));  // White for unknown commands
   }
 
   // Print the formatted string
