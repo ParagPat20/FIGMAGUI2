@@ -4238,9 +4238,9 @@ document.addEventListener('DOMContentLoaded', () => {
 class MissionDecoder {
     constructor() {
         this.frames = [];
+        this.frameDelays = [];
         this.currentFrame = 0;
         this.isPaused = false;
-        this.frameDelays = []; // Add this to store frame delays
     }
 
     async load_mission(missionData) {
@@ -4281,11 +4281,25 @@ class MissionDecoder {
                         // Create NED command with position differences
                         frameCommands.push({
                             target: droneId,
-                            command: 'NED',
+                            command: 'POS',
                             payload: `${dx.toFixed(2)},${dy.toFixed(2)},${dz.toFixed(2)},${frame.heading}`
                         });
                     }
                 });
+
+                // Add custom commands for this frame if they exist
+                if (missionData.customCommands) {
+                    const customCmds = missionData.customCommands.find(([frameIdx]) => frameIdx === frameIndex);
+                    if (customCmds) {
+                        customCmds[1].forEach(cmd => {
+                            frameCommands.push({
+                                target: cmd.droneId,
+                                command: cmd.command,
+                                payload: cmd.payload
+                            });
+                        });
+                    }
+                }
 
                 // Add frame data to frames array with corresponding delay
                 this.frames.push({
@@ -4344,4 +4358,95 @@ class MissionDecoder {
         this.isPaused = false;
     }
 }
+
+// Initialize event listeners for LED effects
+const rainbowBtn = document.getElementById('rainbow-effect');
+const chaseBtn = document.getElementById('chase-effect');
+const customCommandSelect = document.getElementById('custom-command');
+const lightColorPicker = document.getElementById('light-color-picker');
+const addCommandBtn = document.getElementById('add-command');
+
+customCommandSelect.addEventListener('change', (e) => {
+    if (e.target.value === 'LIGHT') {
+        lightColorPicker.style.display = 'block';
+    } else {
+        lightColorPicker.style.display = 'none';
+    }
+});
+
+rainbowBtn.addEventListener('click', () => {
+    const selectedDrone = document.querySelector('.drone-item.selected');
+    if (selectedDrone) {
+        const droneId = selectedDrone.dataset.droneId;
+        // Set command to LIGHT
+        customCommandSelect.value = 'LIGHT';
+        lightColorPicker.style.display = 'block';
+        
+        // Create and dispatch a click event on add command button
+        const clickEvent = new MouseEvent('click', {
+            bubbles: true,
+            cancelable: true,
+            view: window
+        });
+        
+        // Override the color picker value temporarily
+        const colorPicker = document.getElementById('light-color');
+        const originalColor = colorPicker.value;
+        colorPicker.value = '#rnbw';
+        
+        // Simulate click
+        addCommandBtn.dispatchEvent(clickEvent);
+        
+        // Restore original color
+        colorPicker.value = originalColor;
+    }
+});
+
+chaseBtn.addEventListener('click', () => {
+    const selectedDrone = document.querySelector('.drone-item.selected');
+    if (selectedDrone) {
+        const droneId = selectedDrone.dataset.droneId;
+        // Set command to LIGHT
+        customCommandSelect.value = 'LIGHT';
+        lightColorPicker.style.display = 'block';
+        
+        // Create and dispatch a click event on add command button
+        const clickEvent = new MouseEvent('click', {
+            bubbles: true,
+            cancelable: true,
+            view: window
+        });
+        
+        // Override the color picker value temporarily
+        const colorPicker = document.getElementById('light-color');
+        const originalColor = colorPicker.value;
+        colorPicker.value = '#chase';
+        
+        // Simulate click
+        addCommandBtn.dispatchEvent(clickEvent);
+        
+        // Restore original color
+        colorPicker.value = originalColor;
+    }
+});
+
+// Update add command button handler to handle color picker value
+addCommandBtn.addEventListener('click', () => {
+    const selectedDrone = document.querySelector('.drone-item.selected');
+    const command = customCommandSelect.value;
+    
+    if (selectedDrone && command) {
+        const droneId = selectedDrone.dataset.droneId;
+        let payload = '1'; // default payload
+        
+        if (command === 'LIGHT') {
+            const colorPicker = document.getElementById('light-color');
+            // Remove the # from hex color and convert to lowercase
+            payload = colorPicker.value.substring(1).toLowerCase();
+        }
+        
+        addCustomCommand(currentKeyframe, droneId, command, payload);
+        updateCommandList();
+    }
+});
 
