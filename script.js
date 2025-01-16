@@ -4340,8 +4340,8 @@ class MissionDecoder {
                     seenDrones.add(cmd.target);
                     landCommands.push({
                         target: cmd.target,
-                        command: 'LAND',
-                        payload: '1'
+                        command: 'SET_MODE',
+                        payload: 'GUIDED'
                     });
                 }
             });
