@@ -378,8 +378,6 @@ void OnDataRecv(const uint8_t *mac, const uint8_t *incomingData, int len) {
       uint8_t b = number & 0xFF;
       setSolidColor(strip.Color(r, g, b));  // Set the color permanently
     }
-  } else {
-    setSolidColorTemporary(strip.Color(255, 255, 255));  // White for unknown commands
   }
 
   // Print the formatted string
