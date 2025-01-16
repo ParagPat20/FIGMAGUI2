@@ -1,6 +1,6 @@
 {
   "version": "1.0",
-  "timestamp": 1737047553129,
+  "timestamp": 1737048600850,
   "settings": {
     "gridSize": 100,
     "gridSpacing": 1
@@ -9,6 +9,30 @@
     "MCU": {
       "color": "#70c172",
       "frames": [
+        {
+          "position": {
+            "x": 0,
+            "y": 0,
+            "z": 2
+          },
+          "heading": 0
+        },
+        {
+          "position": {
+            "x": 0,
+            "y": 0,
+            "z": 2
+          },
+          "heading": 0
+        },
+        {
+          "position": {
+            "x": 0,
+            "y": 0,
+            "z": 2
+          },
+          "heading": 0
+        },
         {
           "position": {
             "x": 0,
@@ -93,12 +117,60 @@
             "z": 2
           },
           "heading": 0
+        },
+        {
+          "position": {
+            "x": 1,
+            "y": 0,
+            "z": 2
+          },
+          "heading": 0
+        },
+        {
+          "position": {
+            "x": 1,
+            "y": 0,
+            "z": 2
+          },
+          "heading": 0
+        },
+        {
+          "position": {
+            "x": 1,
+            "y": 0,
+            "z": 2
+          },
+          "heading": 0
         }
       ]
     },
     "CD2": {
       "color": "#f05151",
       "frames": [
+        {
+          "position": {
+            "x": 2,
+            "y": 0,
+            "z": 2
+          },
+          "heading": 0
+        },
+        {
+          "position": {
+            "x": 2,
+            "y": 0,
+            "z": 2
+          },
+          "heading": 0
+        },
+        {
+          "position": {
+            "x": 2,
+            "y": 0,
+            "z": 2
+          },
+          "heading": 0
+        },
         {
           "position": {
             "x": 2,
@@ -183,6 +255,30 @@
             "z": 2
           },
           "heading": 0
+        },
+        {
+          "position": {
+            "x": 3,
+            "y": 0,
+            "z": 2
+          },
+          "heading": 0
+        },
+        {
+          "position": {
+            "x": 3,
+            "y": 0,
+            "z": 2
+          },
+          "heading": 0
+        },
+        {
+          "position": {
+            "x": 3,
+            "y": 0,
+            "z": 2
+          },
+          "heading": 0
         }
       ]
     },
@@ -228,16 +324,43 @@
             "z": 2
           },
           "heading": 0
+        },
+        {
+          "position": {
+            "x": 4,
+            "y": 0,
+            "z": 2
+          },
+          "heading": 0
+        },
+        {
+          "position": {
+            "x": 4,
+            "y": 0,
+            "z": 2
+          },
+          "heading": 0
+        },
+        {
+          "position": {
+            "x": 4,
+            "y": 0,
+            "z": 2
+          },
+          "heading": 0
         }
       ]
     }
   },
   "frameDelays": [
     1000,
-    1000,
-    1000,
-    1000,
-    1000
+    1500,
+    2000,
+    2500,
+    3000,
+    2500,
+    2000,
+    1500
   ],
   "customCommands": [
     [
@@ -246,7 +369,7 @@
         {
           "droneId": "CD3",
           "command": "LIGHT",
-          "payload": "rnbw"
+          "payload": "11ff00"
         }
       ]
     ],
@@ -256,7 +379,7 @@
         {
           "droneId": "CD3",
           "command": "LIGHT",
-          "payload": "8e0101"
+          "payload": "eeff00"
         }
       ]
     ],
@@ -266,12 +389,42 @@
         {
           "droneId": "CD3",
           "command": "LIGHT",
-          "payload": "00ff2a"
+          "payload": "chase"
         }
       ]
     ],
     [
       3,
+      [
+        {
+          "droneId": "CD3",
+          "command": "LIGHT",
+          "payload": "bb00ff"
+        }
+      ]
+    ],
+    [
+      4,
+      [
+        {
+          "droneId": "CD3",
+          "command": "LIGHT",
+          "payload": "rnbw"
+        }
+      ]
+    ],
+    [
+      5,
+      [
+        {
+          "droneId": "CD3",
+          "command": "LIGHT",
+          "payload": "ff1100"
+        }
+      ]
+    ],
+    [
+      6,
       [
         {
           "droneId": "CD3",

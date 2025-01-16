@@ -1,0 +1,140 @@
+=== ESP Terminal Log Started at 2025-01-16_23-08-12 ===
+[2025-01-16 23:08:16.657] {S:CD3;C:HB;P:1}
+[2025-01-16 23:08:17.128] {T:MCU;C:POS;P:0.00,0.00,2.00,0}
+[2025-01-16 23:08:17.147] Last Packet Send Status: Delivery Fail
+[2025-01-16 23:08:17.234] {T:CD1;C:POS;P:1.00,0.00,2.00,0}
+[2025-01-16 23:08:17.252] Last Packet Send Status: Delivery Fail
+[2025-01-16 23:08:17.337] {T:CD2;C:POS;P:2.00,0.00,2.00,0}
+[2025-01-16 23:08:17.358] Last Packet Send Status: Delivery Fail
+[2025-01-16 23:08:17.439] {T:CD3;C:POS;P:3.00,0.00,2.00,0}
+[2025-01-16 23:08:17.446] Last Packet Send Status: Delivery Success
+[2025-01-16 23:08:17.546] {T:CD4;C:POS;P:4.00,0.00,2.00,0}
+[2025-01-16 23:08:17.568] Last Packet Send Status: Delivery Fail
+[2025-01-16 23:08:17.648] {T:CD3;C:LIGHT;P:11ff00}
+[2025-01-16 23:08:17.652] Last Packet Send Status: Delivery Success
+[2025-01-16 23:08:18.203] {S:CD3;C:HB;P:1}
+[2025-01-16 23:08:18.762] {T:MCU;C:POS;P:0.00,0.00,0.00,0}
+[2025-01-16 23:08:18.779] Last Packet Send Status: Delivery Fail
+[2025-01-16 23:08:18.865] {T:CD1;C:POS;P:0.00,0.00,0.00,0}
+[2025-01-16 23:08:18.884] Last Packet Send Status: Delivery Fail
+[2025-01-16 23:08:18.967] {T:CD2;C:POS;P:0.00,0.00,0.00,0}
+[2025-01-16 23:08:18.988] Last Packet Send Status: Delivery Fail
+[2025-01-16 23:08:19.071] {T:CD3;C:POS;P:0.00,0.00,0.00,0}
+[2025-01-16 23:08:19.078] Last Packet Send Status: Delivery Success
+[2025-01-16 23:08:19.179] {T:CD4;C:POS;P:0.00,0.00,0.00,0}
+[2025-01-16 23:08:19.199] Last Packet Send Status: Delivery Fail
+[2025-01-16 23:08:19.280] {T:CD3;C:LIGHT;P:eeff00}
+[2025-01-16 23:08:19.283] Last Packet Send Status: Delivery Success
+[2025-01-16 23:08:19.337] {S:CD3;C:HB;P:1}
+[2025-01-16 23:08:20.892] {T:MCU;C:POS;P:0.00,0.00,0.00,0}
+[2025-01-16 23:08:20.905] Last Packet Send Status: Delivery Fail
+[2025-01-16 23:08:20.995] {T:CD1;C:POS;P:0.00,0.00,0.00,0}
+[2025-01-16 23:08:21.016] Last Packet Send Status: Delivery Fail
+[2025-01-16 23:08:21.099] {T:CD2;C:POS;P:0.00,0.00,0.00,0}
+[2025-01-16 23:08:21.121] Last Packet Send Status: Delivery Fail
+[2025-01-16 23:08:21.205] {T:CD3;C:POS;P:0.00,0.00,0.00,0}
+[2025-01-16 23:08:21.205] Last Packet Send Status: Delivery Success
+[2025-01-16 23:08:21.217] {S:CD3;C:HB;P:1}
+[2025-01-16 23:08:21.309] {T:CD4;C:POS;P:0.00,0.00,0.00,0}
+[2025-01-16 23:08:21.332] Last Packet Send Status: Delivery Fail
+[2025-01-16 23:08:21.411] {T:CD3;C:LIGHT;P:chase}
+[2025-01-16 23:08:21.413] Last Packet Send Status: Delivery Success
+[2025-01-16 23:08:22.252] {S:CD3;C:HB;P:1}
+[2025-01-16 23:08:23.335] {S:CD3;C:HB;P:1}
+[2025-01-16 23:08:23.526] {T:MCU;C:POS;P:0.00,0.00,0.00,0}
+[2025-01-16 23:08:23.546] Last Packet Send Status: Delivery Fail
+[2025-01-16 23:08:23.627] {T:CD1;C:POS;P:0.00,0.00,0.00,0}
+[2025-01-16 23:08:23.649] Last Packet Send Status: Delivery Fail
+[2025-01-16 23:08:23.731] {T:CD2;C:POS;P:0.00,0.00,0.00,0}
+[2025-01-16 23:08:23.752] Last Packet Send Status: Delivery Fail
+[2025-01-16 23:08:23.837] {T:CD3;C:POS;P:0.00,0.00,0.00,0}
+[2025-01-16 23:08:23.844] Last Packet Send Status: Delivery Success
+[2025-01-16 23:08:23.942] {T:CD4;C:POS;P:0.00,0.00,0.00,0}
+[2025-01-16 23:08:23.960] Last Packet Send Status: Delivery Fail
+[2025-01-16 23:08:24.043] {T:CD3;C:LIGHT;P:bb00ff}
+[2025-01-16 23:08:24.043] Last Packet Send Status: Delivery Success
+[2025-01-16 23:08:24.564] {S:CD3;C:HB;P:1}
+[2025-01-16 23:08:25.654] {S:CD3;C:HB;P:1}
+[2025-01-16 23:08:26.648] {T:MCU;C:POS;P:0.00,0.00,0.00,0}
+[2025-01-16 23:08:26.672] Last Packet Send Status: Delivery Fail
+[2025-01-16 23:08:26.753] {T:CD1;C:POS;P:0.00,0.00,0.00,0}
+[2025-01-16 23:08:26.773] Last Packet Send Status: Delivery Fail
+[2025-01-16 23:08:26.857] {T:CD2;C:POS;P:0.00,0.00,0.00,0}
+[2025-01-16 23:08:26.878] Last Packet Send Status: Delivery Fail
+[2025-01-16 23:08:26.891] {S:CD3;C:HB;P:1}
+[2025-01-16 23:08:26.961] {T:CD3;C:POS;P:0.00,0.00,0.00,0}
+[2025-01-16 23:08:26.969] Last Packet Send Status: Delivery Success
+[2025-01-16 23:08:27.064] {T:CD4;C:POS;P:0.00,0.00,0.00,0}
+[2025-01-16 23:08:27.088] Last Packet Send Status: Delivery Fail
+[2025-01-16 23:08:27.168] {T:CD3;C:LIGHT;P:rnbw}
+[2025-01-16 23:08:27.168] Last Packet Send Status: Delivery Success
+[2025-01-16 23:08:28.071] {S:CD3;C:HB;P:1}
+[2025-01-16 23:08:29.113] {S:CD3;C:HB;P:1}
+[2025-01-16 23:08:30.136] {S:CD3;C:HB;P:1}
+[2025-01-16 23:08:30.283] {T:MCU;C:POS;P:0.00,0.00,0.00,0}
+[2025-01-16 23:08:30.300] Last Packet Send Status: Delivery Fail
+[2025-01-16 23:08:30.387] {T:CD1;C:POS;P:0.00,0.00,0.00,0}
+[2025-01-16 23:08:30.405] Last Packet Send Status: Delivery Fail
+[2025-01-16 23:08:30.489] {T:CD2;C:POS;P:0.00,0.00,0.00,0}
+[2025-01-16 23:08:30.509] Last Packet Send Status: Delivery Fail
+[2025-01-16 23:08:30.592] {T:CD3;C:POS;P:0.00,0.00,0.00,0}
+[2025-01-16 23:08:30.600] Last Packet Send Status: Delivery Success
+[2025-01-16 23:08:30.696] {T:CD4;C:POS;P:0.00,0.00,0.00,0}
+[2025-01-16 23:08:30.717] Last Packet Send Status: Delivery Fail
+[2025-01-16 23:08:30.800] {T:CD3;C:LIGHT;P:ff1100}
+[2025-01-16 23:08:30.800] Last Packet Send Status: Delivery Success
+[2025-01-16 23:08:31.185] {S:CD3;C:HB;P:1}
+[2025-01-16 23:08:32.925] {S:CD3;C:HB;P:1}
+[2025-01-16 23:08:33.408] {T:MCU;C:POS;P:0.00,0.00,0.00,0}
+[2025-01-16 23:08:33.425] Last Packet Send Status: Delivery Fail
+[2025-01-16 23:08:33.511] {T:CD1;C:POS;P:0.00,0.00,0.00,0}
+[2025-01-16 23:08:33.530] Last Packet Send Status: Delivery Fail
+[2025-01-16 23:08:33.613] {T:CD2;C:POS;P:0.00,0.00,0.00,0}
+[2025-01-16 23:08:33.634] Last Packet Send Status: Delivery Fail
+[2025-01-16 23:08:33.717] {T:CD3;C:POS;P:0.00,0.00,0.00,0}
+[2025-01-16 23:08:33.724] Last Packet Send Status: Delivery Success
+[2025-01-16 23:08:33.821] {T:CD4;C:POS;P:0.00,0.00,0.00,0}
+[2025-01-16 23:08:33.844] Last Packet Send Status: Delivery Fail
+[2025-01-16 23:08:33.925] {T:CD3;C:LIGHT;P:rnbw}
+[2025-01-16 23:08:33.925] Last Packet Send Status: Delivery Success
+[2025-01-16 23:08:34.025] {S:CD3;C:HB;P:1}
+[2025-01-16 23:08:35.085] {S:CD3;C:HB;P:1}
+[2025-01-16 23:08:36.033] {T:MCU;C:POS;P:0.00,0.00,0.00,0}
+[2025-01-16 23:08:36.051] Last Packet Send Status: Delivery Fail
+[2025-01-16 23:08:36.137] {T:CD1;C:POS;P:0.00,0.00,0.00,0}
+[2025-01-16 23:08:36.154] Last Packet Send Status: Delivery Fail
+[2025-01-16 23:08:36.238] {T:CD2;C:POS;P:0.00,0.00,0.00,0}
+[2025-01-16 23:08:36.259] Last Packet Send Status: Delivery Fail
+[2025-01-16 23:08:36.342] {T:CD3;C:POS;P:0.00,0.00,0.00,0}
+[2025-01-16 23:08:36.349] Last Packet Send Status: Delivery Success
+[2025-01-16 23:08:36.356] {S:CD3;C:HB;P:1}
+[2025-01-16 23:08:36.446] {T:CD4;C:POS;P:0.00,0.00,0.00,0}
+[2025-01-16 23:08:36.467] Last Packet Send Status: Delivery Fail
+[2025-01-16 23:08:37.437] {S:CD3;C:HB;P:1}
+[2025-01-16 23:08:38.057] {T:MCU;C:LAND;P:1}
+[2025-01-16 23:08:38.078] Last Packet Send Status: Delivery Fail
+[2025-01-16 23:08:38.162] {T:CD1;C:LAND;P:1}
+[2025-01-16 23:08:38.178] Last Packet Send Status: Delivery Fail
+[2025-01-16 23:08:38.266] {T:CD2;C:LAND;P:1}
+[2025-01-16 23:08:38.283] Last Packet Send Status: Delivery Fail
+[2025-01-16 23:08:38.370] {T:CD3;C:LAND;P:1}
+[2025-01-16 23:08:38.370] Last Packet Send Status: Delivery Success
+[2025-01-16 23:08:38.474] {T:CD4;C:LAND;P:1}
+[2025-01-16 23:08:38.492] Last Packet Send Status: Delivery Fail
+[2025-01-16 23:08:38.835] {S:CD3;C:HB;P:1}
+[2025-01-16 23:08:40.053] {S:CD3;C:HB;P:1}
+[2025-01-16 23:08:41.419] {S:CD3;C:HB;P:1}
+[2025-01-16 23:08:42.517] {S:CD3;C:HB;P:1}
+[2025-01-16 23:08:44.334] {S:CD3;C:HB;P:1}
+[2025-01-16 23:08:45.429] {S:CD3;C:HB;P:1}
+[2025-01-16 23:08:46.816] {S:CD3;C:HB;P:1}
+[2025-01-16 23:08:48.037] {S:CD3;C:HB;P:1}
+[2025-01-16 23:08:49.119] {S:CD3;C:HB;P:1}
+[2025-01-16 23:08:51.176] {S:CD3;C:HB;P:1}
+[2025-01-16 23:08:52.236] {S:CD3;C:HB;P:1}
+[2025-01-16 23:08:53.287] {S:CD3;C:HB;P:1}
+[2025-01-16 23:08:54.606] {S:CD3;C:HB;P:1}
+[2025-01-16 23:08:55.613] {S:CD3;C:HB;P:1}
+[2025-01-16 23:08:57.094] {S:CD3;C:HB;P:1}
+[2025-01-16 23:08:58.153] {S:CD3;C:HB;P:1}
+[2025-01-16 23:08:59.247] {S:CD3;C:HB;P:1}

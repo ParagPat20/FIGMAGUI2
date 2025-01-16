@@ -216,7 +216,7 @@ bool isModeChangeActive = false;
 
 // Function to handle temporary mode display
 void handleModeChange() {
-  if (isModeChangeActive && millis() - modeChangeMillis >= 2000) {  // 2 seconds
+  if (isModeChangeActive && millis() - modeChangeMillis >= 1000) {  // 2 seconds
     isModeChangeActive = false;
     // Resume previous mode
     if (isRainbowActive) {
@@ -367,9 +367,6 @@ void OnDataRecv(const uint8_t *mac, const uint8_t *incomingData, int len) {
     if (packet.P == "rnbw") {
       isRainbowActive = true;
       isChaseActive = false;
-    } else if (packet.P == "chase") {
-      isRainbowActive = false;
-      isChaseActive = true;
     } else {
       // Convert hex color code to RGB
       long number = strtol(packet.P.c_str(), NULL, 16);
