@@ -7,12 +7,16 @@ function createWindow() {
     mainWindow = new BrowserWindow({
         width: 1280,
         height: 720,
+        title: 'Oxitech - Swarm Control',
         webPreferences: {
             nodeIntegration: true,
             contextIsolation: false,
             webSecurity: true
         }
     });
+
+    // Set fullscreen at startup
+    mainWindow.setFullScreen(true);
 
     mainWindow.webContents.session.webRequest.onHeadersReceived((details, callback) => {
         callback({
@@ -34,6 +38,9 @@ function createWindow() {
 
     mainWindow.loadFile('index.html');
 }
+
+// Update app name
+app.name = 'Oxitech - Swarm Control';
 
 app.whenReady().then(() => {
     createWindow();

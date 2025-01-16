@@ -1,50 +1,37 @@
 // Custom Alert Component
 class CustomAlert {
     constructor() {
-        this.alertContainer = null;
-        this.initialize();
+        this.container = document.createElement('div');
+        this.container.className = 'custom-alert-container';
+        document.body.appendChild(this.container);
     }
 
-    initialize() {
-        // Create alert container if it doesn't exist
-        if (!this.alertContainer) {
-            this.alertContainer = document.createElement('div');
-            this.alertContainer.className = 'custom-alert-container';
-            document.body.appendChild(this.alertContainer);
-        }
-    }
-
-    show(message, type = 'info', duration = 3000) {
+    show(message, type) {
         const alert = document.createElement('div');
-        alert.className = `custom-alert custom-alert-${type}`;
-        alert.innerHTML = `
-            <div class="custom-alert-content">
-                <span class="custom-alert-message">${message}</span>
-            </div>
-        `;
-        
-        this.alertContainer.appendChild(alert);
-        
-        // Trigger animation
-        setTimeout(() => alert.classList.add('show'), 10);
-        
-        // Auto remove
-        setTimeout(() => {
-            alert.classList.remove('show');
-            setTimeout(() => alert.remove(), 300);
-        }, duration);
-    }
+        alert.className = `custom-alert ${type}`;
+        alert.textContent = message;
 
-    error(message) {
-        this.show(message, 'error', 5000);
+        this.container.appendChild(alert);
+
+        // Remove alert after animation
+        setTimeout(() => {
+            alert.classList.add('fade-out');
+            setTimeout(() => {
+                this.container.removeChild(alert);
+            }, 300);
+        }, 3000);
     }
 
     success(message) {
-        this.show(message, 'success', 3000);
+        this.show(message, 'success');
     }
 
-    warning(message) {
-        this.show(message, 'warning', 4000);
+    error(message) {
+        this.show(message, 'error');
+    }
+
+    info(message) {
+        this.show(message, 'info');
     }
 }
 
@@ -377,13 +364,12 @@ async function executeMissionCommands(commands) {
             const formattedCmd = `{T:${cmd.target};C:${cmd.command};P:${cmd.payload}}`;
             console.log('Executing command:', formattedCmd);
             
-            // Send command directly without wrapping in JSON
             const response = await fetch('http://127.0.0.1:5000/send_command', {
                 method: 'POST',
                 headers: {
-                    'Content-Type': 'text/plain'  // Changed to text/plain
+                    'Content-Type': 'text/plain'
                 },
-                body: formattedCmd  // Send the formatted command directly
+                body: formattedCmd
             });
             
             if (!response.ok) {
@@ -391,17 +377,17 @@ async function executeMissionCommands(commands) {
                 throw new Error(`Failed to send command: ${errorText}`);
             }
             
-            // Check response for target invalid error
             const responseText = await response.text();
             if (responseText.includes('TargetInvalid')) {
                 throw new Error(`Invalid target: ${cmd.target}`);
             }
             
-            await new Promise(resolve => setTimeout(resolve, 100)); // Small delay between commands
+            // Small delay between commands in the same frame
+            await new Promise(resolve => setTimeout(resolve, 100));
         } catch (error) {
             console.error('Error executing command:', error);
             customAlert.error('Command execution failed: ' + error.message);
-            throw error; // Re-throw to stop mission execution
+            throw error;
         }
     }
 }
@@ -453,10 +439,6 @@ class MissionViewer {
                 line-height: 1;
             }
             
-            .close-viewer:hover {
-                color: #fff;
-            }
-            
             .progress-bar {
                 background: #1a2634;
                 height: 6px;
@@ -470,6 +452,22 @@ class MissionViewer {
                 height: 100%;
                 border-radius: 3px;
                 transition: width 0.3s ease;
+                width: 0%;
+            }
+
+            .delay-progress-bar {
+                background: #1a2634;
+                height: 4px;
+                border-radius: 2px;
+                margin: 10px 0;
+                overflow: hidden;
+            }
+            
+            .delay-progress {
+                background: #70c172;
+                height: 100%;
+                border-radius: 2px;
+                transition: width linear;
                 width: 0%;
             }
             
@@ -486,20 +484,6 @@ class MissionViewer {
                 padding-right: 10px;
             }
             
-            .current-commands::-webkit-scrollbar {
-                width: 6px;
-            }
-            
-            .current-commands::-webkit-scrollbar-track {
-                background: #1a2634;
-                border-radius: 3px;
-            }
-            
-            .current-commands::-webkit-scrollbar-thumb {
-                background: #4a90e2;
-                border-radius: 3px;
-            }
-            
             .command-item {
                 display: grid;
                 grid-template-columns: auto 1fr auto;
@@ -510,10 +494,6 @@ class MissionViewer {
                 margin-bottom: 5px;
                 font-size: 12px;
                 align-items: center;
-            }
-            
-            .command-item:last-child {
-                margin-bottom: 0;
             }
             
             .command-item .target {
@@ -545,6 +525,12 @@ class MissionViewer {
                 <div class="progress-bar">
                     <div class="progress"></div>
                 </div>
+                <div class="delay-status">
+                    <div class="delay-text">Frame Delay: <span class="current-delay">0</span>ms</div>
+                    <div class="delay-progress-bar">
+                        <div class="delay-progress"></div>
+                    </div>
+                </div>
                 <div class="current-commands"></div>
             </div>
         `;
@@ -557,11 +543,15 @@ class MissionViewer {
         });
         
         this.hide(); // Initially hidden
+        this.missionData = null;
+    }
+    
+    setMissionData(missionData) {
+        this.missionData = missionData;
     }
     
     show() {
         this.container.style.display = 'block';
-        // Reset progress
         this.updateProgress(0, 0);
         this.showCommands([]);
     }
@@ -575,6 +565,27 @@ class MissionViewer {
         this.container.querySelector('.progress').style.width = `${progress}%`;
         this.container.querySelector('.current-frame').textContent = current;
         this.container.querySelector('.total-frames').textContent = total;
+
+        // Update delay information and reset loading bar
+        if (this.missionData && this.missionData.frameDelays) {
+            const currentDelay = this.missionData.frameDelays[current - 1] || 1000;
+            this.container.querySelector('.current-delay').textContent = currentDelay;
+            
+            // Remove the old delay progress bar
+            const oldDelayProgress = this.container.querySelector('.delay-progress');
+            const delayProgressBar = this.container.querySelector('.delay-progress-bar');
+            oldDelayProgress.remove();
+            
+            // Create and add new delay progress bar
+            const newDelayProgress = document.createElement('div');
+            newDelayProgress.className = 'delay-progress';
+            delayProgressBar.appendChild(newDelayProgress);
+            
+            // Force reflow and start new animation
+            newDelayProgress.offsetHeight;
+            newDelayProgress.style.transition = `width ${currentDelay}ms linear`;
+            newDelayProgress.style.width = '100%';
+        }
     }
     
     showCommands(commands) {
@@ -621,6 +632,9 @@ async function handleStart() {
                 const missionData = await response.json();
                 missionDecoder = new MissionDecoder();
                 await missionDecoder.load_mission(missionData);
+                
+                // Set mission data in viewer
+                missionViewer.setMissionData(missionData);
             }
             
             isExecutingMission = true;
@@ -659,7 +673,7 @@ async function handleStart() {
                 // Execute all commands for this frame
                 await executeMissionCommands(frameData.commands);
                 
-                // Wait for frame delay
+                // Wait for frame delay using the delay from frameData
                 await new Promise(resolve => setTimeout(resolve, frameData.delay));
             }
         } catch (error) {
@@ -708,13 +722,13 @@ function handlePause() {
             isPausedMission = true;
             missionDecoder?.pause_mission();
             pauseButton.textContent = 'Resume';
-            customAlert.info('Mission paused');
+            customAlert.success('Mission paused'); // Changed from info to success
         } else {
             // Resume mission
             isPausedMission = false;
             missionDecoder?.resume_mission();
             pauseButton.textContent = 'Pause';
-            customAlert.info('Mission resumed');
+            customAlert.success('Mission resumed'); // Changed from info to success
         }
     }
 }
@@ -2206,20 +2220,29 @@ class MissionPlanner {
     }
 
     updateKeyframeList() {
-        if (!this.keyframeList) return;
         this.keyframeList.innerHTML = '';
-
-        // Get maximum number of frames
+        
+        // Get maximum frames across all drones
         let maxFrames = 0;
         this.keyframes.forEach(frames => {
             maxFrames = Math.max(maxFrames, frames.length);
         });
 
-        // Create frames
+        // Store existing delay values before updating
+        const existingDelays = new Map();
+        const delayInputs = document.querySelectorAll('.frame-wrapper');
+        delayInputs.forEach((wrapper, index) => {
+            const input = wrapper.querySelector('.delay-input');
+            if (input) {
+                existingDelays.set(index, parseInt(input.value) || 1000);
+            }
+        });
+
+        // Create frame elements
         for (let i = 0; i < maxFrames; i++) {
             const frameWrapper = document.createElement('div');
             frameWrapper.className = 'frame-wrapper';
-
+            
             const frameContainer = document.createElement('div');
             frameContainer.className = 'keyframe-container';
             if (i === this.currentKeyframe) {
@@ -2294,9 +2317,20 @@ class MissionPlanner {
             // Frame delay (now outside the keyframe container)
             const delayContainer = document.createElement('div');
             delayContainer.className = 'frame-delay-container';
+            
+            // Use existing delay value if available, otherwise use previous frame's delay or 1000
+            let delayValue;
+            if (existingDelays.has(i)) {
+                delayValue = existingDelays.get(i);
+            } else if (existingDelays.has(i - 1)) {
+                delayValue = existingDelays.get(i - 1);
+            } else {
+                delayValue = 1000;
+            }
+            
             delayContainer.innerHTML = `
                 <div class="delay-input-container">
-                    <input type="number" class="delay-input" value="${this.getFrameDelay(i)}" min="100" max="10000" step="100">
+                    <input type="number" class="delay-input" value="${delayValue}" min="100" max="100000" step="100">
                     <span class="delay-unit">ms</span>
                 </div>
             `;
@@ -2457,18 +2491,9 @@ class MissionPlanner {
                 return;
             }
 
-            // Get current and next frame for interpolation
-            const currentFrame = this.currentKeyframe;
-            const nextFrame = currentFrame + 1;
-
-            // Get the delay for the current frame (use the first drone's delay)
-            let frameDelay = 1000;
-            for (const frames of this.keyframes.values()) {
-                if (frames[currentFrame]) {
-                    frameDelay = frames[currentFrame].delay || 1000;
-                    break;
-                }
-            }
+            // Get the delay from the frame-delay-container input
+            const delayInput = document.querySelector(`.frame-wrapper:nth-child(${this.currentKeyframe + 1}) .delay-input`);
+            const frameDelay = delayInput ? parseInt(delayInput.value) : 1000;
 
             // Interpolate positions for all drones
             const startTime = Date.now();
@@ -2484,11 +2509,11 @@ class MissionPlanner {
                 // Update each drone's position
                 this.defaultDrones.forEach(droneId => {
                     const frames = this.keyframes.get(droneId);
-                    if (frames && frames[currentFrame] && frames[nextFrame]) {
-                        const startPos = frames[currentFrame].position;
-                        const endPos = frames[nextFrame].position;
-                        const startHeading = frames[currentFrame].heading;
-                        const endHeading = frames[nextFrame].heading;
+                    if (frames && frames[this.currentKeyframe] && frames[this.currentKeyframe + 1]) {
+                        const startPos = frames[this.currentKeyframe].position;
+                        const endPos = frames[this.currentKeyframe + 1].position;
+                        const startHeading = frames[this.currentKeyframe].heading;
+                        const endHeading = frames[this.currentKeyframe + 1].heading;
 
                         // Interpolate position and heading with easing
                         const currentPos = {
@@ -2523,7 +2548,7 @@ class MissionPlanner {
                     requestAnimationFrame(animate3DTransition);
                 } else {
                     // Move to next frame
-                    this.currentKeyframe = nextFrame;
+                    this.currentKeyframe++;
                     this.updateKeyframeSlider();
                     this.updateKeyframeCounter();
                     this.updateKeyframeList();
@@ -2575,8 +2600,21 @@ class MissionPlanner {
                 gridSize: this.gridSize,
                 gridSpacing: this.gridSpacing
             },
-            drones: {}
+            drones: {},
+            frameDelays: [] // New array to store delays per frame
         };
+
+        // Get maximum number of frames
+        let maxFrames = 0;
+        this.keyframes.forEach(frames => {
+            maxFrames = Math.max(maxFrames, frames.length);
+        });
+
+        // Save frame delays
+        for (let i = 0; i < maxFrames; i++) {
+            const delayInput = document.querySelector(`.frame-wrapper:nth-child(${i + 1}) .delay-input`);
+            missionData.frameDelays[i] = delayInput ? parseInt(delayInput.value) : 1000;
+        }
 
         // Save drone keyframes
         this.keyframes.forEach((frames, droneId) => {
@@ -2584,13 +2622,13 @@ class MissionPlanner {
                 color: this.getDroneColor(droneId),
                 frames: frames.map(frame => ({
                     position: { ...frame.position },
-                    heading: frame.heading,
-                    delay: frame.delay || 1000
+                    heading: frame.heading
+                    // Removed delay from here
                 }))
             };
         });
 
-        // Save custom commands organized by keyframe
+        // Save custom commands
         if (this.customCommands.size > 0) {
             missionData.customCommands = Array.from(this.customCommands.entries()).map(([frameIndex, commands]) => {
                 return [frameIndex, commands.map(cmd => ({
@@ -2643,18 +2681,19 @@ class MissionPlanner {
                 this.updateKeyframeSlider();
                 this.updateKeyframeCounter();
                 this.updateKeyframeList();
+                
+                // After updating keyframe list, set the frame delays
+                if (missionData.frameDelays) {
+                    missionData.frameDelays.forEach((delay, index) => {
+                        const delayInput = document.querySelector(`.frame-wrapper:nth-child(${index + 1}) .delay-input`);
+                        if (delayInput) {
+                            delayInput.value = delay;
+                        }
+                    });
+                }
+                
                 this.updateViews();
                 this.updateCommandList();
-                
-                // Update input fields for selected drone
-                const selectedDrone = document.querySelector('.drone-item.selected');
-                if (selectedDrone) {
-                    const droneId = selectedDrone.dataset.droneId;
-                    const frames = this.keyframes.get(droneId);
-                    if (frames && frames[0]) {
-                        this.updateWaypointInputs(frames[0]);
-                    }
-                }
                 
                 customAlert.success('Mission loaded successfully');
             } catch (error) {
@@ -4198,97 +4237,103 @@ document.addEventListener('DOMContentLoaded', () => {
 
 class MissionDecoder {
     constructor() {
-        this.missionData = null;
-        this.currentFrameIndex = 0;
-        this.isPaused = false;
         this.frames = [];
-        this.lastPositions = {}; // Store last positions for each drone
+        this.currentFrame = 0;
+        this.isPaused = false;
+        this.frameDelays = []; // Add this to store frame delays
     }
 
-    async load_mission(data) {
-        this.missionData = data;
-        this.currentFrameIndex = 0;
-        this.isPaused = false;
-        this.lastPositions = {}; // Reset last positions
-        
-        // Initialize last positions for each drone with their first position
-        Object.entries(data.drones).forEach(([droneId, droneData]) => {
-            if (droneData.frames.length > 0) {
-                this.lastPositions[droneId] = {
-                    x: droneData.frames[0].position.x,
-                    y: droneData.frames[0].position.y
-                };
-            }
-        });
-        
-        // Convert mission data to frames with commands
-        this.frames = [];
-        const maxFrames = Math.max(...Object.values(data.drones).map(drone => drone.frames.length));
-        
-        for (let i = 0; i < maxFrames; i++) {
-            const frameCommands = [];
-            
-            // Add position commands for each drone
-            Object.entries(data.drones).forEach(([droneId, droneData]) => {
-                if (i < droneData.frames.length) {
-                    const frame = droneData.frames[i];
-                    const lastPos = this.lastPositions[droneId];
-                    
-                    // Calculate relative x,y movement from last position
-                    const dx = frame.position.x - lastPos.x;
-                    const dy = frame.position.y - lastPos.y;
-                    
-                    // Update last position for next frame
-                    this.lastPositions[droneId] = {
-                        x: frame.position.x,
-                        y: frame.position.y
-                    };
-                    
-                    frameCommands.push({
-                        target: droneId,
-                        command: 'POS',
-                        payload: `${dx},${dy},${frame.position.z},${frame.heading}`
-                    });
-                }
-            });
-            
-            // Add custom commands for this frame if they exist
-            if (data.customCommands) {
-                const customCmds = data.customCommands.find(([frameIdx]) => frameIdx === i);
-                if (customCmds) {
-                    customCmds[1].forEach(cmd => {
+    async load_mission(missionData) {
+        try {
+            // Reset arrays
+            this.frames = [];
+            this.frameDelays = [];
+            this.currentFrame = 0;
+
+            // Store frame delays
+            this.frameDelays = [...missionData.frameDelays];
+
+            // Get maximum number of frames
+            const maxFrames = Math.max(...Object.values(missionData.drones).map(drone => drone.frames.length));
+
+            // Process each frame
+            for (let frameIndex = 0; frameIndex < maxFrames; frameIndex++) {
+                const frameCommands = [];
+
+                // Process each drone's position for this frame
+                Object.entries(missionData.drones).forEach(([droneId, droneData]) => {
+                    if (frameIndex < droneData.frames.length) {
+                        const frame = droneData.frames[frameIndex];
+                        const prevFrame = frameIndex > 0 ? droneData.frames[frameIndex - 1] : null;
+
+                        // Calculate position differences if there's a previous frame
+                        let dx = 0, dy = 0, dz = 0;
+                        if (prevFrame) {
+                            dx = frame.position.x - prevFrame.position.x;
+                            dy = frame.position.y - prevFrame.position.y;
+                            dz = frame.position.z - prevFrame.position.z;
+                        } else {
+                            dx = frame.position.x;
+                            dy = frame.position.y;
+                            dz = frame.position.z;
+                        }
+
+                        // Create NED command with position differences
                         frameCommands.push({
-                            target: cmd.droneId,
-                            command: cmd.command,
-                            payload: cmd.payload
+                            target: droneId,
+                            command: 'NED',
+                            payload: `${dx.toFixed(2)},${dy.toFixed(2)},${dz.toFixed(2)},${frame.heading}`
                         });
-                    });
-                }
+                    }
+                });
+
+                // Add frame data to frames array with corresponding delay
+                this.frames.push({
+                    commands: frameCommands,
+                    delay: this.frameDelays[frameIndex] || 1000
+                });
             }
-            
-            // Get delay from any drone's frame (they should all be the same)
-            const delay = Object.values(data.drones)[0].frames[i]?.delay || 1000;
-            
-            this.frames.push({
-                commands: frameCommands,
-                delay: delay
-            });
+
+            return true;
+        } catch (error) {
+            console.error('Error loading mission:', error);
+            return false;
         }
-        
-        console.log('Processed frames:', this.frames);
     }
 
     get_next_frame_commands() {
-        if (!this.frames || this.isPaused) return null;
-        
-        if (this.currentFrameIndex >= this.frames.length) {
-            return null; // Mission complete
+        if (this.isPaused || this.currentFrame >= this.frames.length) {
+            return null;
         }
-        
-        const frame = this.frames[this.currentFrameIndex];
-        this.currentFrameIndex++;
-        
-        return frame;
+
+        const frameData = this.frames[this.currentFrame];
+        this.currentFrame++;
+
+        // Return both commands and the correct delay
+        return {
+            commands: frameData.commands,
+            delay: frameData.delay
+        };
+    }
+
+    stop_mission() {
+        const landCommands = [];
+        // Generate LAND commands for all unique drone targets
+        const seenDrones = new Set();
+        this.frames.forEach(frame => {
+            frame.commands.forEach(cmd => {
+                if (!seenDrones.has(cmd.target)) {
+                    seenDrones.add(cmd.target);
+                    landCommands.push({
+                        target: cmd.target,
+                        command: 'LAND',
+                        payload: '1'
+                    });
+                }
+            });
+        });
+        this.currentFrame = 0;
+        return landCommands;
     }
 
     pause_mission() {
@@ -4297,27 +4342,6 @@ class MissionDecoder {
 
     resume_mission() {
         this.isPaused = false;
-    }
-
-    stop_mission() {
-        // Generate land commands for all drones
-        const landCommands = [];
-        if (this.missionData && this.missionData.drones) {
-            Object.keys(this.missionData.drones).forEach(droneId => {
-                landCommands.push({
-                    target: droneId,
-                    command: 'LAND',
-                    payload: '1'
-                });
-            });
-        }
-        
-        this.missionData = null;
-        this.currentFrameIndex = 0;
-        this.isPaused = false;
-        this.frames = [];
-        
-        return landCommands;
     }
 }
 

@@ -1,0 +1,233 @@
+{
+  "version": "1.0",
+  "timestamp": 1737046927023,
+  "settings": {
+    "gridSize": 100,
+    "gridSpacing": 1
+  },
+  "drones": {
+    "MCU": {
+      "color": "#70c172",
+      "frames": [
+        {
+          "position": {
+            "x": 0,
+            "y": 0,
+            "z": 2
+          },
+          "heading": 0
+        },
+        {
+          "position": {
+            "x": 0,
+            "y": 0,
+            "z": 2
+          },
+          "heading": 0
+        },
+        {
+          "position": {
+            "x": 0,
+            "y": 0,
+            "z": 2
+          },
+          "heading": 0
+        },
+        {
+          "position": {
+            "x": 0,
+            "y": 0,
+            "z": 2
+          },
+          "heading": 0
+        }
+      ]
+    },
+    "CD1": {
+      "color": "#2c7bf2",
+      "frames": [
+        {
+          "position": {
+            "x": 1,
+            "y": 0,
+            "z": 2
+          },
+          "heading": 0
+        },
+        {
+          "position": {
+            "x": 1,
+            "y": 0,
+            "z": 2
+          },
+          "heading": 0
+        },
+        {
+          "position": {
+            "x": 1,
+            "y": 0,
+            "z": 2
+          },
+          "heading": 0
+        },
+        {
+          "position": {
+            "x": 1,
+            "y": 0,
+            "z": 2
+          },
+          "heading": 0
+        }
+      ]
+    },
+    "CD2": {
+      "color": "#f05151",
+      "frames": [
+        {
+          "position": {
+            "x": 2,
+            "y": 0,
+            "z": 2
+          },
+          "heading": 0
+        },
+        {
+          "position": {
+            "x": 2,
+            "y": 0,
+            "z": 2
+          },
+          "heading": 0
+        },
+        {
+          "position": {
+            "x": 2,
+            "y": 0,
+            "z": 2
+          },
+          "heading": 0
+        },
+        {
+          "position": {
+            "x": 2,
+            "y": 0,
+            "z": 2
+          },
+          "heading": 0
+        }
+      ]
+    },
+    "CD3": {
+      "color": "#ffab49",
+      "frames": [
+        {
+          "position": {
+            "x": 3,
+            "y": 0,
+            "z": 2
+          },
+          "heading": 0
+        },
+        {
+          "position": {
+            "x": 3,
+            "y": 0,
+            "z": 2
+          },
+          "heading": 0
+        },
+        {
+          "position": {
+            "x": 3,
+            "y": 0,
+            "z": 2
+          },
+          "heading": 0
+        },
+        {
+          "position": {
+            "x": 3,
+            "y": 0,
+            "z": 2
+          },
+          "heading": 0
+        }
+      ]
+    },
+    "CD4": {
+      "color": "#9c27b0",
+      "frames": [
+        {
+          "position": {
+            "x": 4,
+            "y": 0,
+            "z": 2
+          },
+          "heading": 0
+        },
+        {
+          "position": {
+            "x": 4,
+            "y": 0,
+            "z": 2
+          },
+          "heading": 0
+        },
+        {
+          "position": {
+            "x": 4,
+            "y": 0,
+            "z": 2
+          },
+          "heading": 0
+        },
+        {
+          "position": {
+            "x": 4,
+            "y": 0,
+            "z": 2
+          },
+          "heading": 0
+        }
+      ]
+    }
+  },
+  "frameDelays": [
+    1000,
+    1000,
+    1000,
+    1000
+  ],
+  "customCommands": [
+    [
+      0,
+      [
+        {
+          "droneId": "CD3",
+          "command": "LIGHT",
+          "payload": "ff0000"
+        }
+      ]
+    ],
+    [
+      1,
+      [
+        {
+          "droneId": "CD3",
+          "command": "LIGHT",
+          "payload": "00ff88"
+        }
+      ]
+    ],
+    [
+      2,
+      [
+        {
+          "droneId": "CD3",
+          "command": "LIGHT",
+          "payload": "ffea00"
+        }
+      ]
+    ]
+  ]
+}

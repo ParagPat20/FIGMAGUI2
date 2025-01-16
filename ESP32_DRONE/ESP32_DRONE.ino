@@ -307,10 +307,10 @@ void loop() {
 
 void OnDataSent(const uint8_t *mac_addr, esp_now_send_status_t status) {
   if (status == ESP_NOW_SEND_SUCCESS) {
-    Serial.println("Delivery Success");
+    Serial.println("DLOK");
     failedTransmissionCount = 0; // Reset counter on successful transmission
   } else {
-    Serial.println("Delivery Fail");
+    Serial.println("DLFAIL");
     failedTransmissionCount++;
     
     if (failedTransmissionCount >= 5) {
@@ -366,12 +366,20 @@ void OnDataRecv(const uint8_t *mac, const uint8_t *incomingData, int len) {
   } else if (packet.C == "POS") {
     setSolidColorTemporary(strip.Color(255, 69, 0));  // Red-Orange for POS
   } else if (packet.C == "LIGHT") {
-    // Convert hex color code to RGB
-    long number = strtol(packet.P.c_str(), NULL, 16);
-    uint8_t r = (number >> 16) & 0xFF;
-    uint8_t g = (number >> 8) & 0xFF;
-    uint8_t b = number & 0xFF;
-    setSolidColor(strip.Color(r, g, b));  // Set the color permanently
+    if (packet.P == "rnbw") {
+      isRainbowActive = true;
+      isChaseActive = false;
+    } else if (packet.P == "chase") {
+      isRainbowActive = false;
+      isChaseActive = true;
+    } else {
+      // Convert hex color code to RGB
+      long number = strtol(packet.P.c_str(), NULL, 16);
+      uint8_t r = (number >> 16) & 0xFF;
+      uint8_t g = (number >> 8) & 0xFF;
+      uint8_t b = number & 0xFF;
+      setSolidColor(strip.Color(r, g, b));  // Set the color permanently
+    }
   } else {
     setSolidColorTemporary(strip.Color(255, 255, 255));  // White for unknown commands
   }
