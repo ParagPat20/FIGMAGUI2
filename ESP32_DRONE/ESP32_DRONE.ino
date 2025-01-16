@@ -363,8 +363,6 @@ void OnDataRecv(const uint8_t *mac, const uint8_t *incomingData, int len) {
     }
   } else if (packet.C == "MTL") {
     setSolidColorTemporary(strip.Color(75, 0, 130));  // Indigo for MTL
-  } else if (packet.C == "POS") {
-    setSolidColorTemporary(strip.Color(255, 69, 0));  // Red-Orange for POS
   } else if (packet.C == "LIGHT") {
     if (packet.P == "rnbw") {
       isRainbowActive = true;
