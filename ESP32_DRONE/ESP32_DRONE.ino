@@ -265,8 +265,6 @@ void setup() {
   // Start rainbow effect
   isRainbowActive = true;
   
-  // Schedule chase effect after 4 seconds
-  previousMillis = millis();
 }
 
 void loop() {
@@ -281,12 +279,6 @@ void loop() {
     handleModeChange();
   }
 
-  // Check if it's time to start chase effect (after 4 seconds)
-  if (millis() - previousMillis >= 4000 && isRainbowActive) {
-    isRainbowActive = false;
-    isChaseActive = true;
-    chaseIndex = 0;
-  }
 
   // Handle serial input
   if (Serial.available()) {
