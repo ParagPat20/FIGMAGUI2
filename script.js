@@ -4052,122 +4052,155 @@ function showHelp() {
 // Add NED Control class
 class NEDControl {
     constructor() {
-        this.velocities = {
-            x: 0,
-            y: 0,
-            z: 0
+        this.isEnabled = false;
+        this.activeTargets = new Set();
+        this.velocities = { x: 0, y: 0, z: 0, yaw: 0 };
+        this.keyStates = {
+            'w': false, // Forward (+x)
+            's': false, // Backward (-x)
+            'a': false, // Left (+y)
+            'd': false, // Right (-y)
+            'q': false, // Up (-z)
+            'e': false, // Down (+z)
+            'z': false, // Yaw left
+            'c': false  // Yaw right
         };
-        this.isActive = false;
-        this.activeDrones = new Set();
-        this.controlInterval = null;
-        this.keysPressed = new Set();
+        
+        // Map number keys to drone IDs
+        this.droneKeys = {
+            '0': 'MCU',
+            '1': 'CD1',
+            '2': 'CD2',
+            '3': 'CD3',
+            '4': 'CD4',
+            '5': 'CD5'
+        };
+        
+        this.initialize();
     }
-
+    
     initialize() {
-        document.addEventListener('keydown', this.handleKeyDown.bind(this));
-        document.addEventListener('keyup', this.handleKeyUp.bind(this));
-    }
-
-    toggleMainControl() {
-        this.isActive = !this.isActive;
+        // Initialize main toggle
         const mainToggle = document.querySelector('.main-control-toggle');
-        mainToggle.textContent = `NED Control: ${this.isActive ? 'ON' : 'OFF'}`;
-        mainToggle.classList.toggle('active', this.isActive);
-
-        if (this.isActive) {
-            this.startControlLoop();
+        mainToggle?.addEventListener('click', () => this.toggleMainControl());
+        
+        // Initialize drone toggles
+        const droneToggles = document.querySelectorAll('.drone-toggle');
+        droneToggles.forEach(toggle => {
+            toggle.addEventListener('click', () => {
+                const droneId = toggle.dataset.drone;
+                this.toggleDroneControl(droneId);
+            });
+        });
+        
+        // Initialize keyboard listeners
+        window.addEventListener('keydown', (e) => this.handleKeyDown(e));
+        window.addEventListener('keyup', (e) => this.handleKeyUp(e));
+    }
+    
+    toggleMainControl() {
+        const mainToggle = document.querySelector('.main-control-toggle');
+        this.isEnabled = !this.isEnabled;
+        
+        if (this.isEnabled) {
+            mainToggle.textContent = 'NED Control: ON';
+            mainToggle.classList.add('active');
         } else {
-            this.stopControlLoop();
+            mainToggle.textContent = 'NED Control: OFF';
+            mainToggle.classList.remove('active');
             this.resetVelocities();
+            // Send zero velocities to all active drones when disabling
+            this.activeTargets.forEach(target => {
+                send_command(target, 'NED', '0,0,0,0');
+            });
         }
     }
-
+    
     toggleDroneControl(droneId) {
-        const droneToggle = document.querySelector(`.drone-toggle[data-drone="${droneId}"]`);
-        if (!droneToggle) return;
+        const button = document.querySelector(`.drone-toggle[data-drone="${droneId}"]`);
+        if (!button) return;
 
-        if (this.activeDrones.has(droneId)) {
-            this.activeDrones.delete(droneId);
-            droneToggle.textContent = `${droneId}: OFF`;
-            droneToggle.classList.remove('active');
+        if (this.activeTargets.has(droneId)) {
+            this.activeTargets.delete(droneId);
+            button.textContent = `${droneId}: OFF`;
+            button.classList.remove('active');
+            // Send zero velocity when disabling control
+            send_command(droneId, 'NED', '0,0,0,0');
         } else {
-            this.activeDrones.add(droneId);
-            droneToggle.textContent = `${droneId}: ON`;
-            droneToggle.classList.add('active');
+            this.activeTargets.add(droneId);
+            button.textContent = `${droneId}: ON`;
+            button.classList.add('active');
         }
     }
-
+    
     handleKeyDown(e) {
-        if (!this.isActive) return;
+        if (!this.isEnabled) return;
         
-        this.keysPressed.add(e.key.toLowerCase());
-        this.updateVelocities();
+        const key = e.key.toLowerCase();
+        
+        // Handle number keys for drone toggling
+        if (this.droneKeys[e.key]) {
+            e.preventDefault();
+            this.toggleDroneControl(this.droneKeys[e.key]);
+            return;
+        }
+        
+        // Handle movement keys
+        if (this.keyStates.hasOwnProperty(key) && !this.keyStates[key]) {
+            e.preventDefault();
+            this.keyStates[key] = true;
+            this.updateVelocities();
+            this.sendVelocityCommands(); // Send commands immediately when key is pressed
+        }
     }
-
+    
     handleKeyUp(e) {
-        if (!this.isActive) return;
+        if (!this.isEnabled) return;
         
-        this.keysPressed.delete(e.key.toLowerCase());
-        this.updateVelocities();
+        const key = e.key.toLowerCase();
+        if (this.keyStates.hasOwnProperty(key)) {
+            e.preventDefault();
+            this.keyStates[key] = false;
+            this.updateVelocities();
+            this.sendVelocityCommands(); // Send commands immediately when key is released
+        }
     }
-
+    
     updateVelocities() {
         // Reset velocities
-        this.velocities = {
-            x: 0,
-            y: 0,
-            z: 0
-        };
-
-        // Update velocities based on currently pressed keys
-        if (this.keysPressed.has('w')) this.velocities.x = 1;
-        if (this.keysPressed.has('s')) this.velocities.x = -1;
-        if (this.keysPressed.has('d')) this.velocities.y = 1;
-        if (this.keysPressed.has('a')) this.velocities.y = -1;
-        if (this.keysPressed.has('u')) this.velocities.z = 1;
-        if (this.keysPressed.has('j')) this.velocities.z = -1;
-
-        // If any key is pressed, send the command immediately
-        if (this.keysPressed.size > 0) {
-            this.sendVelocityCommands();
-        }
+        this.velocities = { x: 0, y: 0, z: 0, yaw: 0 };
+        
+        // Forward/Backward (X-axis)
+        if (this.keyStates['w']) this.velocities.x = 0.6;
+        if (this.keyStates['s']) this.velocities.x = -0.6;
+        
+        // Left/Right (Y-axis)
+        if (this.keyStates['a']) this.velocities.y = 0.6;
+        if (this.keyStates['d']) this.velocities.y = -0.6;
+        
+        // Up/Down (Z-axis)
+        if (this.keyStates['q']) this.velocities.z = -0.6;
+        if (this.keyStates['e']) this.velocities.z = 0.6;
+        
+        // Yaw control (raw degrees)
+        if (this.keyStates['z']) this.velocities.yaw = -10;
+        if (this.keyStates['c']) this.velocities.yaw = 10;
     }
-
+    
     resetVelocities() {
-        this.velocities = {
-            x: 0,
-            y: 0,
-            z: 0
-        };
-        this.keysPressed.clear();
-        // Send zero velocities one last time to stop movement
-        this.sendVelocityCommands();
-    }
-
-    startControlLoop() {
-        // We don't need a continuous control loop anymore
-        // Commands are sent only on key events
-    }
-
-    stopControlLoop() {
-        if (this.controlInterval) {
-            clearInterval(this.controlInterval);
-            this.controlInterval = null;
-        }
-        this.resetVelocities();
-    }
-
-    sendVelocityCommands() {
-        this.activeDrones.forEach(droneId => {
-            if (this.checkDroneMode(droneId)) {
-                send_command(droneId, 'NED', `${this.velocities.x},${this.velocities.y},${this.velocities.z}`);
-            }
+        this.velocities = { x: 0, y: 0, z: 0, yaw: 0 };
+        Object.keys(this.keyStates).forEach(key => {
+            this.keyStates[key] = false;
         });
     }
-
-    checkDroneMode(droneId) {
-        const droneState = droneStates[droneId];
-        return droneState && droneState.armed && droneState.mode === 'GUIDED';
+    
+    sendVelocityCommands() {
+        if (!this.isEnabled || this.activeTargets.size === 0) return;
+        
+        this.activeTargets.forEach(target => {
+            const command = `${this.velocities.x},${this.velocities.y},${this.velocities.z},${this.velocities.yaw}`;
+            send_command(target, 'NED', command);
+        });
     }
 }
 
