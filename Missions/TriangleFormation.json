@@ -1,0 +1,127 @@
+{
+  "version": "1.0",
+  "timestamp": 1737242398839,
+  "settings": {
+    "gridSize": 100,
+    "gridSpacing": 1
+  },
+  "drones": {
+    "MCU": {
+      "color": "#70c172",
+      "frames": [
+        {"position": {"x": 0, "y": 0, "z": 2}, "heading": 0},
+        {"position": {"x": 0, "y": 0, "z": 4}, "heading": 0},
+        {"position": {"x": 0, "y": 0, "z": 4}, "heading": 0},
+        {"position": {"x": 0, "y": 0, "z": 4}, "heading": 0},
+        {"position": {"x": 0, "y": 0, "z": 4}, "heading": 0},
+        {"position": {"x": 0, "y": 0, "z": 4}, "heading": 0},
+        {"position": {"x": 0, "y": 0, "z": 4}, "heading": 0},
+        {"position": {"x": 0, "y": 0, "z": 4}, "heading": 0},
+        {"position": {"x": 0, "y": 0, "z": 4}, "heading": 0},
+        {"position": {"x": 0, "y": 0, "z": 4}, "heading": 0},
+        {"position": {"x": 0, "y": 0, "z": 4}, "heading": 0},
+        {"position": {"x": 0, "y": 0, "z": 4}, "heading": 0},
+        {"position": {"x": 0, "y": 0, "z": 4}, "heading": 0},
+        {"position": {"x": 0, "y": 0, "z": 4}, "heading": 0},
+        {"position": {"x": 0, "y": 0, "z": 2}, "heading": 0}
+      ]
+    },
+    "CD1": {
+      "color": "#2c7bf2",
+      "frames": [
+        {"position": {"x": 1, "y": 0, "z": 2}, "heading": 0},
+        {"position": {"x": 1, "y": 0, "z": 4}, "heading": 0},
+        {"position": {"x": 1.5, "y": 0, "z": 4}, "heading": 0},
+        {"position": {"x": 2, "y": 0, "z": 4}, "heading": 0},
+        {"position": {"x": 2, "y": 0.5, "z": 4}, "heading": 0},
+        {"position": {"x": 2, "y": 1, "z": 4}, "heading": 0},
+        {"position": {"x": 2, "y": 1.5, "z": 4}, "heading": 0},
+        {"position": {"x": 2, "y": 2, "z": 4}, "heading": 0},
+        {"position": {"x": 2, "y": 2.5, "z": 4}, "heading": 0},
+        {"position": {"x": 2, "y": 3, "z": 4}, "heading": 0},
+        {"position": {"x": 2, "y": 3, "z": 4}, "heading": 0},
+        {"position": {"x": 2, "y": 3, "z": 4}, "heading": 0},
+        {"position": {"x": 2, "y": 3, "z": 4}, "heading": 0},
+        {"position": {"x": 2, "y": 3, "z": 4}, "heading": 0},
+        {"position": {"x": 2, "y": 3, "z": 2}, "heading": 0}
+      ]
+    },
+    "CD2": {
+      "color": "#f05151",
+      "frames": [
+        {"position": {"x": 2, "y": 0, "z": 2}, "heading": 0},
+        {"position": {"x": 2, "y": 0, "z": 4}, "heading": 0},
+        {"position": {"x": 2, "y": 0, "z": 4}, "heading": 0},
+        {"position": {"x": 2, "y": 0, "z": 4}, "heading": 0},
+        {"position": {"x": 2, "y": 0, "z": 4}, "heading": 0},
+        {"position": {"x": 2, "y": 0, "z": 4}, "heading": 0},
+        {"position": {"x": 2, "y": 0, "z": 4}, "heading": 0},
+        {"position": {"x": 2, "y": 0, "z": 4}, "heading": 0},
+        {"position": {"x": 2, "y": 0, "z": 4}, "heading": 0},
+        {"position": {"x": 2, "y": 0, "z": 4}, "heading": 0},
+        {"position": {"x": 2, "y": 0, "z": 4}, "heading": 0},
+        {"position": {"x": 2, "y": 0, "z": 4}, "heading": 0},
+        {"position": {"x": 2, "y": 0, "z": 4}, "heading": 0},
+        {"position": {"x": 2, "y": 0, "z": 4}, "heading": 0},
+        {"position": {"x": 2, "y": 0, "z": 2}, "heading": 0}
+      ]
+    },
+    "CD3": {
+      "color": "#ffab49",
+      "frames": [
+        {"position": {"x": 3, "y": 0, "z": 2}, "heading": 0},
+        {"position": {"x": 3, "y": 0, "z": 4}, "heading": 0},
+        {"position": {"x": 3.2, "y": 0, "z": 4}, "heading": 0},
+        {"position": {"x": 3.4, "y": 0, "z": 4}, "heading": 0},
+        {"position": {"x": 3.6, "y": 0, "z": 4}, "heading": 0},
+        {"position": {"x": 3.8, "y": 0, "z": 4}, "heading": 0},
+        {"position": {"x": 4, "y": 0, "z": 4}, "heading": 0},
+        {"position": {"x": 4, "y": 0.3, "z": 4}, "heading": 0},
+        {"position": {"x": 4, "y": 0.6, "z": 4}, "heading": 0},
+        {"position": {"x": 4, "y": 0.9, "z": 4}, "heading": 0},
+        {"position": {"x": 4, "y": 1.2, "z": 4}, "heading": 0},
+        {"position": {"x": 4, "y": 1.5, "z": 4}, "heading": 0},
+        {"position": {"x": 4, "y": 1.5, "z": 4}, "heading": 0},
+        {"position": {"x": 4, "y": 1.5, "z": 4}, "heading": 0},
+        {"position": {"x": 4, "y": 1.5, "z": 2}, "heading": 0}
+      ]
+    },
+    "CD4": {
+      "color": "#9c27b0",
+      "frames": [
+        {"position": {"x": 4, "y": 0, "z": 2}, "heading": 0},
+        {"position": {"x": 4, "y": 0, "z": 4}, "heading": 0},
+        {"position": {"x": 4.4, "y": 0, "z": 4}, "heading": 0},
+        {"position": {"x": 4.8, "y": 0, "z": 4}, "heading": 0},
+        {"position": {"x": 5.2, "y": 0, "z": 4}, "heading": 0},
+        {"position": {"x": 5.6, "y": 0, "z": 4}, "heading": 0},
+        {"position": {"x": 6, "y": 0, "z": 4}, "heading": 0},
+        {"position": {"x": 6, "y": 0.5, "z": 4}, "heading": 0},
+        {"position": {"x": 6, "y": 1, "z": 4}, "heading": 0},
+        {"position": {"x": 6, "y": 1.5, "z": 4}, "heading": 0},
+        {"position": {"x": 6, "y": 2, "z": 4}, "heading": 0},
+        {"position": {"x": 6, "y": 2.5, "z": 4}, "heading": 0},
+        {"position": {"x": 6, "y": 3, "z": 4}, "heading": 0},
+        {"position": {"x": 6, "y": 3, "z": 4}, "heading": 0},
+        {"position": {"x": 6, "y": 3, "z": 2}, "heading": 0}
+      ]
+    }
+  },
+  "frameDelays": [
+    1000,  // Initial position
+    2000,  // Move up to 4m
+    1000,  // Start horizontal movement
+    1000,
+    1000,
+    1000,
+    1000,  // Complete horizontal movement
+    1000,  // Start vertical movement
+    1000,
+    1000,
+    1000,
+    1000,  // Complete triangle formation
+    2000,  // Hold position
+    2000,  // Hold position
+    2000   // Return to 2m altitude
+  ]
+} 

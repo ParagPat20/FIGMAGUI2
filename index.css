@@ -61,6 +61,7 @@ button {
 
 
 .top-bar {
+  margin-left: -150px;
   grid-area: topbar;
   position: relative;
   width: fit-content;
@@ -72,7 +73,7 @@ button {
   box-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
   border-radius: 0 0 30px 30px;
   z-index: 10;
-  padding: 0 25px;
+  padding: 35px 25px;
   gap: 5px;
   grid-column: 2 / -1;
 }
@@ -528,9 +529,9 @@ button {
   flex-direction: column;
   align-items: flex-start;
   width: 100%;
-  height: 100%;
+  height: 50%;
   background: transparent;
-  padding: 20px 0;
+  padding: 250px 0px;
   z-index: 10;
 }
 .sidebar-content {
@@ -541,7 +542,7 @@ button {
   background: var(--dark-blue-gradient);
   box-shadow: 2px 0 10px rgba(0, 0, 0, 0.3);
   border-radius: 0 50px 50px 0;
-  padding: 20px 0;
+  padding: 10px 25px 15px 1px;
   margin: auto 0;
 }
 .sidebar-header {
@@ -564,7 +565,7 @@ button {
   display: flex;
   flex-direction: column;
   width: 100%;
-  padding: 20px;
+  padding-left: 20px;
   gap: 10px;
 }
 .menu-item {
@@ -923,7 +924,7 @@ button {
 .down-bar {
     position: fixed;
     bottom: 0;
-    left: 220px;
+    left: 20px;
     right: 0;
     height: auto;
     background: transparent;
@@ -1073,6 +1074,7 @@ button {
 .leaflet-control-container {
     z-index: 1000;
     pointer-events: auto;
+    margin-right: 100px;
 }
 
 .leaflet-control-zoom,
@@ -1621,9 +1623,9 @@ button:disabled {
 
 .serial-frame {
   position: absolute;
-  bottom: 5px;
-  right: 0;
-  width: 240px;
+  bottom: 157px;
+  right: 1216px;
+  width: 300px;
   height: 40px;
   background: var(--dark-blue-gradient);
   box-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
@@ -1632,8 +1634,8 @@ button:disabled {
   justify-content: space-between;
   padding: 0 8px;
   gap: 8px;
-  z-index: 999;
-  border-radius: 30px 0 0 30px;
+  z-index: 90;
+  border-radius: 30px;
   pointer-events: auto;
 }
 
@@ -1734,55 +1736,74 @@ button:disabled {
 }
 
 .drone-cards-container {
-  display: grid;
-  grid-template-columns: repeat(2, 1fr);
-  grid-auto-flow: row;
-  gap: 10px;
-  justify-items: end;
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 15px;
+    padding: 15px;
+    max-height: calc(100vh - 50px); /* Adjust based on your layout */
+    overflow-y: auto;
+    background: transparent;
+    scrollbar-width: thin;
+    scrollbar-color: rgba(149, 189, 248, 0.3) transparent;
 }
 
 /* Custom scrollbar styling */
 .drone-cards-container::-webkit-scrollbar {
-    width: 8px;
+    width: 3px;
 }
 
 .drone-cards-container::-webkit-scrollbar-track {
-    background: #091930;
-    border-radius: 4px;
+    background: transparent;
+    border-radius: 3px;
 }
 
 .drone-cards-container::-webkit-scrollbar-thumb {
-    background: #1c2b40;
-    border-radius: 4px;
+    background: rgba(149, 189, 248, 0.3);
+    border-radius: 3px;
+    backdrop-filter: blur(4px);
 }
 
 .drone-cards-container::-webkit-scrollbar-thumb:hover {
-    background: #2c3e50;
+    background: rgba(149, 189, 248, 0.5);
 }
 
 /* Drone Card Styles */
 .drone-card {
-  background: linear-gradient(135deg, rgba(5, 11, 21, 0.95) 0%, rgba(9, 25, 48, 0.95) 100%);
-  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.4);
-  border: 1px solid rgba(112, 193, 114, 0.3);
-  border-right: none;
-  border-radius: 12px;
-  border-top-right-radius: 0;
-  border-bottom-right-radius: 0;
-  padding: 10px;
-  max-width: 320px;
-  width: 100%;
-  transition: all 0.3s ease;
+    background: linear-gradient(135deg, rgba(5, 11, 21, 0.85) 0%, rgba(9, 25, 48, 0.85) 100%);
+    backdrop-filter: blur(8px);
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+    border: 1px solid rgba(112, 193, 114, 0.3);
+    border-radius: 12px;
+    padding: 15px;
+    width: 100%;
+    min-width: 200px;
+    max-width: 320px;
+    margin: 0 auto;
+    transition: all 0.3s ease;
 }
 
 .drone-card:hover {
-  border-color: rgba(112, 193, 114, 0.6);
-  border-right: none;
-  border-radius: 12px;
-  border-top-right-radius: 12px;
-  border-bottom-right-radius: 12px;
-  transform: translateX(-3px);
-  box-shadow: 0 6px 8px rgba(0, 0, 0, 0.15);
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.3);
+    border-color: rgba(112, 193, 114, 0.5);
+}
+
+/* Smooth scrolling */
+.drone-cards-container {
+    scroll-behavior: smooth;
+}
+
+/* Responsive adjustments */
+@media (max-width: 1400px) {
+    .drone-cards-container {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}
+
+@media (max-width: 992px) {
+    .drone-cards-container {
+        grid-template-columns: 1fr;
+    }
 }
 
 .drone-card-header {
@@ -2812,8 +2833,8 @@ button:disabled {
 
 .esp-terminal {
   position: absolute;
-  bottom: 5px;
-  left: 220px;
+  bottom: 620px;
+  left: 0px;
   width: 300px;
   height: 150px;
   background: linear-gradient(135deg, rgba(5, 11, 21, 0.95) 0%, rgba(9, 25, 48, 0.95) 100%);
@@ -4646,7 +4667,7 @@ input[type="range"]::-webkit-slider-thumb:hover {
     color: #95bdf8;
     font-family: 'IBM Plex Mono', monospace;
     font-size: 12px;
-    margin-top: 4px;
+    margin-top: 3px;
 }
 
 .light-effects {

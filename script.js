@@ -75,8 +75,6 @@ function handleDroneSelect() {
     console.log("Drone selected");
 }
 
-
-
 // Button Event Handlers
 function initializeEventListeners() {
     // Add null checks before adding event listeners
@@ -292,7 +290,6 @@ class SerialConnection {
 
 // Initialize serial connection
 const serialConnection = new SerialConnection();
-
 
 function handleAddDrone() {
     createDroneList({
@@ -525,6 +522,9 @@ class MissionViewer {
                 <div class="progress-bar">
                     <div class="progress"></div>
                 </div>
+                <div class="delay-status">
+                    <div class="delay-text">Frame Delay: <span class="current-delay">0</span>ms</div>
+                    <div class="delay-progress-bar">
                 <div class="delay-status">
                     <div class="delay-text">Frame Delay: <span class="current-delay">0</span>ms</div>
                     <div class="delay-progress-bar">
@@ -1226,8 +1226,9 @@ const droneManager = {
         if (!this.drones.has(droneId)) {
             const droneCard = new DroneCard(droneId, name);
             const container = document.querySelector('.drone-cards-container');
-            container.prepend(droneCard.element);
+            container.appendChild(droneCard.element); // Changed from prepend to appendChild
             this.drones.set(droneId, droneCard);
+            this.updateGridLayout();
         }
     },
     
@@ -1243,6 +1244,16 @@ const droneManager = {
         const drone = this.drones.get(droneId);
         if (drone) {
             drone.updateParams(params);
+        }
+    },
+
+    updateGridLayout() {
+        const container = document.querySelector('.drone-cards-container');
+        if (container) {
+            const cardCount = this.drones.size;
+            // Adjust columns based on number of cards
+            const columns = cardCount <= 3 ? cardCount : Math.ceil(cardCount / 2);
+            container.style.gridTemplateColumns = `repeat(${columns}, 1fr)`;
         }
     }
 };
@@ -4240,23 +4251,24 @@ class MissionDecoder {
                         const frame = droneData.frames[frameIndex];
                         const prevFrame = frameIndex > 0 ? droneData.frames[frameIndex - 1] : null;
 
-                        // Calculate position differences if there's a previous frame
-                        let dx = 0, dy = 0, dz = 0;
+                        // Calculate position differences for x and y only
+                        let dx = 0, dy = 0;
                         if (prevFrame) {
                             dx = frame.position.x - prevFrame.position.x;
                             dy = frame.position.y - prevFrame.position.y;
-                            dz = frame.position.z - prevFrame.position.z;
                         } else {
                             dx = frame.position.x;
                             dy = frame.position.y;
-                            dz = frame.position.z;
                         }
 
-                        // Create NED command with position differences
+                        // Use absolute z value directly from frame
+                        const z = frame.position.z;
+
+                        // Create NED command with relative x,y but absolute z
                         frameCommands.push({
                             target: droneId,
                             command: 'POS',
-                            payload: `${dx.toFixed(2)},${dy.toFixed(2)},${dz.toFixed(2)},${frame.heading}`
+                            payload: `${dx.toFixed(2)},${dy.toFixed(2)},${z.toFixed(2)},${frame.heading}`
                         });
                     }
                 });
