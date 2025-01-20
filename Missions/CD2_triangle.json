@@ -1,0 +1,53 @@
+{
+    "version": "1.0",
+    "timestamp": 1737364278098,
+    "settings": {
+        "gridSize": 100,
+        "gridSpacing": 1
+    },
+    "drones": {
+        "CD2": {
+            "color": "#2c7bf2",
+            "frames": [
+                {
+                    "position": {
+                        "x": 0,
+                        "y": 0,
+                        "z": 3
+                    },
+                    "heading": 0
+                },
+                {
+                    "position": {
+                        "x": 3,
+                        "y": 0,
+                        "z": 3
+                    },
+                    "heading": 0
+                },
+                {
+                    "position": {
+                        "x": 1.5,
+                        "y": 2.6,
+                        "z": 3
+                    },
+                    "heading": 0
+                },
+                {
+                    "position": {
+                        "x": 0,
+                        "y": 0,
+                        "z": 3
+                    },
+                    "heading": 0
+                }
+            ]
+        }
+    },
+    "frameDelays": [
+        5000,
+        5000,
+        5000,
+        5000
+    ]
+} 

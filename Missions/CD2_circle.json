@@ -1,0 +1,98 @@
+{
+    "version": "1.0",
+    "timestamp": 1737364278098,
+    "settings": {
+        "gridSize": 100,
+        "gridSpacing": 1
+    },
+    "drones": {
+        "CD2": {
+            "color": "#2c7bf2",
+            "frames": [
+                {
+                    "position": {
+                        "x": 1.5,
+                        "y": 0,
+                        "z": 3
+                    },
+                    "heading": 0
+                },
+                {
+                    "position": {
+                        "x": 1.06,
+                        "y": 1.06,
+                        "z": 3
+                    },
+                    "heading": 45
+                },
+                {
+                    "position": {
+                        "x": 0,
+                        "y": 1.5,
+                        "z": 3
+                    },
+                    "heading": 90
+                },
+                {
+                    "position": {
+                        "x": -1.06,
+                        "y": 1.06,
+                        "z": 3
+                    },
+                    "heading": 135
+                },
+                {
+                    "position": {
+                        "x": -1.5,
+                        "y": 0,
+                        "z": 3
+                    },
+                    "heading": 180
+                },
+                {
+                    "position": {
+                        "x": -1.06,
+                        "y": -1.06,
+                        "z": 3
+                    },
+                    "heading": 225
+                },
+                {
+                    "position": {
+                        "x": 0,
+                        "y": -1.5,
+                        "z": 3
+                    },
+                    "heading": 270
+                },
+                {
+                    "position": {
+                        "x": 1.06,
+                        "y": -1.06,
+                        "z": 3
+                    },
+                    "heading": 315
+                },
+                {
+                    "position": {
+                        "x": 1.5,
+                        "y": 0,
+                        "z": 3
+                    },
+                    "heading": 360
+                }
+            ]
+        }
+    },
+    "frameDelays": [
+        5000,
+        5000,
+        5000,
+        5000,
+        5000,
+        5000,
+        5000,
+        5000,
+        5000
+    ]
+} 

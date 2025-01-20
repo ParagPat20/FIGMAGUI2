@@ -629,7 +629,7 @@ class MissionViewer {
 // Create mission viewer instance
 const missionViewer = new MissionViewer();
 
-// Update handleStart function to properly update mission viewer
+// Update handleStart function to properly show mission progress
 async function handleStart() {
     const programSelect = document.querySelector('.program-select');
     const startButton = document.querySelector('.start');
@@ -654,7 +654,7 @@ async function handleStart() {
                 missionDecoder = new MissionDecoder();
                 await missionDecoder.load_mission(missionData);
                 
-                // Set mission data in viewer and show it
+                // Show mission viewer and set mission data
                 missionViewer.setMissionData(missionData);
                 missionViewer.show();
             }
@@ -745,13 +745,13 @@ function handlePause() {
             isPausedMission = true;
             missionDecoder?.pause_mission();
             pauseButton.textContent = 'Resume';
-            customAlert.success('Mission paused'); // Changed from info to success
+            customAlert.success('Mission paused');
         } else {
             // Resume mission
             isPausedMission = false;
             missionDecoder?.resume_mission();
             pauseButton.textContent = 'Pause';
-            customAlert.success('Mission resumed'); // Changed from info to success
+            customAlert.success('Mission resumed');
         }
     }
 }
@@ -4263,7 +4263,7 @@ class MissionDecoder {
 
             // Get maximum number of frames
             const maxFrames = Math.max(...Object.values(missionData.drones).map(drone => drone.frames.length));
-
+            
             // Process each frame
             for (let frameIndex = 0; frameIndex < maxFrames; frameIndex++) {
                 const frameCommands = [];
@@ -4274,7 +4274,7 @@ class MissionDecoder {
                         const frame = droneData.frames[frameIndex];
                         const prevFrame = frameIndex > 0 ? droneData.frames[frameIndex - 1] : null;
 
-                        // Calculate position differences for x and y only
+                        // Calculate relative position differences for x and y
                         let dx = 0, dy = 0;
                         if (prevFrame) {
                             dx = frame.position.x - prevFrame.position.x;
@@ -4284,14 +4284,30 @@ class MissionDecoder {
                             dy = frame.position.y;
                         }
 
+                        // Calculate relative heading difference
+                        let dheading = 0;
+                        if (prevFrame) {
+                            // Normalize both headings to [0, 2π]
+                            const prevHeading = (prevFrame.heading + 2 * Math.PI) % (2 * Math.PI);
+                            const currentHeading = (frame.heading + 2 * Math.PI) % (2 * Math.PI);
+                            
+                            // Calculate the smallest angle difference
+                            dheading = Math.atan2(
+                                Math.sin(currentHeading - prevHeading),
+                                Math.cos(currentHeading - prevHeading)
+                            );
+                        } else {
+                            dheading = frame.heading;
+                        }
+
                         // Use absolute z value directly from frame
                         const z = frame.position.z;
 
-                        // Create NED command with relative x,y but absolute z
+                        // Create POS command with relative x, y, heading and absolute z
                         frameCommands.push({
                             target: droneId,
                             command: 'POS',
-                            payload: `${dx.toFixed(2)},${dy.toFixed(2)},${z.toFixed(2)},${frame.heading}`
+                            payload: `${dx.toFixed(2)},${dy.toFixed(2)},${z.toFixed(2)},${dheading.toFixed(4)}`
                         });
                     }
                 });

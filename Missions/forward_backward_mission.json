@@ -6,39 +6,39 @@
     "gridSpacing": 1
   },
   "drones": {
-    "CD3": {
+    "CD2": {
       "color": "#2c7bf2",
       "frames": [
         {
           "position": {
-            "x": 2,
+            "x": 0,
             "y": 0,
-            "z": 2
+            "z": 3
           },
           "heading": 0
         },
         {
           "position": {
-            "x": 2,
+            "x": 0,
             "y": 3,
-            "z": 2
+            "z": 3
           },
           "heading": 0
         },
         {
           "position": {
-            "x": 2,
+            "x": 0,
             "y": 0,
-            "z": 2
+            "z": 3
           },
-          "heading": 0
+          "heading": 180
         }
       ]
     }
   },
   "frameDelays": [
-    3000,  // Initial position
-    3000,  // Forward movement
-    3000   // Backward movement
+    3000,
+    3000,
+    3000
   ]
 } 

@@ -1,0 +1,489 @@
+=== ESP Terminal Log Started at 2025-01-21_00-22-47 ===
+[2025-01-21 00:22:59.577] {S:MCU;C:HB;P:1}
+[2025-01-21 00:23:03.182] {T:MCU;C:REQ;P:LOC}
+[2025-01-21 00:23:03.187] {T:MCU;C:REQ;P:GPS}
+[2025-01-21 00:23:03.187] {T:MCU;C:REQ;P:BATT}
+[2025-01-21 00:23:03.187] {T:MCU;C:REQ;P:ATTITUDE}
+[2025-01-21 00:23:03.194] {T:MCU;C:REQ;P:SPEED}
+[2025-01-21 00:23:03.195] {T:MCU;C:REQ;P:MODE}
+[2025-01-21 00:23:03.204] Last Packet Send Status: Delivery Fail
+[2025-01-21 00:23:03.221] Last Packet Send Status: Delivery Fail
+[2025-01-21 00:23:03.235] {T:MCU;C:REQ;P:ARMED}
+[2025-01-21 00:23:03.238] Last Packet Send Status: Delivery Fail
+[2025-01-21 00:23:03.252] Last Packet Send Status: Delivery Fail
+[2025-01-21 00:23:03.268] Last Packet Send Status: Delivery Fail
+[2025-01-21 00:23:03.285] Last Packet Send Status: Delivery Fail
+[2025-01-21 00:23:03.301] Last Packet Send Status: Delivery Fail
+[2025-01-21 00:23:03.978] {T:MCU;C:REQ;P:LOC}
+[2025-01-21 00:23:03.995] Last Packet Send Status: Delivery Fail
+[2025-01-21 00:23:04.035] {T:MCU;C:REQ;P:GPS}
+[2025-01-21 00:23:04.040] {T:MCU;C:REQ;P:BATT}
+[2025-01-21 00:23:04.040] {T:MCU;C:REQ;P:ATTITUDE}
+[2025-01-21 00:23:04.045] {T:MCU;C:REQ;P:SPEED}
+[2025-01-21 00:23:04.045] {T:MCU;C:REQ;P:MODE}
+[2025-01-21 00:23:04.053] Last Packet Send Status: Delivery Fail
+[2025-01-21 00:23:04.071] Last Packet Send Status: Delivery Fail
+[2025-01-21 00:23:04.087] {T:MCU;C:REQ;P:ARMED}
+[2025-01-21 00:23:04.090] Last Packet Send Status: Delivery Fail
+[2025-01-21 00:23:04.106] Last Packet Send Status: Delivery Fail
+[2025-01-21 00:23:04.121] Last Packet Send Status: Delivery Fail
+[2025-01-21 00:23:04.140] Last Packet Send Status: Delivery Fail
+[2025-01-21 00:23:04.783] {T:MCU;C:REQ;P:LOC}
+[2025-01-21 00:23:04.783] {T:MCU;C:REQ;P:GPS}
+[2025-01-21 00:23:04.793] {T:MCU;C:REQ;P:BATT}
+[2025-01-21 00:23:04.795] {T:MCU;C:REQ;P:ATTITUDE}
+[2025-01-21 00:23:04.796] {T:MCU;C:REQ;P:SPEED}
+[2025-01-21 00:23:04.796] {T:MCU;C:REQ;P:MODE}
+[2025-01-21 00:23:04.801] {T:MCU;C:REQ;P:ARMED}
+[2025-01-21 00:23:04.806] Last Packet Send Status: Delivery Fail
+[2025-01-21 00:23:04.821] Last Packet Send Status: Delivery Fail
+[2025-01-21 00:23:04.839] Last Packet Send Status: Delivery Fail
+[2025-01-21 00:23:04.856] Last Packet Send Status: Delivery Fail
+[2025-01-21 00:23:04.869] Last Packet Send Status: Delivery Fail
+[2025-01-21 00:23:04.888] Last Packet Send Status: Delivery Fail
+[2025-01-21 00:23:04.905] Last Packet Send Status: Delivery Fail
+[2025-01-21 00:23:05.585] {T:MCU;C:REQ;P:LOC}
+[2025-01-21 00:23:05.587] {T:MCU;C:REQ;P:GPS}
+[2025-01-21 00:23:05.588] {T:MCU;C:REQ;P:BATT}
+[2025-01-21 00:23:05.591] {T:MCU;C:REQ;P:ATTITUDE}
+[2025-01-21 00:23:05.593] {T:MCU;C:REQ;P:SPEED}
+[2025-01-21 00:23:05.595] {T:MCU;C:REQ;P:MODE}
+[2025-01-21 00:23:05.595] {T:MCU;C:REQ;P:ARMED}
+[2025-01-21 00:23:05.603] Last Packet Send Status: Delivery Fail
+[2025-01-21 00:23:05.618] Last Packet Send Status: Delivery Fail
+[2025-01-21 00:23:05.635] Last Packet Send Status: Delivery Fail
+[2025-01-21 00:23:05.651] Last Packet Send Status: Delivery Fail
+[2025-01-21 00:23:05.668] Last Packet Send Status: Delivery Fail
+[2025-01-21 00:23:05.684] Last Packet Send Status: Delivery Fail
+[2025-01-21 00:23:05.700] Last Packet Send Status: Delivery Fail
+[2025-01-21 00:23:06.393] {T:MCU;C:REQ;P:LOC}
+[2025-01-21 00:23:06.395] {T:MCU;C:REQ;P:GPS}
+[2025-01-21 00:23:06.397] {T:MCU;C:REQ;P:BATT}
+[2025-01-21 00:23:06.399] {T:MCU;C:REQ;P:ATTITUDE}
+[2025-01-21 00:23:06.399] {T:MCU;C:REQ;P:SPEED}
+[2025-01-21 00:23:06.402] {T:MCU;C:REQ;P:MODE}
+[2025-01-21 00:23:06.404] {T:MCU;C:REQ;P:ARMED}
+[2025-01-21 00:23:06.407] Last Packet Send Status: Delivery Fail
+[2025-01-21 00:23:06.427] Last Packet Send Status: Delivery Fail
+[2025-01-21 00:23:06.444] Last Packet Send Status: Delivery Fail
+[2025-01-21 00:23:06.460] Last Packet Send Status: Delivery Fail
+[2025-01-21 00:23:06.476] Last Packet Send Status: Delivery Fail
+[2025-01-21 00:23:06.492] Last Packet Send Status: Delivery Fail
+[2025-01-21 00:23:06.511] Last Packet Send Status: Delivery Fail
+[2025-01-21 00:23:07.188] {T:MCU;C:REQ;P:LOC}
+[2025-01-21 00:23:07.188] {T:MCU;C:REQ;P:GPS}
+[2025-01-21 00:23:07.188] {T:MCU;C:REQ;P:BATT}
+[2025-01-21 00:23:07.196] {T:MCU;C:REQ;P:ATTITUDE}
+[2025-01-21 00:23:07.200] {T:MCU;C:REQ;P:SPEED}
+[2025-01-21 00:23:07.201] {T:MCU;C:REQ;P:MODE}
+[2025-01-21 00:23:07.201] {T:MCU;C:REQ;P:ARMED}
+[2025-01-21 00:23:07.210] Last Packet Send Status: Delivery Fail
+[2025-01-21 00:23:07.225] Last Packet Send Status: Delivery Fail
+[2025-01-21 00:23:07.243] Last Packet Send Status: Delivery Fail
+[2025-01-21 00:23:07.255] Last Packet Send Status: Delivery Fail
+[2025-01-21 00:23:07.274] Last Packet Send Status: Delivery Fail
+[2025-01-21 00:23:07.290] Last Packet Send Status: Delivery Fail
+[2025-01-21 00:23:07.300] Last Packet Send Status: Delivery Fail
+[2025-01-21 00:23:07.984] {T:MCU;C:REQ;P:LOC}
+[2025-01-21 00:23:07.986] {T:MCU;C:REQ;P:GPS}
+[2025-01-21 00:23:07.987] {T:MCU;C:REQ;P:BATT}
+[2025-01-21 00:23:07.999] Last Packet Send Status: Delivery Fail
+[2025-01-21 00:23:08.018] Last Packet Send Status: Delivery Fail
+[2025-01-21 00:23:08.035] Last Packet Send Status: Delivery Fail
+[2025-01-21 00:23:08.037] {T:MCU;C:REQ;P:ATTITUDE}
+[2025-01-21 00:23:08.037] {T:MCU;C:REQ;P:SPEED}
+[2025-01-21 00:23:08.037] {T:MCU;C:REQ;P:MODE}
+[2025-01-21 00:23:08.046] {T:MCU;C:REQ;P:ARMED}
+[2025-01-21 00:23:08.059] Last Packet Send Status: Delivery Fail
+[2025-01-21 00:23:08.074] Last Packet Send Status: Delivery Fail
+[2025-01-21 00:23:08.090] Last Packet Send Status: Delivery Fail
+[2025-01-21 00:23:08.106] Last Packet Send Status: Delivery Fail
+[2025-01-21 00:23:08.786] {T:MCU;C:REQ;P:LOC}
+[2025-01-21 00:23:08.788] {T:MCU;C:REQ;P:GPS}
+[2025-01-21 00:23:08.789] {T:MCU;C:REQ;P:BATT}
+[2025-01-21 00:23:08.799] Last Packet Send Status: Delivery Fail
+[2025-01-21 00:23:08.819] Last Packet Send Status: Delivery Fail
+[2025-01-21 00:23:08.832] Last Packet Send Status: Delivery Fail
+[2025-01-21 00:23:08.840] {T:MCU;C:REQ;P:ATTITUDE}
+[2025-01-21 00:23:08.840] {T:MCU;C:REQ;P:SPEED}
+[2025-01-21 00:23:08.847] {T:MCU;C:REQ;P:MODE}
+[2025-01-21 00:23:08.850] {T:MCU;C:REQ;P:ARMED}
+[2025-01-21 00:23:08.860] Last Packet Send Status: Delivery Fail
+[2025-01-21 00:23:08.878] Last Packet Send Status: Delivery Fail
+[2025-01-21 00:23:08.894] Last Packet Send Status: Delivery Fail
+[2025-01-21 00:23:08.911] Last Packet Send Status: Delivery Fail
+[2025-01-21 00:23:09.578] {T:MCU;C:REQ;P:LOC}
+[2025-01-21 00:23:09.578] {T:MCU;C:REQ;P:GPS}
+[2025-01-21 00:23:09.578] {T:MCU;C:REQ;P:BATT}
+[2025-01-21 00:23:09.602] Last Packet Send Status: Delivery Fail
+[2025-01-21 00:23:09.639] {T:MCU;C:REQ;P:ATTITUDE}
+[2025-01-21 00:23:09.641] {T:MCU;C:REQ;P:SPEED}
+[2025-01-21 00:23:09.641] {T:MCU;C:REQ;P:MODE}
+[2025-01-21 00:23:09.646] Last Packet Send Status: Delivery Fail
+[2025-01-21 00:23:09.646] {T:MCU;C:REQ;P:ARMED}
+[2025-01-21 00:23:09.652] Last Packet Send Status: Delivery Success
+[2025-01-21 00:23:09.682] Last Packet Send Status: Delivery Success
+[2025-01-21 00:23:09.705] {S:MCU;C:BATT;P:16.43,0.9,99}
+[2025-01-21 00:23:09.732] Last Packet Send Status: Delivery Fail
+[2025-01-21 00:23:09.770] Last Packet Send Status: Delivery Fail
+[2025-01-21 00:23:09.802] Last Packet Send Status: Delivery Fail
+[2025-01-21 00:23:09.812] {S:MCU;C:MODE;P:STABILIZE}
+[2025-01-21 00:23:09.834] {S:MCU;C:ARMED;P:False}
+[2025-01-21 00:23:09.885] {S:MCU;C:HB;P:1}
+[2025-01-21 00:23:10.378] {T:MCU;C:REQ;P:LOC}
+[2025-01-21 00:23:10.378] {T:MCU;C:REQ;P:GPS}
+[2025-01-21 00:23:10.385] {T:MCU;C:REQ;P:BATT}
+[2025-01-21 00:23:10.401] Last Packet Send Status: Delivery Fail
+[2025-01-21 00:23:10.417] Last Packet Send Status: Delivery Fail
+[2025-01-21 00:23:10.433] Last Packet Send Status: Delivery Fail
+[2025-01-21 00:23:10.434] {T:MCU;C:REQ;P:ATTITUDE}
+[2025-01-21 00:23:10.441] {T:MCU;C:REQ;P:SPEED}
+[2025-01-21 00:23:10.443] {T:MCU;C:REQ;P:MODE}
+[2025-01-21 00:23:10.445] {T:MCU;C:REQ;P:ARMED}
+[2025-01-21 00:23:10.457] Last Packet Send Status: Delivery Fail
+[2025-01-21 00:23:10.473] Last Packet Send Status: Delivery Fail
+[2025-01-21 00:23:10.489] Last Packet Send Status: Delivery Fail
+[2025-01-21 00:23:10.505] Last Packet Send Status: Delivery Fail
+[2025-01-21 00:23:11.186] {T:MCU;C:REQ;P:LOC}
+[2025-01-21 00:23:11.191] {T:MCU;C:REQ;P:GPS}
+[2025-01-21 00:23:11.194] {T:MCU;C:REQ;P:BATT}
+[2025-01-21 00:23:11.196] {T:MCU;C:REQ;P:ATTITUDE}
+[2025-01-21 00:23:11.198] {T:MCU;C:REQ;P:SPEED}
+[2025-01-21 00:23:11.199] {T:MCU;C:REQ;P:MODE}
+[2025-01-21 00:23:11.208] Last Packet Send Status: Delivery Fail
+[2025-01-21 00:23:11.227] Last Packet Send Status: Delivery Fail
+[2025-01-21 00:23:11.239] {T:MCU;C:REQ;P:ARMED}
+[2025-01-21 00:23:11.244] Last Packet Send Status: Delivery Fail
+[2025-01-21 00:23:11.260] Last Packet Send Status: Delivery Fail
+[2025-01-21 00:23:11.275] Last Packet Send Status: Delivery Fail
+[2025-01-21 00:23:11.291] Last Packet Send Status: Delivery Fail
+[2025-01-21 00:23:11.309] Last Packet Send Status: Delivery Fail
+[2025-01-21 00:23:11.991] {T:MCU;C:REQ;P:LOC}
+[2025-01-21 00:23:11.993] {T:MCU;C:REQ;P:GPS}
+[2025-01-21 00:23:11.994] {T:MCU;C:REQ;P:BATT}
+[2025-01-21 00:23:12.009] Last Packet Send Status: Delivery Fail
+[2025-01-21 00:23:12.025] Last Packet Send Status: Delivery Fail
+[2025-01-21 00:23:12.041] Last Packet Send Status: Delivery Fail
+[2025-01-21 00:23:12.047] {T:MCU;C:REQ;P:ATTITUDE}
+[2025-01-21 00:23:12.051] {T:MCU;C:REQ;P:SPEED}
+[2025-01-21 00:23:12.052] {T:MCU;C:REQ;P:MODE}
+[2025-01-21 00:23:12.052] {T:MCU;C:REQ;P:ARMED}
+[2025-01-21 00:23:12.062] Last Packet Send Status: Delivery Fail
+[2025-01-21 00:23:12.083] Last Packet Send Status: Delivery Fail
+[2025-01-21 00:23:12.099] Last Packet Send Status: Delivery Fail
+[2025-01-21 00:23:12.115] Last Packet Send Status: Delivery Fail
+[2025-01-21 00:23:12.786] {T:MCU;C:REQ;P:LOC}
+[2025-01-21 00:23:12.788] {T:MCU;C:REQ;P:GPS}
+[2025-01-21 00:23:12.790] {T:MCU;C:REQ;P:BATT}
+[2025-01-21 00:23:12.792] {T:MCU;C:REQ;P:ATTITUDE}
+[2025-01-21 00:23:12.793] {T:MCU;C:REQ;P:SPEED}
+[2025-01-21 00:23:12.793] {T:MCU;C:REQ;P:MODE}
+[2025-01-21 00:23:12.798] {T:MCU;C:REQ;P:ARMED}
+[2025-01-21 00:23:12.803] Last Packet Send Status: Delivery Fail
+[2025-01-21 00:23:12.821] Last Packet Send Status: Delivery Fail
+[2025-01-21 00:23:12.838] Last Packet Send Status: Delivery Fail
+[2025-01-21 00:23:12.853] Last Packet Send Status: Delivery Fail
+[2025-01-21 00:23:12.866] Last Packet Send Status: Delivery Fail
+[2025-01-21 00:23:12.883] Last Packet Send Status: Delivery Fail
+[2025-01-21 00:23:12.901] Last Packet Send Status: Delivery Fail
+[2025-01-21 00:23:13.580] {T:MCU;C:REQ;P:LOC}
+[2025-01-21 00:23:13.599] Last Packet Send Status: Delivery Fail
+[2025-01-21 00:23:13.644] {T:MCU;C:REQ;P:GPS}
+[2025-01-21 00:23:13.646] {T:MCU;C:REQ;P:BATT}
+[2025-01-21 00:23:13.648] {T:MCU;C:REQ;P:ATTITUDE}
+[2025-01-21 00:23:13.649] {T:MCU;C:REQ;P:SPEED}
+[2025-01-21 00:23:13.650] {T:MCU;C:REQ;P:MODE}
+[2025-01-21 00:23:13.653] {T:MCU;C:REQ;P:ARMED}
+[2025-01-21 00:23:13.661] Last Packet Send Status: Delivery Fail
+[2025-01-21 00:23:13.679] Last Packet Send Status: Delivery Fail
+[2025-01-21 00:23:13.695] Last Packet Send Status: Delivery Fail
+[2025-01-21 00:23:13.712] Last Packet Send Status: Delivery Fail
+[2025-01-21 00:23:13.728] Last Packet Send Status: Delivery Fail
+[2025-01-21 00:23:13.744] Last Packet Send Status: Delivery Fail
+[2025-01-21 00:23:13.939] {S:MCU;C:HB;P:1}
+[2025-01-21 00:23:14.376] {T:MCU;C:REQ;P:LOC}
+[2025-01-21 00:23:14.395] Last Packet Send Status: Delivery Fail
+[2025-01-21 00:23:14.433] {T:MCU;C:REQ;P:GPS}
+[2025-01-21 00:23:14.440] {T:MCU;C:REQ;P:BATT}
+[2025-01-21 00:23:14.443] {T:MCU;C:REQ;P:ATTITUDE}
+[2025-01-21 00:23:14.444] {T:MCU;C:REQ;P:SPEED}
+[2025-01-21 00:23:14.446] {T:MCU;C:REQ;P:MODE}
+[2025-01-21 00:23:14.448] {T:MCU;C:REQ;P:ARMED}
+[2025-01-21 00:23:14.458] Last Packet Send Status: Delivery Fail
+[2025-01-21 00:23:14.474] Last Packet Send Status: Delivery Fail
+[2025-01-21 00:23:14.491] Last Packet Send Status: Delivery Fail
+[2025-01-21 00:23:14.507] Last Packet Send Status: Delivery Fail
+[2025-01-21 00:23:14.515] Last Packet Send Status: Delivery Fail
+[2025-01-21 00:23:14.537] Last Packet Send Status: Delivery Fail
+[2025-01-21 00:23:15.182] {T:MCU;C:REQ;P:LOC}
+[2025-01-21 00:23:15.182] {T:MCU;C:REQ;P:GPS}
+[2025-01-21 00:23:15.182] {T:MCU;C:REQ;P:BATT}
+[2025-01-21 00:23:15.190] Last Packet Send Status: Delivery Success
+[2025-01-21 00:23:15.195] Last Packet Send Status: Delivery Success
+[2025-01-21 00:23:15.198] Last Packet Send Status: Delivery Success
+[2025-01-21 00:23:15.198] {S:MCU;C:LOC;P:0.0,0.0,-0.486}
+[2025-01-21 00:23:15.216] {S:MCU;C:GPS;P:1,0}
+[2025-01-21 00:23:15.239] {S:MCU;C:BATT;P:16.43,0.9,99}
+[2025-01-21 00:23:15.239] {T:MCU;C:REQ;P:ATTITUDE}
+[2025-01-21 00:23:15.239] {T:MCU;C:REQ;P:SPEED}
+[2025-01-21 00:23:15.239] {T:MCU;C:REQ;P:MODE}
+[2025-01-21 00:23:15.247] Last Packet Send Status: Delivery Success
+[2025-01-21 00:23:15.247] {T:MCU;C:REQ;P:ARMED}
+[2025-01-21 00:23:15.254] Last Packet Send Status: Delivery Success
+[2025-01-21 00:23:15.258] Last Packet Send Status: Delivery Success
+[2025-01-21 00:23:15.272] Last Packet Send Status: Delivery Fail
+[2025-01-21 00:23:15.984] {T:MCU;C:REQ;P:LOC}
+[2025-01-21 00:23:15.987] {T:MCU;C:REQ;P:GPS}
+[2025-01-21 00:23:15.987] {T:MCU;C:REQ;P:BATT}
+[2025-01-21 00:23:16.003] Last Packet Send Status: Delivery Fail
+[2025-01-21 00:23:16.020] Last Packet Send Status: Delivery Fail
+[2025-01-21 00:23:16.035] Last Packet Send Status: Delivery Fail
+[2025-01-21 00:23:16.043] {T:MCU;C:REQ;P:ATTITUDE}
+[2025-01-21 00:23:16.046] {T:MCU;C:REQ;P:SPEED}
+[2025-01-21 00:23:16.047] {T:MCU;C:REQ;P:MODE}
+[2025-01-21 00:23:16.047] {T:MCU;C:REQ;P:ARMED}
+[2025-01-21 00:23:16.061] Last Packet Send Status: Delivery Fail
+[2025-01-21 00:23:16.078] Last Packet Send Status: Delivery Fail
+[2025-01-21 00:23:16.098] Last Packet Send Status: Delivery Fail
+[2025-01-21 00:23:16.114] Last Packet Send Status: Delivery Fail
+[2025-01-21 00:23:16.784] {T:MCU;C:REQ;P:LOC}
+[2025-01-21 00:23:16.784] {T:MCU;C:REQ;P:GPS}
+[2025-01-21 00:23:16.789] {T:MCU;C:REQ;P:BATT}
+[2025-01-21 00:23:16.805] Last Packet Send Status: Delivery Fail
+[2025-01-21 00:23:16.820] Last Packet Send Status: Delivery Fail
+[2025-01-21 00:23:16.837] Last Packet Send Status: Delivery Fail
+[2025-01-21 00:23:16.842] {T:MCU;C:REQ;P:ATTITUDE}
+[2025-01-21 00:23:16.845] {T:MCU;C:REQ;P:SPEED}
+[2025-01-21 00:23:16.848] {T:MCU;C:REQ;P:MODE}
+[2025-01-21 00:23:16.848] {T:MCU;C:REQ;P:ARMED}
+[2025-01-21 00:23:16.862] Last Packet Send Status: Delivery Fail
+[2025-01-21 00:23:16.877] Last Packet Send Status: Delivery Fail
+[2025-01-21 00:23:16.893] Last Packet Send Status: Delivery Fail
+[2025-01-21 00:23:16.910] Last Packet Send Status: Delivery Fail
+[2025-01-21 00:23:17.593] {T:MCU;C:REQ;P:LOC}
+[2025-01-21 00:23:17.596] {T:MCU;C:REQ;P:GPS}
+[2025-01-21 00:23:17.596] {T:MCU;C:REQ;P:BATT}
+[2025-01-21 00:23:17.599] {T:MCU;C:REQ;P:ATTITUDE}
+[2025-01-21 00:23:17.601] {T:MCU;C:REQ;P:SPEED}
+[2025-01-21 00:23:17.604] {T:MCU;C:REQ;P:MODE}
+[2025-01-21 00:23:17.604] {T:MCU;C:REQ;P:ARMED}
+[2025-01-21 00:23:17.612] Last Packet Send Status: Delivery Fail
+[2025-01-21 00:23:17.627] Last Packet Send Status: Delivery Fail
+[2025-01-21 00:23:17.643] Last Packet Send Status: Delivery Fail
+[2025-01-21 00:23:17.659] Last Packet Send Status: Delivery Fail
+[2025-01-21 00:23:17.676] Last Packet Send Status: Delivery Fail
+[2025-01-21 00:23:17.693] Last Packet Send Status: Delivery Fail
+[2025-01-21 00:23:17.708] Last Packet Send Status: Delivery Fail
+[2025-01-21 00:23:18.389] {T:MCU;C:REQ;P:LOC}
+[2025-01-21 00:23:18.389] {T:MCU;C:REQ;P:GPS}
+[2025-01-21 00:23:18.389] {T:MCU;C:REQ;P:BATT}
+[2025-01-21 00:23:18.389] {T:MCU;C:REQ;P:ATTITUDE}
+[2025-01-21 00:23:18.389] {T:MCU;C:REQ;P:SPEED}
+[2025-01-21 00:23:18.397] {T:MCU;C:REQ;P:MODE}
+[2025-01-21 00:23:18.397] {T:MCU;C:REQ;P:ARMED}
+[2025-01-21 00:23:18.408] Last Packet Send Status: Delivery Fail
+[2025-01-21 00:23:18.422] Last Packet Send Status: Delivery Fail
+[2025-01-21 00:23:18.438] Last Packet Send Status: Delivery Fail
+[2025-01-21 00:23:18.455] Last Packet Send Status: Delivery Fail
+[2025-01-21 00:23:18.472] Last Packet Send Status: Delivery Fail
+[2025-01-21 00:23:18.489] Last Packet Send Status: Delivery Fail
+[2025-01-21 00:23:18.505] Last Packet Send Status: Delivery Fail
+[2025-01-21 00:23:19.190] {T:MCU;C:REQ;P:LOC}
+[2025-01-21 00:23:19.193] {T:MCU;C:REQ;P:GPS}
+[2025-01-21 00:23:19.193] {T:MCU;C:REQ;P:BATT}
+[2025-01-21 00:23:19.193] {T:MCU;C:REQ;P:ATTITUDE}
+[2025-01-21 00:23:19.198] {T:MCU;C:REQ;P:SPEED}
+[2025-01-21 00:23:19.198] {T:MCU;C:REQ;P:MODE}
+[2025-01-21 00:23:19.201] {T:MCU;C:REQ;P:ARMED}
+[2025-01-21 00:23:19.210] Last Packet Send Status: Delivery Fail
+[2025-01-21 00:23:19.226] Last Packet Send Status: Delivery Fail
+[2025-01-21 00:23:19.242] Last Packet Send Status: Delivery Fail
+[2025-01-21 00:23:19.258] Last Packet Send Status: Delivery Fail
+[2025-01-21 00:23:19.273] Last Packet Send Status: Delivery Fail
+[2025-01-21 00:23:19.289] Last Packet Send Status: Delivery Fail
+[2025-01-21 00:23:19.305] Last Packet Send Status: Delivery Fail
+[2025-01-21 00:23:19.979] {T:MCU;C:REQ;P:LOC}
+[2025-01-21 00:23:19.988] {T:MCU;C:REQ;P:GPS}
+[2025-01-21 00:23:19.989] {T:MCU;C:REQ;P:BATT}
+[2025-01-21 00:23:19.989] {T:MCU;C:REQ;P:ATTITUDE}
+[2025-01-21 00:23:19.992] {T:MCU;C:REQ;P:SPEED}
+[2025-01-21 00:23:19.996] Last Packet Send Status: Delivery Success
+[2025-01-21 00:23:19.998] {T:MCU;C:REQ;P:MODE}
+[2025-01-21 00:23:20.002] Last Packet Send Status: Delivery Success
+[2025-01-21 00:23:20.006] Last Packet Send Status: Delivery Success
+[2025-01-21 00:23:20.008] {T:MCU;C:REQ;P:ARMED}
+[2025-01-21 00:23:20.010] {S:MCU;C:LOC;P:0.0,0.0,-0.486}
+[2025-01-21 00:23:20.012] Last Packet Send Status: Delivery Success
+[2025-01-21 00:23:20.012] Last Packet Send Status: Delivery Success
+[2025-01-21 00:23:20.020] Last Packet Send Status: Delivery Success
+[2025-01-21 00:23:20.020] Last Packet Send Status: Delivery Success
+[2025-01-21 00:23:20.029] {S:MCU;C:GPS;P:1,0}
+[2025-01-21 00:23:20.037] {S:MCU;C:BATT;P:16.43,0.9,99}
+[2025-01-21 00:23:20.070] {S:MCU;C:ATTITUDE;P:0.14351755380630493,-0.009376962669193745,0.12242837250232697,7}
+[2025-01-21 00:23:20.070] {S:MCU;C:HB;P:1}
+[2025-01-21 00:23:20.078] {S:MCU;C:SPEED;P:0.0,0.0013232117053121328,[0.0, 0.0, -0.02]}
+[2025-01-21 00:23:20.094] {S:MCU;C:MODE;P:STABILIZE}
+[2025-01-21 00:23:20.112] {S:MCU;C:ARMED;P:False}
+[2025-01-21 00:23:20.778] {T:MCU;C:REQ;P:LOC}
+[2025-01-21 00:23:20.779] {T:MCU;C:REQ;P:GPS}
+[2025-01-21 00:23:20.782] Last Packet Send Status: Delivery Success
+[2025-01-21 00:23:20.788] Last Packet Send Status: Delivery Success
+[2025-01-21 00:23:20.789] {T:MCU;C:REQ;P:BATT}
+[2025-01-21 00:23:20.789] {T:MCU;C:REQ;P:ATTITUDE}
+[2025-01-21 00:23:20.792] Last Packet Send Status: Delivery Success
+[2025-01-21 00:23:20.792] Last Packet Send Status: Delivery Success
+[2025-01-21 00:23:20.802] {S:MCU;C:LOC;P:0.0,0.0,-0.486}
+[2025-01-21 00:23:20.802] {S:MCU;C:GPS;P:1,0}
+[2025-01-21 00:23:20.827] {S:MCU;C:BATT;P:16.43,0.9,99}
+[2025-01-21 00:23:20.834] {T:MCU;C:REQ;P:SPEED}
+[2025-01-21 00:23:20.834] {T:MCU;C:REQ;P:MODE}
+[2025-01-21 00:23:20.834] {T:MCU;C:REQ;P:ARMED}
+[2025-01-21 00:23:20.842] Last Packet Send Status: Delivery Success
+[2025-01-21 00:23:20.849] Last Packet Send Status: Delivery Success
+[2025-01-21 00:23:20.853] Last Packet Send Status: Delivery Success
+[2025-01-21 00:23:20.858] {S:MCU;C:ATTITUDE;P:0.14351755380630493,-0.009376962669193745,0.12242837250232697,7}
+[2025-01-21 00:23:20.875] {S:MCU;C:SPEED;P:0.0,0.0013232117053121328,[0.0, 0.0, -0.02]}
+[2025-01-21 00:23:20.883] {S:MCU;C:MODE;P:STABILIZE}
+[2025-01-21 00:23:20.907] {S:MCU;C:ARMED;P:False}
+[2025-01-21 00:23:21.077] {S:MCU;C:HB;P:1}
+[2025-01-21 00:23:21.597] {T:MCU;C:REQ;P:LOC}
+[2025-01-21 00:23:21.597] {T:MCU;C:REQ;P:GPS}
+[2025-01-21 00:23:21.600] {T:MCU;C:REQ;P:BATT}
+[2025-01-21 00:23:21.605] Last Packet Send Status: Delivery Success
+[2025-01-21 00:23:21.607] {T:MCU;C:REQ;P:ATTITUDE}
+[2025-01-21 00:23:21.609] {T:MCU;C:REQ;P:SPEED}
+[2025-01-21 00:23:21.611] {T:MCU;C:REQ;P:MODE}
+[2025-01-21 00:23:21.612] Last Packet Send Status: Delivery Success
+[2025-01-21 00:23:21.618] Last Packet Send Status: Delivery Success
+[2025-01-21 00:23:21.620] {T:MCU;C:REQ;P:ARMED}
+[2025-01-21 00:23:21.623] {S:MCU;C:LOC;P:0.0,0.0,-0.486}
+[2025-01-21 00:23:21.627] Last Packet Send Status: Delivery Success
+[2025-01-21 00:23:21.631] Last Packet Send Status: Delivery Success
+[2025-01-21 00:23:21.634] Last Packet Send Status: Delivery Success
+[2025-01-21 00:23:21.636] {S:MCU;C:GPS;P:1,0}
+[2025-01-21 00:23:21.640] Last Packet Send Status: Delivery Success
+[2025-01-21 00:23:21.651] {S:MCU;C:BATT;P:16.43,0.9,99}
+[2025-01-21 00:23:21.680] {S:MCU;C:ATTITUDE;P:0.14351755380630493,-0.009376962669193745,0.12242837250232697,7}
+[2025-01-21 00:23:21.695] {S:MCU;C:SPEED;P:0.0,0.0013232117053121328,[0.0, 0.0, -0.02]}
+[2025-01-21 00:23:21.710] {S:MCU;C:MODE;P:STABILIZE}
+[2025-01-21 00:23:21.729] {S:MCU;C:ARMED;P:False}
+[2025-01-21 00:23:22.094] {S:MCU;C:HB;P:1}
+[2025-01-21 00:23:22.383] {T:MCU;C:REQ;P:LOC}
+[2025-01-21 00:23:22.385] {T:MCU;C:REQ;P:GPS}
+[2025-01-21 00:23:22.386] {T:MCU;C:REQ;P:BATT}
+[2025-01-21 00:23:22.394] Last Packet Send Status: Delivery Success
+[2025-01-21 00:23:22.400] Last Packet Send Status: Delivery Success
+[2025-01-21 00:23:22.402] Last Packet Send Status: Delivery Success
+[2025-01-21 00:23:22.410] {S:MCU;C:LOC;P:0.0,0.0,-0.486}
+[2025-01-21 00:23:22.419] {S:MCU;C:GPS;P:1,0}
+[2025-01-21 00:23:22.435] {T:MCU;C:REQ;P:ATTITUDE}
+[2025-01-21 00:23:22.435] {T:MCU;C:REQ;P:SPEED}
+[2025-01-21 00:23:22.443] {T:MCU;C:REQ;P:MODE}
+[2025-01-21 00:23:22.444] {T:MCU;C:REQ;P:ARMED}
+[2025-01-21 00:23:22.444] Last Packet Send Status: Delivery Success
+[2025-01-21 00:23:22.451] Last Packet Send Status: Delivery Success
+[2025-01-21 00:23:22.456] Last Packet Send Status: Delivery Success
+[2025-01-21 00:23:22.459] Last Packet Send Status: Delivery Success
+[2025-01-21 00:23:22.459] {S:MCU;C:BATT;P:16.43,0.9,99}
+[2025-01-21 00:23:22.476] {S:MCU;C:ATTITUDE;P:0.14351755380630493,-0.009376962669193745,0.12242837250232697,7}
+[2025-01-21 00:23:22.493] {S:MCU;C:SPEED;P:0.0,0.0013232117053121328,[0.0, 0.0, -0.02]}
+[2025-01-21 00:23:22.509] {S:MCU;C:MODE;P:STABILIZE}
+[2025-01-21 00:23:22.526] {S:MCU;C:ARMED;P:False}
+[2025-01-21 00:23:23.184] {T:MCU;C:REQ;P:LOC}
+[2025-01-21 00:23:23.187] {T:MCU;C:REQ;P:GPS}
+[2025-01-21 00:23:23.187] {T:MCU;C:REQ;P:BATT}
+[2025-01-21 00:23:23.206] Last Packet Send Status: Delivery Fail
+[2025-01-21 00:23:23.223] Last Packet Send Status: Delivery Fail
+[2025-01-21 00:23:23.239] Last Packet Send Status: Delivery Fail
+[2025-01-21 00:23:23.244] {T:MCU;C:REQ;P:ATTITUDE}
+[2025-01-21 00:23:23.245] {T:MCU;C:REQ;P:SPEED}
+[2025-01-21 00:23:23.245] {T:MCU;C:REQ;P:MODE}
+[2025-01-21 00:23:23.245] {T:MCU;C:REQ;P:ARMED}
+[2025-01-21 00:23:23.261] Last Packet Send Status: Delivery Fail
+[2025-01-21 00:23:23.276] Last Packet Send Status: Delivery Fail
+[2025-01-21 00:23:23.294] Last Packet Send Status: Delivery Fail
+[2025-01-21 00:23:23.309] Last Packet Send Status: Delivery Fail
+[2025-01-21 00:23:23.980] {T:MCU;C:REQ;P:LOC}
+[2025-01-21 00:23:23.984] {T:MCU;C:REQ;P:GPS}
+[2025-01-21 00:23:23.984] {T:MCU;C:REQ;P:BATT}
+[2025-01-21 00:23:24.001] Last Packet Send Status: Delivery Fail
+[2025-01-21 00:23:24.017] Last Packet Send Status: Delivery Fail
+[2025-01-21 00:23:24.034] Last Packet Send Status: Delivery Fail
+[2025-01-21 00:23:24.035] {T:MCU;C:REQ;P:ATTITUDE}
+[2025-01-21 00:23:24.040] {T:MCU;C:REQ;P:SPEED}
+[2025-01-21 00:23:24.043] {T:MCU;C:REQ;P:MODE}
+[2025-01-21 00:23:24.044] {T:MCU;C:REQ;P:ARMED}
+[2025-01-21 00:23:24.053] Last Packet Send Status: Delivery Fail
+[2025-01-21 00:23:24.074] Last Packet Send Status: Delivery Fail
+[2025-01-21 00:23:24.090] Last Packet Send Status: Delivery Fail
+[2025-01-21 00:23:24.104] Last Packet Send Status: Delivery Fail
+[2025-01-21 00:23:24.780] {T:MCU;C:REQ;P:LOC}
+[2025-01-21 00:23:24.780] {T:MCU;C:REQ;P:GPS}
+[2025-01-21 00:23:24.785] {T:MCU;C:REQ;P:BATT}
+[2025-01-21 00:23:24.801] Last Packet Send Status: Delivery Fail
+[2025-01-21 00:23:24.817] Last Packet Send Status: Delivery Fail
+[2025-01-21 00:23:24.827] Last Packet Send Status: Delivery Fail
+[2025-01-21 00:23:24.835] {T:MCU;C:REQ;P:ATTITUDE}
+[2025-01-21 00:23:24.835] {T:MCU;C:REQ;P:SPEED}
+[2025-01-21 00:23:24.844] {T:MCU;C:REQ;P:MODE}
+[2025-01-21 00:23:24.844] {T:MCU;C:REQ;P:ARMED}
+[2025-01-21 00:23:24.854] Last Packet Send Status: Delivery Fail
+[2025-01-21 00:23:24.874] Last Packet Send Status: Delivery Fail
+[2025-01-21 00:23:24.883] Last Packet Send Status: Delivery Fail
+[2025-01-21 00:23:24.903] Last Packet Send Status: Delivery Fail
+[2025-01-21 00:23:25.590] {T:MCU;C:REQ;P:LOC}
+[2025-01-21 00:23:25.592] {T:MCU;C:REQ;P:GPS}
+[2025-01-21 00:23:25.592] {T:MCU;C:REQ;P:BATT}
+[2025-01-21 00:23:25.595] {T:MCU;C:REQ;P:ATTITUDE}
+[2025-01-21 00:23:25.598] {T:MCU;C:REQ;P:SPEED}
+[2025-01-21 00:23:25.600] {T:MCU;C:REQ;P:MODE}
+[2025-01-21 00:23:25.600] {T:MCU;C:REQ;P:ARMED}
+[2025-01-21 00:23:25.609] Last Packet Send Status: Delivery Fail
+[2025-01-21 00:23:25.624] Last Packet Send Status: Delivery Fail
+[2025-01-21 00:23:25.640] Last Packet Send Status: Delivery Fail
+[2025-01-21 00:23:25.657] Last Packet Send Status: Delivery Fail
+[2025-01-21 00:23:25.673] Last Packet Send Status: Delivery Fail
+[2025-01-21 00:23:25.690] Last Packet Send Status: Delivery Fail
+[2025-01-21 00:23:25.706] Last Packet Send Status: Delivery Fail
+[2025-01-21 00:23:26.387] {T:MCU;C:REQ;P:LOC}
+[2025-01-21 00:23:26.389] {T:MCU;C:REQ;P:GPS}
+[2025-01-21 00:23:26.391] {T:MCU;C:REQ;P:BATT}
+[2025-01-21 00:23:26.401] Last Packet Send Status: Delivery Fail
+[2025-01-21 00:23:26.421] Last Packet Send Status: Delivery Fail
+[2025-01-21 00:23:26.437] Last Packet Send Status: Delivery Fail
+[2025-01-21 00:23:26.442] {T:MCU;C:REQ;P:ATTITUDE}
+[2025-01-21 00:23:26.442] {T:MCU;C:REQ;P:SPEED}
+[2025-01-21 00:23:26.448] {T:MCU;C:REQ;P:MODE}
+[2025-01-21 00:23:26.450] {T:MCU;C:REQ;P:ARMED}
+[2025-01-21 00:23:26.460] Last Packet Send Status: Delivery Fail
+[2025-01-21 00:23:26.475] Last Packet Send Status: Delivery Fail
+[2025-01-21 00:23:26.493] Last Packet Send Status: Delivery Fail
+[2025-01-21 00:23:26.503] Last Packet Send Status: Delivery Fail
+[2025-01-21 00:23:27.180] {T:MCU;C:REQ;P:LOC}
+[2025-01-21 00:23:27.183] {T:MCU;C:REQ;P:GPS}
+[2025-01-21 00:23:27.184] {T:MCU;C:REQ;P:BATT}
+[2025-01-21 00:23:27.200] Last Packet Send Status: Delivery Fail
+[2025-01-21 00:23:27.215] Last Packet Send Status: Delivery Fail
+[2025-01-21 00:23:27.232] Last Packet Send Status: Delivery Fail
+[2025-01-21 00:23:27.239] {T:MCU;C:REQ;P:ATTITUDE}
+[2025-01-21 00:23:27.240] {T:MCU;C:REQ;P:SPEED}
+[2025-01-21 00:23:27.240] {T:MCU;C:REQ;P:MODE}
+[2025-01-21 00:23:27.240] {T:MCU;C:REQ;P:ARMED}
+[2025-01-21 00:23:27.256] Last Packet Send Status: Delivery Fail
+[2025-01-21 00:23:27.273] Last Packet Send Status: Delivery Fail
+[2025-01-21 00:23:27.285] Last Packet Send Status: Delivery Fail
+[2025-01-21 00:23:27.304] Last Packet Send Status: Delivery Fail
+[2025-01-21 00:23:27.980] {T:MCU;C:REQ;P:LOC}
+[2025-01-21 00:23:27.980] {T:MCU;C:REQ;P:GPS}
+[2025-01-21 00:23:27.985] {T:MCU;C:REQ;P:BATT}
+[2025-01-21 00:23:27.993] Last Packet Send Status: Delivery Success
+[2025-01-21 00:23:28.015] Last Packet Send Status: Delivery Fail
+[2025-01-21 00:23:28.037] Last Packet Send Status: Delivery Fail
+[2025-01-21 00:23:28.038] {T:MCU;C:REQ;P:ATTITUDE}
+[2025-01-21 00:23:28.038] {T:MCU;C:REQ;P:SPEED}
+[2025-01-21 00:23:28.042] {T:MCU;C:REQ;P:MODE}
+[2025-01-21 00:23:28.042] {T:MCU;C:REQ;P:ARMED}
+[2025-01-21 00:23:28.059] Last Packet Send Status: Delivery Fail
+[2025-01-21 00:23:28.079] Last Packet Send Status: Delivery Fail
+[2025-01-21 00:23:28.099] Last Packet Send Status: Delivery Fail
+[2025-01-21 00:23:28.123] Last Packet Send Status: Delivery Fail
