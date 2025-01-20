@@ -3,18 +3,17 @@
   "timestamp": 1737364278098,
   "settings": {
     "gridSize": 100,
-    "gridSpacing": 1,
-    "useRelativeCoordinates": true
+    "gridSpacing": 1
   },
   "drones": {
-  "CD1": {
-      "color": "#f22c2c",
+    "CD3": {
+      "color": "#2c7bf2",
       "frames": [
         {
           "position": {
             "x": 2,
             "y": 0,
-            "z": 3
+            "z": 2
           },
           "heading": 0
         },
@@ -22,15 +21,15 @@
           "position": {
             "x": 2,
             "y": 3,
-            "z": 3
+            "z": 2
           },
           "heading": 0
         },
         {
           "position": {
             "x": 2,
-            "y": -3,
-            "z": 3
+            "y": 0,
+            "z": 2
           },
           "heading": 0
         }
@@ -38,8 +37,8 @@
     }
   },
   "frameDelays": [
-    6000,
-    6000,
-    6000
+    3000,  // Initial position
+    3000,  // Forward movement
+    3000   // Backward movement
   ]
-}
+} 

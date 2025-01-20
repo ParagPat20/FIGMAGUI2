@@ -7,7 +7,36 @@
     "useRelativeCoordinates": true
   },
   "drones": {
-  "CD1": {
+    "CD1": {
+      "color": "#2c7bf2",
+      "frames": [
+        {
+          "position": {
+            "x": 0,
+            "y": 0,
+            "z": 3
+          },
+          "heading": 0
+        },
+        {
+          "position": {
+            "x": 0,
+            "y": 3,
+            "z": 3
+          },
+          "heading": 0
+        },
+        {
+          "position": {
+            "x": 0,
+            "y": -3,
+            "z": 3
+          },
+          "heading": 0
+        }
+      ]
+    },
+    "CD3": {
       "color": "#f22c2c",
       "frames": [
         {

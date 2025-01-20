@@ -525,9 +525,6 @@ class MissionViewer {
                 <div class="delay-status">
                     <div class="delay-text">Frame Delay: <span class="current-delay">0</span>ms</div>
                     <div class="delay-progress-bar">
-                <div class="delay-status">
-                    <div class="delay-text">Frame Delay: <span class="current-delay">0</span>ms</div>
-                    <div class="delay-progress-bar">
                         <div class="delay-progress"></div>
                     </div>
                 </div>
@@ -590,25 +587,49 @@ class MissionViewer {
     
     showCommands(commands) {
         const commandsDiv = this.container.querySelector('.current-commands');
+        if (!commandsDiv) return;
+
         if (!commands || commands.length === 0) {
             commandsDiv.innerHTML = '<div class="command-item">No commands in this frame</div>';
             return;
         }
         
-        commandsDiv.innerHTML = commands.map(cmd => 
-            `<div class="command-item">
+        commandsDiv.innerHTML = commands.map(cmd => {
+            let payloadDisplay = cmd.payload;
+            
+            // Special handling for different command types
+            if (cmd.command === 'LIGHT') {
+                if (cmd.payload === 'rnbw') {
+                    payloadDisplay = '<span style="color: rainbow">Rainbow Effect</span>';
+                } else if (cmd.payload === 'chase') {
+                    payloadDisplay = '<span style="color: #4a90e2">Chase Effect</span>';
+                } else {
+                    payloadDisplay = `<span class="color-preview" style="background-color: #${cmd.payload}"></span>`;
+                }
+            } else if (cmd.command === 'POS') {
+                // Parse POS command payload (x,y,z,heading)
+                const [x, y, z, heading] = cmd.payload.split(',').map(Number);
+                payloadDisplay = `
+                    <span class="pos-coord">X: ${x.toFixed(2)}</span>
+                    <span class="pos-coord">Y: ${y.toFixed(2)}</span>
+                    <span class="pos-coord">Z: ${z.toFixed(2)}</span>
+                    <span class="pos-heading">H: ${(heading * 180 / Math.PI).toFixed(1)}°</span>
+                `;
+            }
+            
+            return `<div class="command-item">
                 <span class="target">${cmd.target}</span>
                 <span class="command">${cmd.command}</span>
-                <span class="payload">${cmd.payload}</span>
-            </div>`
-        ).join('');
+                <span class="payload">${payloadDisplay}</span>
+            </div>`;
+        }).join('');
     }
 }
 
 // Create mission viewer instance
 const missionViewer = new MissionViewer();
 
-// Update handleStart function
+// Update handleStart function to properly update mission viewer
 async function handleStart() {
     const programSelect = document.querySelector('.program-select');
     const startButton = document.querySelector('.start');
@@ -633,8 +654,9 @@ async function handleStart() {
                 missionDecoder = new MissionDecoder();
                 await missionDecoder.load_mission(missionData);
                 
-                // Set mission data in viewer
+                // Set mission data in viewer and show it
                 missionViewer.setMissionData(missionData);
+                missionViewer.show();
             }
             
             isExecutingMission = true;
@@ -647,25 +669,19 @@ async function handleStart() {
             pauseButton.style.display = 'inline-block';
             pauseButton.textContent = 'Pause';
             
-            // Show mission viewer
-            missionViewer.show();
-            
             customAlert.success('Mission started');
             
             // Start mission execution loop
             let frameIndex = 0;
             const totalFrames = missionDecoder.frames.length;
             
-            while (isExecutingMission && !isPausedMission) {
+            while (isExecutingMission && !isPausedMission && frameIndex < totalFrames) {
                 const frameData = missionDecoder.get_next_frame_commands();
                 if (!frameData) {
-                    // Mission complete
-                    customAlert.success('Mission completed successfully');
-                    handleStop();
                     break;
                 }
                 
-                // Update mission viewer
+                // Update mission viewer with current frame data
                 frameIndex++;
                 missionViewer.updateProgress(frameIndex, totalFrames);
                 missionViewer.showCommands(frameData.commands);
@@ -673,9 +689,16 @@ async function handleStart() {
                 // Execute all commands for this frame
                 await executeMissionCommands(frameData.commands);
                 
-                // Wait for frame delay using the delay from frameData
+                // Wait for frame delay
                 await new Promise(resolve => setTimeout(resolve, frameData.delay));
             }
+
+            // Mission complete or stopped
+            if (frameIndex >= totalFrames) {
+                customAlert.success('Mission completed successfully');
+                handleStop();
+            }
+
         } catch (error) {
             console.error('Error executing mission:', error);
             customAlert.error('Failed to execute mission: ' + error.message);
@@ -687,7 +710,7 @@ async function handleStart() {
     }
 }
 
-// Update handleStop function
+// Update handleStop to properly clean up the mission viewer
 async function handleStop() {
     if (missionDecoder) {
         const landCommands = missionDecoder.stop_mission();
@@ -4435,4 +4458,79 @@ addCommandBtn.addEventListener('click', () => {
         updateCommandList();
     }
 });
+
+// Add CSS styles for better command visibility
+const style = document.createElement('style');
+style.textContent = `
+    .command-item {
+        background: rgba(26, 38, 52, 0.9);
+        padding: 8px 12px;
+        margin: 4px 0;
+        border-radius: 4px;
+        display: grid;
+        grid-template-columns: auto 1fr auto;
+        gap: 12px;
+        align-items: center;
+    }
+
+    .command-item .target {
+        color: #4a90e2;
+        font-weight: 500;
+        min-width: 60px;
+    }
+
+    .command-item .command {
+        color: #95bdf8;
+    }
+
+    .command-item .payload {
+        color: #70c172;
+        font-family: monospace;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+    }
+
+    .color-preview {
+        width: 16px;
+        height: 16px;
+        border-radius: 50%;
+        border: 2px solid rgba(255, 255, 255, 0.2);
+    }
+
+    .mission-viewer {
+        z-index: 1000;
+    }
+`;
+document.head.appendChild(style);
+
+// Add these styles to the existing style element
+const additionalStyles = `
+    .pos-coord {
+        display: inline-block;
+        padding: 2px 6px;
+        margin-right: 4px;
+        background: rgba(74, 144, 226, 0.2);
+        border-radius: 3px;
+        color: #95bdf8;
+    }
+
+    .pos-heading {
+        display: inline-block;
+        padding: 2px 6px;
+        background: rgba(112, 193, 114, 0.2);
+        border-radius: 3px;
+        color: #70c172;
+    }
+
+    .command-item .payload {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 4px;
+        align-items: center;
+    }
+`;
+
+// Update the existing style element's content
+style.textContent += additionalStyles;
 
