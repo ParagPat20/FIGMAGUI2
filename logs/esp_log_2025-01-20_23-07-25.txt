@@ -1,0 +1,17 @@
+=== ESP Terminal Log Started at 2025-01-20_23-07-25 ===
+[2025-01-20 23:07:45.288] {T:CD1;C:POS;P:0.00,0.00,3.00,0}
+[2025-01-20 23:07:45.308] Last Packet Send Status: Delivery Fail
+[2025-01-20 23:07:45.399] {T:CD3;C:POS;P:2.00,0.00,3.00,0}
+[2025-01-20 23:07:45.416] Last Packet Send Status: Delivery Fail
+[2025-01-20 23:07:51.512] {T:CD1;C:POS;P:0.00,3.00,3.00,0}
+[2025-01-20 23:07:51.531] Last Packet Send Status: Delivery Fail
+[2025-01-20 23:07:51.628] {T:CD3;C:POS;P:0.00,3.00,3.00,0}
+[2025-01-20 23:07:51.646] Last Packet Send Status: Delivery Fail
+[2025-01-20 23:07:57.744] {T:CD1;C:POS;P:0.00,-6.00,3.00,0}
+[2025-01-20 23:07:57.781] Last Packet Send Status: Delivery Fail
+[2025-01-20 23:07:57.882] {T:CD3;C:POS;P:0.00,-6.00,3.00,0}
+[2025-01-20 23:07:57.899] Last Packet Send Status: Delivery Fail
+[2025-01-20 23:08:03.993] {T:CD1;C:SET_MODE;P:GUIDED}
+[2025-01-20 23:08:04.018] Last Packet Send Status: Delivery Fail
+[2025-01-20 23:08:04.115] {T:CD3;C:SET_MODE;P:GUIDED}
+[2025-01-20 23:08:04.132] Last Packet Send Status: Delivery Fail
