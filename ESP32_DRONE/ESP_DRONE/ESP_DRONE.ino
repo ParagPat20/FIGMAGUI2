@@ -243,7 +243,7 @@ void setup() {
 
   // Initialize LED strip
   strip.begin();
-  strip.setBrightness(20);  // Set to 50% brightness
+  strip.setBrightness(0);  // Set to 50% brightness
   strip.show();
 
   if (esp_now_init() != ESP_OK) {

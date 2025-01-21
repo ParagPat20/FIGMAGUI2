@@ -1832,6 +1832,8 @@ class MissionPlanner {
         // Custom commands
         this.customCommands = new Map(); // Map of keyframe index to array of commands
         this.selectedDroneId = null;
+        this.keyboardControlEnabled = false;
+        this.initializeKeyboardControls();
     }
 
     initialize() {
@@ -3433,6 +3435,85 @@ class MissionPlanner {
             commandList.appendChild(cmdElement);
         });
     }
+
+    initializeKeyboardControls() {
+        // Add toggle button handler
+        const toggleBtn = document.getElementById('keyboard-control-toggle');
+        toggleBtn.addEventListener('click', () => {
+            this.keyboardControlEnabled = !this.keyboardControlEnabled;
+            toggleBtn.textContent = `Keyboard Control: ${this.keyboardControlEnabled ? 'ON' : 'OFF'}`;
+            toggleBtn.classList.toggle('active', this.keyboardControlEnabled);
+        });
+
+        // Add keyboard event listener
+        document.addEventListener('keydown', (event) => {
+            // Only process if keyboard control is enabled and mission planner is active
+            if (!this.keyboardControlEnabled) return;
+            if (!document.querySelector('.mission-planner-popup') || 
+                document.querySelector('.mission-planner-popup').style.display === 'none') return;
+
+            // Get selected drone
+            const selectedDroneElement = document.querySelector('.drone-item.selected');
+            if (!selectedDroneElement) {
+                console.log('No drone selected');
+                return;
+            }
+
+            const droneId = selectedDroneElement.dataset.droneId;
+            const frames = this.keyframes.get(droneId);
+            if (!frames || !frames[this.currentKeyframe]) return;
+
+            const currentFrame = frames[this.currentKeyframe];
+            let positionChanged = false;
+
+            // Clone current position
+            const newPosition = { ...currentFrame.position };
+
+            switch(event.key.toLowerCase()) {
+                // X-axis controls (A/D)
+                case 'a':
+                    newPosition.x -= 1;
+                    positionChanged = true;
+                    break;
+                case 'd':
+                    newPosition.x += 1;
+                    positionChanged = true;
+                    break;
+
+                // Y-axis controls (W/S)
+                case 'w':
+                    newPosition.y += 1;
+                    positionChanged = true;
+                    break;
+                case 's':
+                    newPosition.y -= 1;
+                    positionChanged = true;
+                    break;
+
+                // Z-axis controls (U/J)
+                case 'u':
+                    newPosition.z += 1;
+                    positionChanged = true;
+                    break;
+                case 'j':
+                    newPosition.z -= 1;
+                    positionChanged = true;
+                    break;
+            }
+
+            if (positionChanged) {
+                // Update position
+                currentFrame.position = newPosition;
+
+                // Update UI
+                this.updateViews();
+                this.updateWaypointInputs(currentFrame);
+
+                // Show movement notification
+                customAlert.show(`Moved ${droneId} to X: ${newPosition.x.toFixed(1)}, Y: ${newPosition.y.toFixed(1)}, Z: ${newPosition.z.toFixed(1)}`, 'info', 1000);
+            }
+        });
+    }
 }
 
 // Initialize mission planner when menu item is clicked
@@ -3531,10 +3612,22 @@ async function fetchSerialData() {
         if (!response.ok) throw new Error('Failed to fetch serial data');
         
         const data = await response.json();
-        if (data && data.length > 0) {
-            console.log('Received serial data:', data);
-            displaySerialData(data);
-            data.forEach(line => handleEspTerminalData(line)); // Handle each line of data
+        const terminal = document.querySelector('.esp-terminal-content');
+        
+        if (terminal && data.length > 0) {
+            // Add new messages with formatting
+            data.forEach(message => {
+                terminal.innerHTML += formatTerminalMessage(message);
+            });
+            
+            // Auto-scroll to bottom
+            terminal.scrollTop = terminal.scrollHeight;
+            
+            // Keep only last 100 lines to prevent excessive memory usage
+            const lines = terminal.getElementsByClassName('terminal-line');
+            while (lines.length > 100) {
+                lines[0].remove();
+            }
         }
     } catch (error) {
         console.error('Error fetching serial data:', error);
@@ -4711,6 +4804,7 @@ class NEDControl {
             'z': false, // Yaw left
             'c': false  // Yaw right
         };
+        this.isServoOpen = false;
         
         // Map number keys to drone IDs
         this.droneKeys = {
@@ -4722,6 +4816,7 @@ class NEDControl {
             '5': 'CD5'
         };
         
+        this.commandInterval = null;
         this.initialize();
     }
     
@@ -4742,6 +4837,10 @@ class NEDControl {
         // Initialize keyboard listeners
         window.addEventListener('keydown', (e) => this.handleKeyDown(e));
         window.addEventListener('keyup', (e) => this.handleKeyUp(e));
+
+        // Initialize servo toggle
+        const servoToggle = document.querySelector('.servo-toggle');
+        servoToggle?.addEventListener('click', () => this.toggleServo());
     }
     
     toggleMainControl() {
@@ -4751,13 +4850,22 @@ class NEDControl {
         if (this.isEnabled) {
             mainToggle.textContent = 'NED Control: ON';
             mainToggle.classList.add('active');
+            this.startCommandInterval();
         } else {
             mainToggle.textContent = 'NED Control: OFF';
             mainToggle.classList.remove('active');
             this.resetVelocities();
-            // Send zero velocities to all active drones when disabling
+            this.stopCommandInterval();
+            // Reset servo state when disabling NED control
+            this.isServoOpen = false;
+            const servoToggle = document.querySelector('.servo-toggle');
+            if (servoToggle) {
+                servoToggle.textContent = 'SERVO: CLOSED';
+                servoToggle.classList.remove('active');
+            }
             this.activeTargets.forEach(target => {
                 send_command(target, 'NED', '0,0,0,0');
+                send_command(target, 'SERVO', 'CLOSE');
             });
         }
     }
@@ -4796,7 +4904,7 @@ class NEDControl {
             e.preventDefault();
             this.keyStates[key] = true;
             this.updateVelocities();
-            this.sendVelocityCommands(); // Send commands immediately when key is pressed
+            this.sendVelocityCommands(); // Send initial command immediately
         }
     }
     
@@ -4808,7 +4916,7 @@ class NEDControl {
             e.preventDefault();
             this.keyStates[key] = false;
             this.updateVelocities();
-            this.sendVelocityCommands(); // Send commands immediately when key is released
+            this.sendVelocityCommands(); // Send final command (will be zeros if no keys are pressed)
         }
     }
     
@@ -4817,16 +4925,16 @@ class NEDControl {
         this.velocities = { x: 0, y: 0, z: 0, yaw: 0 };
         
         // Forward/Backward (X-axis)
-        if (this.keyStates['w']) this.velocities.x = 0.6;
-        if (this.keyStates['s']) this.velocities.x = -0.6;
+        if (this.keyStates['w']) this.velocities.x = 0.8;
+        if (this.keyStates['s']) this.velocities.x = -0.8;
         
         // Left/Right (Y-axis)
-        if (this.keyStates['a']) this.velocities.y = 0.6;
-        if (this.keyStates['d']) this.velocities.y = -0.6;
+        if (this.keyStates['a']) this.velocities.y = 0.8;
+        if (this.keyStates['d']) this.velocities.y = -0.8;
         
         // Up/Down (Z-axis)
-        if (this.keyStates['q']) this.velocities.z = -0.6;
-        if (this.keyStates['e']) this.velocities.z = 0.6;
+        if (this.keyStates['q']) this.velocities.z = -0.8;
+        if (this.keyStates['e']) this.velocities.z = 0.8;
         
         // Yaw control (raw degrees)
         if (this.keyStates['z']) this.velocities.yaw = -10;
@@ -4846,6 +4954,41 @@ class NEDControl {
         this.activeTargets.forEach(target => {
             const command = `${this.velocities.x},${this.velocities.y},${this.velocities.z},${this.velocities.yaw}`;
             send_command(target, 'NED', command);
+        });
+    }
+
+    startCommandInterval() {
+        if (!this.commandInterval) {
+            this.commandInterval = setInterval(() => {
+                this.sendVelocityCommands();
+            }, 800);
+        }
+    }
+
+    stopCommandInterval() {
+        if (this.commandInterval) {
+            clearInterval(this.commandInterval);
+            this.commandInterval = null;
+        }
+    }
+
+    toggleServo() {
+        if (!this.isEnabled || this.activeTargets.size === 0) {
+            customAlert.error('Enable NED control and select drones first');
+            return;
+        }
+
+        this.isServoOpen = !this.isServoOpen;
+        const servoToggle = document.querySelector('.servo-toggle');
+        
+        if (servoToggle) {
+            servoToggle.textContent = `SERVO: ${this.isServoOpen ? 'OPEN' : 'CLOSED'}`;
+            servoToggle.classList.toggle('active', this.isServoOpen);
+        }
+
+        // Send servo command to all active drones
+        this.activeTargets.forEach(target => {
+            send_command(target, 'SERVO', this.isServoOpen ? 'OPEN' : 'CLOSE');
         });
     }
 }
@@ -5263,5 +5406,21 @@ function updateMissionDropdown(missions) {
         option.textContent = mission.name;
         dropdown.appendChild(option);
     });
+}
+
+// Add this function near the top of the file with other utility functions
+function formatTerminalMessage(message) {
+    // Check for different message types and add appropriate classes
+    if (message.includes('Error') || message.includes('error') || message.includes('ERR')) {
+        return `<div class="terminal-line error">${message}</div>`;
+    } else if (message.includes('Warning') || message.includes('warning') || message.includes('WARN')) {
+        return `<div class="terminal-line warning">${message}</div>`;
+    } else if (message.includes('Success') || message.includes('success') || message.includes('OK')) {
+        return `<div class="terminal-line success">${message}</div>`;
+    } else if (message.includes('SERVO') || message.includes('NED') || message.includes('MTL')) {
+        return `<div class="terminal-line command">${message}</div>`;
+    } else {
+        return `<div class="terminal-line">${message}</div>`;
+    }
 }
 
