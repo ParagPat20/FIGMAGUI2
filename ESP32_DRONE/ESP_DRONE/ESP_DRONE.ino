@@ -21,18 +21,18 @@ uint32_t currentColor = strip.Color(0, 0, 0);
 uint32_t flashColor1 = strip.Color(255, 0, 0);  // Default first color (red)
 uint32_t flashColor2 = strip.Color(0, 0, 0);    // Default second color (off)
 bool flashState = false;
-unsigned long flashStartTime = 0;
+unsigned long flashEndTime = 0;
 const unsigned long FLASH_DURATION = 10000; // 10 seconds in milliseconds
-int flashColorIndex = 0;
+int colorIndex = 0;
 
-// Add this array near the top with other LED variables
-const uint32_t FLASH_COLORS[] = {
+// Add this array near the top with other global variables
+const uint32_t flashColors[] = {
   strip.Color(255, 0, 0),    // Red
   strip.Color(0, 255, 0),    // Green
   strip.Color(0, 0, 255),    // Blue
   strip.Color(255, 255, 0),  // Yellow
-  strip.Color(0, 255, 255),  // Cyan
-  strip.Color(255, 0, 255)   // Magenta
+  strip.Color(255, 0, 255),  // Magenta
+  strip.Color(0, 255, 255)   // Cyan
 };
 const int NUM_FLASH_COLORS = 6;
 
@@ -251,11 +251,9 @@ void updateFlashing() {
   
   unsigned long currentMillis = millis();
   
-  // Check if flash duration is complete
-  if (flashStartTime > 0 && currentMillis - flashStartTime >= FLASH_DURATION) {
+  // Check if flash duration has expired
+  if (flashEndTime > 0 && currentMillis > flashEndTime) {
     isFlashingActive = false;
-    flashStartTime = 0;
-    // Return to previous state
     if (isRainbowActive) {
       updateRainbow();
     } else {
@@ -263,14 +261,15 @@ void updateFlashing() {
     }
     return;
   }
-  
-  // Update flash every 100ms
+
+  // Update flash every 100ms for faster color changes
   if (currentMillis - previousMillis >= 100) {
     previousMillis = currentMillis;
-    flashColorIndex = (flashColorIndex + 1) % NUM_FLASH_COLORS;
     
+    // Cycle through colors
+    colorIndex = (colorIndex + 1) % NUM_FLASH_COLORS;
     for (int i = 0; i < strip.numPixels(); i++) {
-      strip.setPixelColor(i, FLASH_COLORS[flashColorIndex]);
+      strip.setPixelColor(i, flashColors[colorIndex]);
     }
     strip.show();
   }
@@ -434,8 +433,14 @@ void OnDataRecv(const uint8_t *mac, const uint8_t *incomingData, int len) {
     } else {
       setSolidColorTemporary(strip.Color(0, 255, 255));  // Cyan for other modes
     }
-  }   else if (packet.C == "LIGHT") {
-    if (packet.P == "rnbw") {
+  }   else if (packet.C == "LED") {
+    if (packet.P == "FLASH") {
+      isFlashingActive = true;
+      isRainbowActive = false;
+      isChaseActive = false;
+      colorIndex = 0;
+      flashEndTime = millis() + FLASH_DURATION;
+    } else if (packet.P == "rnbw") {
       isRainbowActive = true;
       isChaseActive = false;
       isFlashingActive = false;
@@ -446,12 +451,6 @@ void OnDataRecv(const uint8_t *mac, const uint8_t *incomingData, int len) {
       isFlashingActive = false;
       isModeChangeActive = true;
       modeChangeMillis = millis();
-    } else if (packet.P == "LED;FLASH") {
-      isFlashingActive = true;
-      isRainbowActive = false;
-      isChaseActive = false;
-      flashStartTime = millis();
-      flashColorIndex = 0;
     } else if (packet.P.startsWith("flash:")) {  // Add flash command handling
       // Format: "flash:RRGGBB-RRGGBB" for two colors
       String colors = packet.P.substring(6);  // Remove "flash:" prefix

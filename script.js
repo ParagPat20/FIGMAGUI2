@@ -5130,6 +5130,7 @@ class MissionDecoder {
 // Initialize event listeners for LED effects
 const rainbowBtn = document.getElementById('rainbow-effect');
 const chaseBtn = document.getElementById('chase-effect');
+const flashBtn = document.getElementById('flash-effect');
 const customCommandSelect = document.getElementById('custom-command');
 const lightColorPicker = document.getElementById('light-color-picker');
 const addCommandBtn = document.getElementById('add-command');
@@ -5197,6 +5198,35 @@ chaseBtn.addEventListener('click', () => {
         colorPicker.value = originalColor;
     }
 });
+
+flashBtn.addEventListener('click', () => {
+    const selectedDrone = document.querySelector('.drone-item.selected');
+    if (selectedDrone) {
+        const droneId = selectedDrone.dataset.droneId;
+        // Set command to LIGHT
+        customCommandSelect.value = 'LIGHT';
+        lightColorPicker.style.display = 'block';
+        
+        // Create and dispatch a click event on add command button
+        const clickEvent = new MouseEvent('click', {
+            bubbles: true,
+            cancelable: true,
+            view: window
+        });
+        
+        // Override the color picker value temporarily
+        const colorPicker = document.getElementById('light-color');
+        const originalColor = colorPicker.value;
+        colorPicker.value = '#flash';
+        
+        // Simulate click
+        addCommandBtn.dispatchEvent(clickEvent);
+        
+        // Restore original color
+        colorPicker.value = originalColor;
+    }
+});
+
 
 // Update add command button handler to handle color picker value
 addCommandBtn.addEventListener('click', () => {
