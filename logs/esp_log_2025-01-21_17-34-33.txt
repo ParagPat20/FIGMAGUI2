@@ -1,0 +1,174 @@
+=== ESP Terminal Log Started at 2025-01-21_17-34-33 ===
+[2025-01-21 17:34:39.387] {S:CD1;C:HB;P:1}
+[2025-01-21 17:34:40.398] {S:CD1;C:HB;P:1}
+[2025-01-21 17:34:41.406] {S:CD1;C:HB;P:1}
+[2025-01-21 17:34:42.620] {S:CD1;C:HB;P:1}
+[2025-01-21 17:34:43.586] {T:CD1;C:REQ;P:GPS}
+[2025-01-21 17:34:43.593] Last Packet Send Status: Delivery Success
+[2025-01-21 17:34:43.597] {T:CD1;C:REQ;P:LOC}
+[2025-01-21 17:34:43.604] Last Packet Send Status: Delivery Success
+[2025-01-21 17:34:43.607] {T:CD1;C:REQ;P:BATT}
+[2025-01-21 17:34:43.607] Last Packet Send Status: Delivery Success
+[2025-01-21 17:34:43.612] {T:CD1;C:REQ;P:ATTITUDE}
+[2025-01-21 17:34:43.613] Last Packet Send Status: Delivery Success
+[2025-01-21 17:34:43.613] {T:CD1;C:REQ;P:MODE}
+[2025-01-21 17:34:43.613] Last Packet Send Status: Delivery Success
+[2025-01-21 17:34:43.617] {T:CD1;C:REQ;P:SPEED}
+[2025-01-21 17:34:43.620] Last Packet Send Status: Delivery Success
+[2025-01-21 17:34:43.622] {T:CD1;C:REQ;P:ARMED}
+[2025-01-21 17:34:43.624] Last Packet Send Status: Delivery Success
+[2025-01-21 17:34:43.626] {S:CD1;C:HB;P:1}
+[2025-01-21 17:34:43.648] {S:CD1;C:RES;P:Unknown command: REQ}
+[2025-01-21 17:34:43.686] {S:CD1;C:RES;P:Unknown command: REQ}
+[2025-01-21 17:34:43.698] {S:CD1;C:RES;P:Unknown command: REQ}
+[2025-01-21 17:34:44.381] {T:CD1;C:REQ;P:LOC}
+[2025-01-21 17:34:44.381] {T:CD1;C:REQ;P:GPS}
+[2025-01-21 17:34:44.398] Last Packet Send Status: Delivery Success
+[2025-01-21 17:34:44.410] Last Packet Send Status: Delivery Success
+[2025-01-21 17:34:44.415] {T:CD1;C:REQ;P:BATT}
+[2025-01-21 17:34:44.417] Last Packet Send Status: Delivery Success
+[2025-01-21 17:34:44.419] {T:CD1;C:REQ;P:ATTITUDE}
+[2025-01-21 17:34:44.419] Last Packet Send Status: Delivery Success
+[2025-01-21 17:34:44.421] {T:CD1;C:REQ;P:SPEED}
+[2025-01-21 17:34:44.422] {T:CD1;C:REQ;P:MODE}
+[2025-01-21 17:34:44.423] Last Packet Send Status: Delivery Success
+[2025-01-21 17:34:44.426] Last Packet Send Status: Delivery Success
+[2025-01-21 17:34:44.429] {T:CD1;C:REQ;P:ARMED}
+[2025-01-21 17:34:44.432] Last Packet Send Status: Delivery Success
+[2025-01-21 17:34:44.432] {S:CD1;C:RES;P:Unknown command: REQ}
+[2025-01-21 17:34:44.448] {S:CD1;C:RES;P:Unknown command: REQ}
+[2025-01-21 17:34:44.481] {S:CD1;C:RES;P:Unknown command: REQ}
+[2025-01-21 17:34:44.644] {S:CD1;C:HB;P:1}
+[2025-01-21 17:34:45.180] {T:CD1;C:REQ;P:LOC}
+[2025-01-21 17:34:45.191] Last Packet Send Status: Delivery Success
+[2025-01-21 17:34:45.191] {T:CD1;C:REQ;P:GPS}
+[2025-01-21 17:34:45.198] Last Packet Send Status: Delivery Success
+[2025-01-21 17:34:45.207] {S:CD1;C:RES;P:Unknown command: REQ}
+[2025-01-21 17:34:45.257] {T:CD1;C:REQ;P:BATT}
+[2025-01-21 17:34:45.264] Last Packet Send Status: Delivery Success
+[2025-01-21 17:34:45.270] {T:CD1;C:REQ;P:ATTITUDE}
+[2025-01-21 17:34:45.274] Last Packet Send Status: Delivery Success
+[2025-01-21 17:34:45.274] {T:CD1;C:REQ;P:SPEED}
+[2025-01-21 17:34:45.274] {S:CD1;C:RES;P:Unknown command: REQ}
+[2025-01-21 17:34:45.277] {T:CD1;C:REQ;P:MODE}
+[2025-01-21 17:34:45.278] Last Packet Send Status: Delivery Success
+[2025-01-21 17:34:45.280] Last Packet Send Status: Delivery Success
+[2025-01-21 17:34:45.282] {T:CD1;C:REQ;P:ARMED}
+[2025-01-21 17:34:45.285] Last Packet Send Status: Delivery Success
+[2025-01-21 17:34:45.312] {S:CD1;C:RES;P:Unknown command: REQ}
+[2025-01-21 17:34:45.326] {S:CD1;C:RES;P:Unknown command: REQ}
+[2025-01-21 17:34:45.653] {S:CD1;C:HB;P:1}
+[2025-01-21 17:34:45.976] {T:CD1;C:REQ;P:LOC}
+[2025-01-21 17:34:45.994] Last Packet Send Status: Delivery Success
+[2025-01-21 17:34:45.998] {T:CD1;C:REQ;P:GPS}
+[2025-01-21 17:34:46.001] Last Packet Send Status: Delivery Success
+[2025-01-21 17:34:46.012] {S:CD1;C:RES;P:Unknown command: REQ}
+[2025-01-21 17:34:46.059] {T:CD1;C:REQ;P:BATT}
+[2025-01-21 17:34:46.069] Last Packet Send Status: Delivery Success
+[2025-01-21 17:34:46.074] {T:CD1;C:REQ;P:ATTITUDE}
+[2025-01-21 17:34:46.076] Last Packet Send Status: Delivery Success
+[2025-01-21 17:34:46.077] {T:CD1;C:REQ;P:SPEED}
+[2025-01-21 17:34:46.078] Last Packet Send Status: Delivery Success
+[2025-01-21 17:34:46.080] {T:CD1;C:REQ;P:MODE}
+[2025-01-21 17:34:46.081] Last Packet Send Status: Delivery Success
+[2025-01-21 17:34:46.084] {S:CD1;C:RES;P:Unknown command: REQ}
+[2025-01-21 17:34:46.086] {T:CD1;C:REQ;P:ARMED}
+[2025-01-21 17:34:46.087] Last Packet Send Status: Delivery Success
+[2025-01-21 17:34:46.090] {S:CD1;C:RES;P:Unknown command: REQ}
+[2025-01-21 17:34:46.116] {S:CD1;C:RES;P:Unknown command: REQ}
+[2025-01-21 17:34:46.785] {T:CD1;C:REQ;P:LOC}
+[2025-01-21 17:34:46.793] {T:CD1;C:REQ;P:GPS}
+[2025-01-21 17:34:46.797] {T:CD1;C:REQ;P:BATT}
+[2025-01-21 17:34:46.802] {T:CD1;C:REQ;P:ATTITUDE}
+[2025-01-21 17:34:46.806] {T:CD1;C:REQ;P:SPEED}
+[2025-01-21 17:34:46.811] Last Packet Send Status: Delivery Success
+[2025-01-21 17:34:46.812] {T:CD1;C:REQ;P:MODE}
+[2025-01-21 17:34:46.815] Last Packet Send Status: Delivery Success
+[2025-01-21 17:34:46.817] {T:CD1;C:REQ;P:ARMED}
+[2025-01-21 17:34:46.821] Last Packet Send Status: Delivery Success
+[2025-01-21 17:34:46.822] Last Packet Send Status: Delivery Success
+[2025-01-21 17:34:46.828] Last Packet Send Status: Delivery Success
+[2025-01-21 17:34:46.832] Last Packet Send Status: Delivery Success
+[2025-01-21 17:34:46.836] Last Packet Send Status: Delivery Success
+[2025-01-21 17:34:46.837] {S:CD1;C:RES;P:Unknown command: REQ}
+[2025-01-21 17:34:46.847] {S:CD1;C:RES;P:Unknown command: REQ}
+[2025-01-21 17:34:46.863] {S:CD1;C:HB;P:1}
+[2025-01-21 17:34:46.923] {S:CD1;C:RES;P:Unknown command: REQ}
+[2025-01-21 17:34:46.947] {S:CD1;C:RES;P:Unknown command: REQ}
+[2025-01-21 17:34:47.587] {T:CD1;C:REQ;P:LOC}
+[2025-01-21 17:34:47.591] Last Packet Send Status: Delivery Success
+[2025-01-21 17:34:47.593] {T:CD1;C:REQ;P:GPS}
+[2025-01-21 17:34:47.596] Last Packet Send Status: Delivery Success
+[2025-01-21 17:34:47.597] {S:CD1;C:RES;P:Unknown command: REQ}
+[2025-01-21 17:34:47.658] {T:CD1;C:REQ;P:BATT}
+[2025-01-21 17:34:47.668] Last Packet Send Status: Delivery Success
+[2025-01-21 17:34:47.671] {T:CD1;C:REQ;P:ATTITUDE}
+[2025-01-21 17:34:47.678] Last Packet Send Status: Delivery Success
+[2025-01-21 17:34:47.680] {T:CD1;C:REQ;P:SPEED}
+[2025-01-21 17:34:47.681] Last Packet Send Status: Delivery Success
+[2025-01-21 17:34:47.684] {T:CD1;C:REQ;P:MODE}
+[2025-01-21 17:34:47.685] Last Packet Send Status: Delivery Success
+[2025-01-21 17:34:47.686] {S:CD1;C:RES;P:Unknown command: REQ}
+[2025-01-21 17:34:47.687] {T:CD1;C:REQ;P:ARMED}
+[2025-01-21 17:34:47.688] Last Packet Send Status: Delivery Success
+[2025-01-21 17:34:47.696] {S:CD1;C:RES;P:Unknown command: REQ}
+[2025-01-21 17:34:47.698] {S:CD1;C:RES;P:Unknown command: REQ}
+[2025-01-21 17:34:47.729] {S:CD1;C:RES;P:Unknown command: REQ}
+[2025-01-21 17:34:47.878] {S:CD1;C:HB;P:1}
+[2025-01-21 17:34:48.383] {T:CD1;C:REQ;P:LOC}
+[2025-01-21 17:34:48.396] Last Packet Send Status: Delivery Success
+[2025-01-21 17:34:48.398] {T:CD1;C:REQ;P:GPS}
+[2025-01-21 17:34:48.401] Last Packet Send Status: Delivery Success
+[2025-01-21 17:34:48.425] {S:CD1;C:RES;P:Unknown command: REQ}
+[2025-01-21 17:34:48.458] {T:CD1;C:REQ;P:BATT}
+[2025-01-21 17:34:48.463] Last Packet Send Status: Delivery Success
+[2025-01-21 17:34:48.466] {T:CD1;C:REQ;P:ATTITUDE}
+[2025-01-21 17:34:48.469] Last Packet Send Status: Delivery Success
+[2025-01-21 17:34:48.470] {T:CD1;C:REQ;P:SPEED}
+[2025-01-21 17:34:48.472] Last Packet Send Status: Delivery Success
+[2025-01-21 17:34:48.473] {T:CD1;C:REQ;P:MODE}
+[2025-01-21 17:34:48.475] Last Packet Send Status: Delivery Success
+[2025-01-21 17:34:48.479] {T:CD1;C:REQ;P:ARMED}
+[2025-01-21 17:34:48.482] Last Packet Send Status: Delivery Success
+[2025-01-21 17:34:48.482] {S:CD1;C:RES;P:Unknown command: REQ}
+[2025-01-21 17:34:48.482] {S:CD1;C:RES;P:Unknown command: REQ}
+[2025-01-21 17:34:48.504] {S:CD1;C:RES;P:Unknown command: REQ}
+[2025-01-21 17:34:48.528] {S:CD1;C:RES;P:Unknown command: REQ}
+[2025-01-21 17:34:48.912] {S:CD1;C:HB;P:1}
+[2025-01-21 17:34:49.182] {T:CD1;C:REQ;P:LOC}
+[2025-01-21 17:34:49.186] Last Packet Send Status: Delivery Success
+[2025-01-21 17:34:49.189] {T:CD1;C:REQ;P:GPS}
+[2025-01-21 17:34:49.192] Last Packet Send Status: Delivery Success
+[2025-01-21 17:34:49.205] {S:CD1;C:RES;P:Unknown command: REQ}
+[2025-01-21 17:34:49.231] {S:CD1;C:RES;P:Unknown command: REQ}
+[2025-01-21 17:34:49.244] {T:CD1;C:REQ;P:BATT}
+[2025-01-21 17:34:49.253] Last Packet Send Status: Delivery Success
+[2025-01-21 17:34:49.253] {T:CD1;C:REQ;P:ATTITUDE}
+[2025-01-21 17:34:49.264] Last Packet Send Status: Delivery Success
+[2025-01-21 17:34:49.268] {T:CD1;C:REQ;P:SPEED}
+[2025-01-21 17:34:49.272] Last Packet Send Status: Delivery Success
+[2025-01-21 17:34:49.274] {T:CD1;C:REQ;P:MODE}
+[2025-01-21 17:34:49.275] {S:CD1;C:RES;P:Unknown command: REQ}
+[2025-01-21 17:34:49.278] Last Packet Send Status: Delivery Success
+[2025-01-21 17:34:49.281] {T:CD1;C:REQ;P:ARMED}
+[2025-01-21 17:34:49.282] Last Packet Send Status: Delivery Success
+[2025-01-21 17:34:49.285] {S:CD1;C:RES;P:Unknown command: REQ}
+[2025-01-21 17:34:49.300] {S:CD1;C:RES;P:Unknown command: REQ}
+[2025-01-21 17:34:49.924] {S:CD1;C:HB;P:1}
+[2025-01-21 17:34:49.980] {T:CD1;C:REQ;P:LOC}
+[2025-01-21 17:34:49.984] Last Packet Send Status: Delivery Success
+[2025-01-21 17:34:49.986] {T:CD1;C:REQ;P:GPS}
+[2025-01-21 17:34:49.989] Last Packet Send Status: Delivery Success
+[2025-01-21 17:34:49.996] {S:CD1;C:RES;P:Unknown command: REQ}
+[2025-01-21 17:34:50.037] {T:CD1;C:REQ;P:BATT}
+[2025-01-21 17:34:50.041] Last Packet Send Status: Delivery Success
+[2025-01-21 17:34:50.043] {T:CD1;C:REQ;P:ATTITUDE}
+[2025-01-21 17:34:50.044] {T:CD1;C:REQ;P:SPEED}
+[2025-01-21 17:34:50.046] {T:CD1;C:REQ;P:MODE}
+[2025-01-21 17:34:50.048] {T:CD1;C:REQ;P:ARMED}
+[2025-01-21 17:34:50.051] Last Packet Send Status: Delivery Success
+[2025-01-21 17:34:50.055] Last Packet Send Status: Delivery Success
+[2025-01-21 17:34:50.059] Last Packet Send Status: Delivery Success
+[2025-01-21 17:34:50.064] Last Packet Send Status: Delivery Success
+[2025-01-21 17:34:50.065] {S:CD1;C:RES;P:Unknown command: REQ}
+[2025-01-21 17:34:50.177] {S:CD1;C:RES;P:Unknown command: REQ}

@@ -4810,7 +4810,8 @@ class NEDControl {
             'q': false, // Up (-z)
             'e': false, // Down (+z)
             'z': false, // Yaw left
-            'c': false  // Yaw right
+            'c': false,  // Yaw right
+            'b': false  // Servo toggle
         };
         this.isServoOpen = false;
         
@@ -4900,6 +4901,13 @@ class NEDControl {
         
         const key = e.key.toLowerCase();
         
+        // Special handling for servo toggle
+        if (key === 'b') {
+            e.preventDefault();
+            this.toggleServo();
+            return;
+        }
+
         // Handle number keys for drone toggling
         if (this.droneKeys[e.key]) {
             e.preventDefault();
@@ -4920,11 +4928,14 @@ class NEDControl {
         if (!this.isEnabled) return;
         
         const key = e.key.toLowerCase();
+        // Don't process 'b' key in keyup since it's handled in keydown
+        if (key === 'b') return;
+        
         if (this.keyStates.hasOwnProperty(key)) {
             e.preventDefault();
             this.keyStates[key] = false;
             this.updateVelocities();
-            this.sendVelocityCommands(); // Send final command (will be zeros if no keys are pressed)
+            this.sendVelocityCommands();
         }
     }
     
@@ -4981,8 +4992,8 @@ class NEDControl {
     }
 
     toggleServo() {
-        if (!this.isEnabled || this.activeTargets.size === 0) {
-            customAlert.error('Enable NED control and select drones first');
+        if (!this.isEnabled) {
+            customAlert.error('Enable NED control first');
             return;
         }
 
@@ -4994,10 +5005,8 @@ class NEDControl {
             servoToggle.classList.toggle('active', this.isServoOpen);
         }
 
-        // Send servo command to all active drones
-        this.activeTargets.forEach(target => {
-            send_command(target, 'SERVO', this.isServoOpen ? 'OPEN' : 'CLOSE');
-        });
+        // Send servo command specifically to CD5
+        send_command('CD5', 'SERVO', this.isServoOpen ? 'OPEN' : 'CLOSE');
     }
 }
 

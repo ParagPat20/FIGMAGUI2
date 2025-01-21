@@ -2,6 +2,7 @@
 #include <WiFi.h>
 #include <ArduinoJson.h>
 #include <Adafruit_NeoPixel.h>
+#include <ESP32Servo.h>  // Include the Servo library
 
 // Define LED strip parameters
 #define LED_PIN 32
@@ -71,6 +72,16 @@ struct CommandPacket {
   String C;  // Command type (e.g., "ARM", "LAUNCH")
   String P;  // Actual payload data
 };
+
+// Create a Servo object
+Servo myServo;
+
+// Define the pin connected to the servo signal
+const int servoPin = 18;
+
+// Servo position variables
+int pos = 0; // Position in degrees
+int stepDelay = 20; // Delay between steps in milliseconds
 
 // Function to get target MAC address
 uint8_t *getTargetMAC(const String &target) {
@@ -325,6 +336,11 @@ void setup() {
   strip.setBrightness(128);  // Set to 50% brightness for better visibility
   strip.show();
 
+  // Attach the servo object to the servo pin
+  myServo.attach(servoPin);
+  myServo.write(40); // Start with the servo open
+  delay(500); // Allow time for the servo to move
+
   if (esp_now_init() != ESP_OK) {
     Serial.println("Error initializing ESP-NOW");
     return;
@@ -343,7 +359,6 @@ void setup() {
 
   // Start rainbow effect
   isRainbowActive = true;
-  
 }
 
 void loop() {
@@ -411,6 +426,9 @@ void OnDataRecv(const uint8_t *mac, const uint8_t *incomingData, int len) {
     setSolidColorTemporary(strip.Color(0, 0, 255));  // Blue for LAUNCH
   } else if (packet.C == "DISARM") {
     setSolidColorTemporary(strip.Color(255, 255, 0));  // Yellow for DISARM
+  } else if (packet.C == "SERVO") {  // Handle servo commands
+    myServo.write(packet.P == "CLOSE" ? 115 : 40);  // Directly set position based on command
+    delay(stepDelay);
   } else if (packet.C == "NED") {
     // Set first 10 and last 10 LEDs to Orange for NED temporarily
     uint32_t color = strip.Color(255, 165, 0);  // Orange
