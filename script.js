@@ -791,10 +791,504 @@ function handleMenuClick(e) {
         case 'menu-help':
             showHelp();
             break;
+        case 'menu-mtl':
+            showMTL();
+            break;
     }
 }
 
+// Update showMTL function to create a popup
+function showMTL() {
+    // Create MTL interface if it doesn't exist
+    let mtlInterface = document.querySelector('.mtl-popup');
+    if (!mtlInterface) {
+        mtlInterface = document.createElement('div');
+        mtlInterface.className = 'mtl-popup';
+        mtlInterface.innerHTML = `
+            <div class="mtl-content">
+                <div class="mtl-header">
+                    <h2>Mission Text Loader</h2>
+                    <div class="mtl-controls">
+                        <button class="load-txt-btn">Load File</button>
+                        <button class="save-txt-btn">Save File</button>
+                        <button class="new-txt-btn">New File</button>
+                        <button class="close-mtl">&times;</button>
+                    </div>
+                </div>
+                <div class="mtl-editor">
+                    <div class="file-list">
+                        <h3>Files</h3>
+                        <div class="txt-files"></div>
+                    </div>
+                    <div class="editor-area">
+                        <textarea class="txt-editor" placeholder="Enter commands here..."></textarea>
+                        <div class="editor-controls">
+                            <button class="execute-btn">Execute</button>
+                            <div class="execution-controls">
+                                <label>Delay (ms):</label>
+                                <input type="number" class="delay-input" value="500" min="100" max="5000" step="100">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        `;
+        
+        document.body.appendChild(mtlInterface);
+        
+        // Add close button handler
+        const closeBtn = mtlInterface.querySelector('.close-mtl');
+        closeBtn.addEventListener('click', () => {
+            mtlInterface.style.display = 'none';
+        });
+        
+        // Make popup draggable
+        const header = mtlInterface.querySelector('.mtl-header');
+        makeDraggable(mtlInterface, header);
+        
+        initializeMTLHandlers(mtlInterface);
+    }
+    
+    mtlInterface.style.display = 'block';
+}
 
+// Add draggable functionality
+function makeDraggable(element, handle) {
+    let pos1 = 0, pos2 = 0, pos3 = 0, pos4 = 0;
+    
+    handle.style.cursor = 'move';
+    handle.onmousedown = dragMouseDown;
+    
+    function dragMouseDown(e) {
+        e.preventDefault();
+        // Get mouse position at startup
+        pos3 = e.clientX;
+        pos4 = e.clientY;
+        document.onmouseup = closeDragElement;
+        document.onmousemove = elementDrag;
+        
+        // Add dragging class
+        element.classList.add('dragging');
+    }
+    
+    function elementDrag(e) {
+        e.preventDefault();
+        // Calculate new position
+        pos1 = pos3 - e.clientX;
+        pos2 = pos4 - e.clientY;
+        pos3 = e.clientX;
+        pos4 = e.clientY;
+        // Set element's new position
+        element.style.top = (element.offsetTop - pos2) + "px";
+        element.style.left = (element.offsetLeft - pos1) + "px";
+    }
+    
+    function closeDragElement() {
+        // Stop moving when mouse button is released
+        document.onmouseup = null;
+        document.onmousemove = null;
+        element.classList.remove('dragging');
+    }
+}
+
+// Update MTL popup HTML structure and styling
+const mtlPopupStyle = document.createElement('style');
+mtlPopupStyle.textContent = `
+    .mtl-popup {
+        position: fixed;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        width: 900px;
+        height: 600px;
+        background: linear-gradient(135deg, var(--darker-blue) 0%, var(--dark-blue) 100%);
+        border-radius: 16px;
+        box-shadow: 0 8px 32px rgba(0, 0, 0, 0.5);
+        z-index: 1000;
+        display: none;
+        border: 1px solid rgba(112, 193, 114, 0.3);
+        overflow: hidden;
+    }
+    
+    .mtl-popup.dragging {
+        user-select: none;
+        opacity: 0.95;
+        box-shadow: 0 12px 48px rgba(0, 0, 0, 0.6);
+        transition: box-shadow 0.3s ease;
+    }
+    
+    .mtl-header {
+        padding: 20px;
+        background: rgba(0, 0, 0, 0.2);
+        border-bottom: 1px solid rgba(112, 193, 114, 0.2);
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+    
+    .mtl-header h2 {
+        color: #70c172;
+        font-family: IBM Plex Mono, monospace;
+        font-size: 22px;
+        margin: 0;
+        text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+    }
+    
+    .mtl-controls {
+        display: flex;
+        gap: 12px;
+        align-items: center;
+    }
+    
+    .mtl-controls button {
+        padding: 8px 16px;
+        border-radius: 6px;
+        font-family: IBM Plex Mono, monospace;
+        font-size: 14px;
+        cursor: pointer;
+        transition: all 0.2s ease;
+        display: flex;
+        align-items: center;
+        gap: 6px;
+    }
+    
+    .mtl-controls button:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+    }
+    
+    .load-txt-btn::before { content: "📂"; }
+    .save-txt-btn::before { content: "💾"; }
+    .new-txt-btn::before { content: "📄"; }
+    
+    .load-txt-btn, .save-txt-btn, .new-txt-btn {
+        background: rgba(28, 43, 64, 0.8);
+        border: 1px solid rgba(112, 193, 114, 0.3);
+        color: #ffffff;
+    }
+    
+    .close-mtl {
+        background: rgba(240, 81, 81, 0.1);
+        border: none;
+        color: #f05151;
+        font-size: 24px;
+        width: 36px;
+        height: 36px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        transition: all 0.2s ease;
+        margin-left: 12px;
+    }
+    
+    .close-mtl:hover {
+        background: rgba(240, 81, 81, 0.2);
+        transform: rotate(90deg);
+    }
+    
+    .mtl-editor {
+        display: flex;
+        gap: 20px;
+        padding: 20px;
+        height: 485px;
+    }
+    
+    .file-list {
+        width: 220px;
+        background: rgba(0, 0, 0, 0.2);
+        border-radius: 12px;
+        padding: 16px;
+    }
+    
+    .file-list h3 {
+        color: #70c172;
+        margin: 0 0 16px 0;
+        font-family: IBM Plex Mono, monospace;
+        font-size: 16px;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+    }
+    
+    .file-list h3::before {
+        content: "📁";
+    }
+    
+    .editor-area {
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+        gap: 16px;
+    }
+    
+    .txt-editor {
+        flex: 1;
+        background: rgba(0, 0, 0, 0.2);
+        border: 1px solid rgba(112, 193, 114, 0.2);
+        border-radius: 12px;
+        padding: 16px;
+        color: #ffffff;
+        font-family: IBM Plex Mono, monospace;
+        font-size: 14px;
+        line-height: 1.5;
+        resize: none;
+    }
+    
+    .txt-editor:focus {
+        outline: none;
+        border-color: #70c172;
+        box-shadow: 0 0 0 2px rgba(112, 193, 114, 0.1);
+    }
+    
+    .editor-controls {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        background: rgba(0, 0, 0, 0.2);
+        padding: 12px;
+        border-radius: 12px;
+    }
+    
+    .execute-btn {
+        padding: 10px 24px;
+        background: linear-gradient(135deg, #70c172 0%, #4e8d50 100%);
+        border: none;
+        border-radius: 6px;
+        color: #ffffff;
+        font-family: IBM Plex Mono, monospace;
+        font-size: 14px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.2s ease;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+    }
+    
+    .execute-btn::before {
+        content: "▶️";
+    }
+    
+    .execute-btn:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(112, 193, 114, 0.3);
+    }
+    
+    .execute-btn:disabled {
+        opacity: 0.6;
+        cursor: not-allowed;
+        transform: none;
+    }
+    
+    .execution-controls {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        background: rgba(28, 43, 64, 0.6);
+        padding: 8px 16px;
+        border-radius: 6px;
+    }
+    
+    .execution-controls label {
+        color: #95bdf8;
+        font-family: IBM Plex Mono, monospace;
+        font-size: 14px;
+    }
+    
+    .delay-input {
+        width: 90px;
+        background: rgba(0, 0, 0, 0.2);
+        border: 1px solid rgba(112, 193, 114, 0.3);
+        border-radius: 4px;
+        padding: 6px 10px;
+        color: #70c172;
+        font-family: IBM Plex Mono, monospace;
+        text-align: center;
+    }
+    
+    .delay-input:focus {
+        outline: none;
+        border-color: #70c172;
+    }
+    
+    /* Add highlight for current command during execution */
+    .txt-editor.executing {
+        background: rgba(112, 193, 114, 0.05);
+    }
+    
+    .txt-editor::selection {
+        background: rgba(112, 193, 114, 0.3);
+        color: #ffffff;
+    }
+    
+    .terminal-line.executing {
+        color: #ffab49;
+        background: rgba(255, 171, 73, 0.1);
+        border-left: 2px solid #ffab49;
+        padding-left: 8px;
+        animation: pulse 1s infinite;
+    }
+    
+    .terminal-line.executed {
+        color: #70c172;
+        border-left: 2px solid #70c172;
+        padding-left: 8px;
+    }
+    
+    @keyframes pulse {
+        0% { opacity: 1; }
+        50% { opacity: 0.7; }
+        100% { opacity: 1; }
+    }
+    
+    .esp-terminal-content {
+        max-height: calc(100% - 40px);
+        overflow-y: auto;
+        padding: 10px;
+    }
+    
+    .esp-terminal-content::-webkit-scrollbar {
+        width: 6px;
+    }
+    
+    .esp-terminal-content::-webkit-scrollbar-track {
+        background: rgba(0, 0, 0, 0.1);
+    }
+    
+    .esp-terminal-content::-webkit-scrollbar-thumb {
+        background: rgba(255, 171, 73, 0.3);
+        border-radius: 3px;
+    }
+`;
+
+document.head.appendChild(mtlPopupStyle);
+
+function initializeMTLHandlers(mtlInterface) {
+    const loadBtn = mtlInterface.querySelector('.load-txt-btn');
+    const saveBtn = mtlInterface.querySelector('.save-txt-btn');
+    const newBtn = mtlInterface.querySelector('.new-txt-btn');
+    const executeBtn = mtlInterface.querySelector('.execute-btn');
+    const editor = mtlInterface.querySelector('.txt-editor');
+    const delayInput = mtlInterface.querySelector('.delay-input');
+    
+    // Create hidden file input
+    const fileInput = document.createElement('input');
+    fileInput.type = 'file';
+    fileInput.accept = '.txt';
+    fileInput.style.display = 'none';
+    mtlInterface.appendChild(fileInput);
+    
+    // Load file handler
+    loadBtn.addEventListener('click', () => {
+        fileInput.click();
+    });
+    
+    fileInput.addEventListener('change', (e) => {
+        const file = e.target.files[0];
+        if (!file) return;
+        
+        const reader = new FileReader();
+        reader.onload = (event) => {
+            editor.value = event.target.result;
+            customAlert.success('File loaded successfully');
+        };
+        reader.onerror = () => {
+            customAlert.error('Error reading file');
+        };
+        reader.readAsText(file);
+    });
+    
+    // Save file handler
+    saveBtn.addEventListener('click', () => {
+        const content = editor.value;
+        const blob = new Blob([content], { type: 'text/plain' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = 'mission.txt';
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        URL.revokeObjectURL(url);
+        customAlert.success('File saved successfully');
+    });
+    
+    // New file handler
+    newBtn.addEventListener('click', () => {
+        if (editor.value && !confirm('Discard current changes?')) {
+            return;
+        }
+        editor.value = '';
+        customAlert.info('New file created');
+    });
+    
+    // Execute handler
+    executeBtn.addEventListener('click', async () => {
+        const commands = editor.value.split('\n')
+            .map(line => line.trim())
+            .filter(line => line && !line.startsWith('#'));
+            
+        if (commands.length === 0) {
+            customAlert.error('No valid commands found');
+            return;
+        }
+        
+        const delay = parseInt(delayInput.value) || 500;
+        executeBtn.disabled = true;
+        editor.classList.add('executing');
+        
+        try {
+            const espTerminal = document.querySelector('.esp-terminal-content');
+            
+            for (let i = 0; i < commands.length; i++) {
+                const command = commands[i];
+                
+                // Update editor to highlight current command
+                const lines = editor.value.split('\n');
+                const startPos = lines.slice(0, i).join('\n').length + (i > 0 ? 1 : 0);
+                const endPos = startPos + command.length;
+                
+                editor.setSelectionRange(startPos, endPos);
+                editor.focus();
+                
+                // Add command to ESP terminal
+                if (espTerminal) {
+                    const terminalLine = document.createElement('div');
+                    terminalLine.className = 'terminal-line executing';
+                    terminalLine.textContent = `> ${command}`;
+                    espTerminal.appendChild(terminalLine);
+                    espTerminal.scrollTop = espTerminal.scrollHeight;
+                    
+                    // Add execution status after delay
+                    await new Promise(resolve => setTimeout(resolve, delay));
+                    terminalLine.classList.remove('executing');
+                    terminalLine.classList.add('executed');
+                }
+                
+                // Send command through serial connection
+                const serialInput = document.querySelector('.serial-input');
+                const serialSend = document.querySelector('.serial-send');
+                
+                if (serialInput && serialSend) {
+                    serialInput.value = command;
+                    serialSend.click();
+                }
+                
+                // Show progress
+                customAlert.info(`Executing command ${i + 1} of ${commands.length}`);
+            }
+            
+            customAlert.success('Execution completed');
+        } catch (error) {
+            customAlert.error('Error during execution: ' + error.message);
+        } finally {
+            executeBtn.disabled = false;
+            editor.classList.remove('executing');
+            editor.setSelectionRange(0, 0);
+        }
+    });
+}
 
 function updateFormation() {
     // Implementation for updating drone formation
@@ -4549,4 +5043,43 @@ const additionalStyles = `
 
 // Update the existing style element's content
 style.textContent += additionalStyles;
+
+// Add MTL menu item after missions
+function addMTLMenuItem() {
+    const sidebarMenu = document.querySelector('.sidebar-menu');
+    const missionsButton = document.getElementById('menu-missions');
+    
+    // Create MTL menu item
+    const mtlButton = document.createElement('button');
+    mtlButton.className = 'menu-item';
+    mtlButton.id = 'menu-mtl';
+    mtlButton.innerHTML = `
+        <div class="menu-icon">
+            <img src="./assets/images/missions-icon.png" alt="MTL" />
+        </div>
+        <span class="menu-text">MTL</span>
+    `;
+    
+    // Insert MTL button after missions button
+    missionsButton.parentNode.insertBefore(mtlButton, missionsButton.nextSibling);
+    
+    // Add click handler
+    mtlButton.addEventListener('click', () => {
+        // Remove active class from all menu items
+        document.querySelectorAll('.menu-item').forEach(item => {
+            item.classList.remove('active');
+        });
+        
+        // Add active class to MTL button
+        mtlButton.classList.add('active');
+        
+        // Show MTL interface
+        showMTL();
+    });
+}
+
+// Initialize MTL menu when DOM is loaded
+document.addEventListener('DOMContentLoaded', () => {
+    addMTLMenuItem();
+});
 

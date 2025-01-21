@@ -1624,7 +1624,7 @@ button:disabled {
 .serial-frame {
   position: absolute;
   bottom: 157px;
-  right: 1216px;
+  right: 1010px;
   width: 300px;
   height: 40px;
   background: var(--dark-blue-gradient);
@@ -2833,8 +2833,8 @@ button:disabled {
 
 .esp-terminal {
   position: absolute;
-  bottom: 620px;
-  left: 0px;
+  bottom: 200px;
+  left: 229px;
   width: 300px;
   height: 150px;
   background: linear-gradient(135deg, rgba(5, 11, 21, 0.95) 0%, rgba(9, 25, 48, 0.95) 100%);
