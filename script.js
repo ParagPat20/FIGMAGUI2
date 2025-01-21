@@ -112,7 +112,7 @@ function initializeEventListeners() {
 
     launchAllBtn?.addEventListener('click', () => {
         droneManager.drones.forEach((drone, droneId) => {
-            const defaultAltitude = '2'; // Default altitude value
+            const defaultAltitude = '5'; // Default altitude value
             send_command(droneId, 'LAUNCH', defaultAltitude);
             console.log(`LAUNCH command sent for ${droneId} with altitude ${defaultAltitude}`);
         });
@@ -1716,7 +1716,7 @@ class DroneCard {
 
     handleLaunch(droneId) {
         const altitudeInput = this.element.querySelector('.altitude-input');
-        const altitude = altitudeInput ? altitudeInput.value : '2'; // Default to 2 if no value is entered
+        const altitude = altitudeInput ? altitudeInput.value : '5'; // Default to 2 if no value is entered
         send_command(droneId, 'LAUNCH', altitude);
         console.log(`LAUNCH command sent for ${droneId} with altitude ${altitude}`);
     }
