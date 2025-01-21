@@ -161,6 +161,7 @@
                     <button class="drone-toggle" data-drone="CD2">CD2: OFF</button>
                     <button class="drone-toggle" data-drone="CD3">CD3: OFF</button>
                     <button class="drone-toggle" data-drone="CD4">CD4: OFF</button>
+                    <button class="drone-toggle" data-drone="CD5">CD5: OFF</button>
                 </div>
                 <button class="servo-toggle">SERVO: CLOSED</button>
                 <div class="ned-info">Controls: W/S: ±X, A/D: ±Y, Q/E: ±Z</div>
@@ -182,130 +183,107 @@
           </div>
           
           <div class="mission-planner-body">
-            <!-- Top section with two frames -->
-            <div class="top-section">
-              <!-- Left frame - Map -->
-              <div class="mission-views">
-                <div class="view-controls">
-                  <button class="view-toggle active" data-view="2d">2D View</button>
-                  <button class="view-toggle" data-view="3d">3D View</button>
+            <div class="mission-planner-left">
+              <!-- Top Left Section -->
+              <div class="top-left-section">
+                <div class="mission-views">
+                  <div class="view-controls">
+                    <button class="view-toggle active" data-view="2d">2D View</button>
+                    <button class="view-toggle" data-view="3d">3D View</button>
+                  </div>
+                  <div class="view-container">
+                    <canvas id="mission-canvas-2d" class="active"></canvas>
+                    <canvas id="mission-canvas-3d"></canvas>
+                  </div>
                 </div>
-                <div class="view-container">
-                  <canvas id="mission-canvas-2d" class="active"></canvas>
-                  <canvas id="mission-canvas-3d"></canvas>
-                </div>
-              </div>
-
-              <!-- Right frame - Controls -->
-              <div class="mission-controls">
                 <div class="available-drones">
-                  <h3>Available Drones</h3>
                   <div class="drone-list"></div>
                 </div>
-                
-                <div class="waypoint-settings">
-                  <h3>Waypoint Settings</h3>
-                  <div class="waypoint-inputs">
-                    <div class="input-group">
-                      <label>X Position (m)</label>
-                      <input type="number" id="wp-x" step="0.1">
-                    </div>
-                    <div class="input-group">
-                      <label>Y Position (m)</label>
-                      <input type="number" id="wp-y" step="0.1">
-                    </div>
-                    <div class="input-group">
-                      <label>Altitude (m)</label>
-                      <input type="number" id="wp-alt" min="0" step="0.1">
-                    </div>
-                  </div>
-                  
-                  <div class="keyboard-control-section">
-                    <button class="keyboard-control-toggle" id="keyboard-control-toggle">
-                      Keyboard Control: OFF
-                    </button>
-                    <div class="keyboard-control-info">
-                      Controls: W/S: ±Y, A/D: ±X, U/J: ±Z
-                    </div>
-                  </div>
-
-                  <div class="custom-command-settings">
-                    <h3>Custom Commands</h3>
-                    <div class="command-inputs">
-                      <div class="input-group">
-                        <label>Command</label>
-                        <select id="custom-command">
-                          <option value="">Select Command</option>
-                          <option value="FLIP">FLIP</option>
-                          <option value="LAND">LAND</option>
-                          <option value="LIGHT">LIGHT</option>
-                        </select>
-                      </div>
-                      <div class="input-group" id="light-color-picker" style="display: none;">
-                        <label>Light Color</label>
-                        <input type="color" id="light-color" value="#ff0000">
-                        <div class="light-effects">
-                          <button class="light-effect-btn" id="rainbow-effect">Rainbow</button>
-                          <button class="light-effect-btn" id="chase-effect">Chase</button>
-                        </div>
-                      </div>
-                      <button class="add-command" id="add-command">Add Command</button>
-                    </div>
-                    <div class="command-list">
-                      <!-- Commands will be listed here -->
-                    </div>
-                  </div>
-
-                  <div class="keyframe-controls">
-                    <button class="add-keyframe" id="add-keyframe">Add Keyframe</button>
-                  </div>
-                </div>
-
-                <div class="playback-controls">
-                  <h3>Mission Playback</h3>
-                  <div class="playback-buttons">
-                    <button class="play-mission" id="play-mission">Play</button>
-                    <button class="stop-mission" id="stop-mission">Stop</button>
-                  </div>
-                  <div class="input-group">
-                    <label>Playback Speed (ms)</label>
-                    <input type="number" id="playback-speed" min="100" max="5000" step="100" value="1000">
-                  </div>
-                  <div class="keyframe-timeline">
-                    <input type="range" id="keyframe-slider" min="0" max="0" value="0">
-                    <span class="keyframe-counter" id="keyframe-counter">0 / 0</span>
-                  </div>
+              </div>
+              
+              <!-- Bottom Left Section -->
+              <div class="keyframe-section">
+                <div class="keyframe-list"></div>
+                <div class="keyframe-controls">
+                  <input type="range" class="keyframe-slider" min="0" max="100" value="0">
+                  <div class="keyframe-counter">Frame: 0/0</div>
                 </div>
               </div>
             </div>
 
-            <!-- Bottom section - Keyframes -->
-            <div class="keyframe-section">
-              <div class="keyframe-list">
-                <div class="frame-header">
-                    <span class="frame-title">Frame <span class="frame-number">1</span></span>
-                    <div class="frame-actions">
-                        <button class="frame-btn edit-frame">
-                            <i class="fas fa-edit"></i> Edit
-                        </button>
-                        <button class="frame-btn delete-frame">
-                            <i class="fas fa-trash"></i> Delete
-                        </button>
-                    </div>
+            <!-- Right Section -->
+            <div class="mission-controls">
+              <div class="waypoint-settings">
+                <h3>Waypoint Settings</h3>
+                <div class="waypoint-inputs">
+                  <div class="input-group">
+                    <label>X Position (m)</label>
+                    <input type="number" id="wp-x" step="0.1">
+                  </div>
+                  <div class="input-group">
+                    <label>Y Position (m)</label>
+                    <input type="number" id="wp-y" step="0.1">
+                  </div>
+                  <div class="input-group">
+                    <label>Altitude (m)</label>
+                    <input type="number" id="wp-alt" min="0" step="0.1">
+                  </div>
                 </div>
-                <div class="drone-positions">
-                    <div class="drone-position">
-                        <span class="drone-id">MCU</span>
-                        <span class="position">X: 0.0, Y: 0.0, Z: 2.0</span>
-                        <span class="heading">H: 0°</span>
-                        <button class="edit-drone">Edit</button>
-                    </div>
+                
+                <div class="keyboard-control-section">
+                  <button class="keyboard-control-toggle" id="keyboard-control-toggle">
+                    Keyboard Control: OFF
+                  </button>
+                  <div class="keyboard-control-info">
+                    Controls: W/S: ±Y, A/D: ±X, U/J: ±Z
+                  </div>
                 </div>
-                <div class="frame-delay-container">
-                    <div class="delay-input-container">
-                        <input type="number" class="delay-input" value="1000" min="100" max="100000" step="100">
-                        <span class="delay-unit">ms</span>
+
+                <div class="custom-command-settings">
+                  <h3>Custom Commands</h3>
+                  <div class="command-inputs">
+                    <div class="input-group">
+                      <label>Command</label>
+                      <select id="custom-command">
+                        <option value="">Select Command</option>
+                        <option value="FLIP">FLIP</option>
+                        <option value="LAND">LAND</option>
+                        <option value="LIGHT">LIGHT</option>
+                      </select>
                     </div>
+                    <div class="input-group" id="light-color-picker" style="display: none;">
+                      <label>Light Color</label>
+                      <input type="color" id="light-color" value="#ff0000">
+                      <div class="light-effects">
+                        <button class="light-effect-btn" id="rainbow-effect">Rainbow</button>
+                        <button class="light-effect-btn" id="chase-effect">Chase</button>
+                      </div>
+                    </div>
+                    <button class="add-command" id="add-command">Add Command</button>
+                  </div>
+                  <div class="command-list">
+                    <!-- Commands will be listed here -->
+                  </div>
+                </div>
+
+                <div class="keyframe-controls">
+                  <button class="add-keyframe" id="add-keyframe">Add Keyframe</button>
+                </div>
+              </div>
+
+              <div class="playback-controls">
+                <h3>Mission Playback</h3>
+                <div class="playback-buttons">
+                  <button class="play-mission" id="play-mission">Play</button>
+                  <button class="stop-mission" id="stop-mission">Stop</button>
+                </div>
+                <div class="input-group">
+                  <label>Playback Speed (ms)</label>
+                  <input type="number" id="playback-speed" min="100" max="5000" step="100" value="1000">
+                </div>
+                <div class="keyframe-timeline">
+                  <input type="range" id="keyframe-slider" min="0" max="0" value="0">
+                  <span class="keyframe-counter" id="keyframe-counter">0 / 0</span>
                 </div>
               </div>
             </div>

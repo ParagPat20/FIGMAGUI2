@@ -1819,7 +1819,7 @@ class MissionPlanner {
         this.pixelsPerMeter = 10; // Scale for 2D view
         
         // Drone settings
-        this.defaultDrones = ['MCU', 'CD1', 'CD2', 'CD3', 'CD4'];
+        this.defaultDrones = ['MCU', 'CD1', 'CD2', 'CD3', 'CD4', 'CD5'];
         this.droneModels = new Map(); // For 3D models
         this.droneMarkers = new Map(); // For 2D markers
         
@@ -2417,7 +2417,8 @@ class MissionPlanner {
             'CD1': '#2c7bf2', // Blue
             'CD2': '#f05151', // Red
             'CD3': '#ffab49', // Orange
-            'CD4': '#9c27b0'  // Purple
+            'CD4': '#9c27b0', // Purple
+            'CD5': '#00bcd4'  // Cyan
         };
         return colors[droneId] || '#ffffff';
     }
@@ -4322,7 +4323,7 @@ class SetupMenu {
         this.setupList = document.querySelector('.drone-setup-list');
         this.closeButton = document.getElementById('close-setup');
         this.ipPortDialog = document.querySelector('.ip-port-dialog');
-        this.defaultDrones = ['MCU', 'CD1', 'CD2', 'CD3', 'CD4'];
+        this.defaultDrones = ['MCU', 'CD1', 'CD2', 'CD3', 'CD4','CD5'];
         this.currentDrone = null;
         
         this.initialize();

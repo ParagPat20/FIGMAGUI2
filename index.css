@@ -1008,6 +1008,8 @@ button {
 .drone-toggles {
     display: flex;
     gap: 8px;
+    /* Update to fit 6 drones */
+    min-width: 420px; /* Adjust if needed */
 }
 
 .drone-toggle {
@@ -1741,14 +1743,24 @@ button:disabled {
 
 .drone-cards-container {
     display: grid;
-    grid-template-columns: repeat(3, 1fr);
-    gap: 15px;
-    padding: 15px;
-    max-height: calc(100vh - 50px); /* Adjust based on your layout */
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 20px;
+    padding: 20px;
+    max-height: calc(100vh - 100px);
     overflow-y: auto;
-    background: transparent;
-    scrollbar-width: thin;
-    scrollbar-color: rgba(149, 189, 248, 0.3) transparent;
+}
+
+/* Add specific style for CD5 card */
+.drone-card[data-drone-id="CD5"] .drone-header {
+    border-color: #00bcd4;
+}
+
+.drone-card[data-drone-id="CD5"] .setup-btn:hover {
+    background: rgba(0, 188, 212, 0.1);
+}
+
+.drone-card[data-drone-id="CD5"] .connect-btn.connected {
+    background: #00bcd4;
 }
 
 /* Custom scrollbar styling */
@@ -2368,35 +2380,123 @@ button:disabled {
 }
 
 .mission-planner-body {
+    display: flex;
+    gap: 20px;
+    padding: 20px;
+    height: calc(100vh - 100px);
+}
+
+.mission-planner-left {
     flex: 1;
     display: flex;
     flex-direction: column;
-    min-height: 0;
-    padding: 20px;
     gap: 20px;
 }
 
-/* Top section with two frames */
-.top-section {
+.top-left-section {
+    flex: 2;
     display: flex;
     gap: 20px;
-    flex: 1;
-    min-height: 0;
 }
 
-/* Left frame - Map */
 .mission-views {
-    flex: 1;
+    flex: 3;
     display: flex;
     flex-direction: column;
     gap: 10px;
     background: rgba(0, 0, 0, 0.2);
     border-radius: 8px;
     padding: 15px;
-    min-height: 0;
 }
 
-/* Right frame - Controls */
+.view-container {
+    flex: 1;
+    position: relative;
+    background: rgba(0, 0, 0, 0.3);
+    border-radius: 6px;
+    overflow: hidden;
+}
+
+.available-drones {
+    flex: 1;
+    background: rgba(0, 0, 0, 0.2);
+    border-radius: 8px;
+    padding: 15px;
+    overflow-y: auto;
+}
+
+.keyframe-section {
+    flex: 1;
+    background: rgba(0, 0, 0, 0.2);
+    border-radius: 8px;
+    padding: 15px;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    min-height: 200px; /* Set minimum height */
+}
+
+.keyframe-list {
+    display: flex;
+    flex-direction: row; /* Change to row for horizontal layout */
+    gap: 15px;
+    overflow-x: auto; /* Enable horizontal scrolling */
+    padding: 10px 5px;
+    min-height: 150px;
+}
+
+/* Style for individual keyframe containers */
+.keyframe-container {
+    min-width: 200px; /* Fixed width for each frame */
+    max-width: 200px;
+    background: rgba(28, 43, 64, 0.8);
+    border: 1px solid rgba(112, 193, 114, 0.2);
+    border-radius: 8px;
+    padding: 12px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+/* Custom scrollbar for horizontal scroll */
+.keyframe-list::-webkit-scrollbar {
+    height: 8px;
+}
+
+.keyframe-list::-webkit-scrollbar-track {
+    background: rgba(0, 0, 0, 0.2);
+    border-radius: 4px;
+}
+
+.keyframe-list::-webkit-scrollbar-thumb {
+    background: rgba(112, 193, 114, 0.3);
+    border-radius: 4px;
+}
+
+.keyframe-list::-webkit-scrollbar-thumb:hover {
+    background: rgba(112, 193, 114, 0.5);
+}
+
+/* Keyframe controls at the bottom */
+.keyframe-controls {
+    display: flex;
+    gap: 10px;
+    padding: 10px 0;
+}
+
+.keyframe-slider {
+    flex: 1;
+    height: 4px;
+    background: rgba(112, 193, 114, 0.2);
+    border-radius: 2px;
+    cursor: pointer;
+}
+
+.keyframe-counter {
+    color: #ffffff;
+    font-size: 12px;
+    font-family: 'IBM Plex Mono', monospace;
+}
+
 .mission-controls {
     width: 300px;
     display: flex;
@@ -2408,322 +2508,34 @@ button:disabled {
     overflow-y: auto;
 }
 
-/* Bottom frame - Keyframes */
-.keyframe-section {
-    height: 250px;
-    background: rgba(0, 0, 0, 0.2);
-    border-radius: 12px;
-    padding: 15px;
-    border: 1px solid rgba(112, 193, 114, 0.1);
-}
-
-.keyframe-list {
-    display: flex;
-    gap: 15px;
-    overflow-x: auto;
+/* Canvas styles */
+#mission-canvas-2d,
+#mission-canvas-3d {
+    width: 100%;
     height: 100%;
-    padding: 5px 5px 15px 5px;
-    scrollbar-width: thin;
-    scrollbar-color: rgba(112, 193, 114, 0.3) transparent;
 }
 
-.keyframe-list::-webkit-scrollbar {
-    height: 8px;
-}
-
-.keyframe-list::-webkit-scrollbar-track {
-    background: transparent;
-}
-
-.keyframe-list::-webkit-scrollbar-thumb {
-    background-color: rgba(112, 193, 114, 0.3);
-    border-radius: 4px;
-}
-
-.keyframe-list::-webkit-scrollbar-thumb:hover {
-    background-color: rgba(112, 193, 114, 0.5);
-}
-
-/* Keyframe container */
-.keyframe-container {
-    min-width: 280px;
-    max-width: 280px;
-    background: linear-gradient(135deg, rgba(28, 43, 64, 0.8) 0%, rgba(9, 25, 48, 0.9) 100%);
-    border-radius: 10px;
-    padding: 12px;
-    cursor: pointer;
-    transition: all 0.3s ease;
-    border: 1px solid rgba(112, 193, 114, 0.2);
-    margin-bottom: 10px;
-    position: relative;
-}
-
-.frame-delay-container {
-    height: 30px;
-    margin: 0 auto 10px;
+/* View controls styles */
+.view-controls {
     display: flex;
-    align-items: center;
-    justify-content: center;
-    position: relative;
+    gap: 10px;
+    margin-bottom: 10px;
 }
 
-
-.delay-input-container {
-    position: relative;
-    background: rgba(9, 25, 48, 0.8);
+.view-toggle {
+    padding: 8px 16px;
+    background: #1c2b40;
     border: 1px solid rgba(112, 193, 114, 0.3);
     border-radius: 4px;
-    padding: 4px 8px;
-    display: flex;
-    align-items: center;
-    gap: 4px;
-    z-index: 2;
-}
-
-.delay-input {
-    width: 60px;
-    background: none;
-    border: none;
-    color: #ffffff;
-    font-family: 'IBM Plex Mono', monospace;
-    font-size: 12px;
-    text-align: right;
-    padding: 2px;
-}
-
-.delay-input:focus {
-    outline: none;
-}
-
-.delay-unit {
-    color: rgba(255, 255, 255, 0.7);
-    font-size: 12px;
-}
-
-/* Adjust keyframe list spacing to account for delay containers */
-.keyframe-list {
-    padding-bottom: 20px;
-}
-
-.keyframe-container:last-child .frame-delay-container {
-    display: none;
-}
-
-.keyframe-container:hover {
-    transform: translateY(-2px);
-    border-color: rgba(112, 193, 114, 0.4);
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
-}
-
-.keyframe-container.current {
-    background: linear-gradient(135deg, rgba(112, 193, 114, 0.1) 0%, rgba(9, 25, 48, 0.95) 100%);
-    border-color: #70c172;
-    box-shadow: 0 0 15px rgba(112, 193, 114, 0.2);
-}
-
-.frame-header {
-  color: #ffffff;
-  font-family: IBM Plex Mono, monospace;
-  font-size: 14px;
-  margin-bottom: 8px;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  flex-direction: row;
-}
-
-.frame-info {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  flex-direction: column;
-}
-
-
-.frame-delay {
-  display: flex;
-  align-items: center;
-  gap: 3px;
-  font-size: 12px;
-  color: #9ca3af;
-  flex-direction: row;
-}
-
-.delay-input {
-    width: 70px;
-    padding: 4px 8px;
-    background: rgba(28, 43, 64, 0.6);
-    border: 1px solid rgba(112, 193, 114, 0.2);
-    border-radius: 4px;
-    color: #70c172;
-    font-family: 'IBM Plex Mono', monospace;
-    font-size: 12px;
-    text-align: right;
-}
-
-.delay-input:focus {
-    outline: none;
-    border-color: #70c172;
-    box-shadow: 0 0 10px rgba(112, 193, 114, 0.2);
-}
-
-.frame-actions {
-  display: flex;
-  justify-content: flex-end;
-  gap: 8px;
-}
-
-.frame-btn {
-    padding: 4px 8px;
-    border: none;
-    border-radius: 4px;
-    font-size: 12px;
-    font-weight: 500;
+    color: white;
     cursor: pointer;
-    transition: all 0.2s ease;
-    display: flex;
-    align-items: center;
-    gap: 4px;
 }
 
-.frame-btn.edit-frame {
-    background: rgba(44, 123, 242, 0.1);
-    color: #2c7bf2;
-    border: 1px solid rgba(44, 123, 242, 0.3);
+.view-toggle.active {
+    background: #70c172;
+    border-color: #70c172;
 }
 
-.frame-btn.edit-frame:hover {
-    background: rgba(44, 123, 242, 0.2);
-    transform: translateY(-1px);
-}
-
-.frame-btn.delete-frame {
-    background: rgba(240, 81, 81, 0.1);
-    color: #f05151;
-    border: 1px solid rgba(240, 81, 81, 0.3);
-}
-
-.frame-btn.delete-frame:hover {
-    background: rgba(240, 81, 81, 0.2);
-    transform: translateY(-1px);
-}
-
-.drone-position {
-    background: rgba(0, 0, 0, 0.2);
-    border-radius: 6px;
-    padding: 8px 10px;
-    display: grid;
-    grid-template-columns: auto 1fr auto auto;
-    gap: 10px;
-    align-items: center;
-    transition: all 0.2s ease;
-}
-
-.drone-position .edit-drone {
-    opacity: 0;
-    background: rgba(44, 123, 242, 0.1);
-    color: #2c7bf2;
-    padding: 2px 6px;
-    border-radius: 3px;
-    font-size: 11px;
-    cursor: pointer;
-    transition: all 0.2s ease;
-    border: 1px solid rgba(44, 123, 242, 0.3);
-}
-
-.drone-position:hover .edit-drone {
-    opacity: 1;
-}
-
-.drone-position .edit-drone:hover {
-    background: rgba(44, 123, 242, 0.2);
-    transform: translateY(-1px);
-}
-
-/* Drone positions */
-.drone-positions {
-    display: flex;
-    flex-direction: column;
-    gap: 8px;
-    overflow-y: auto;
-    max-height: 160px;
-    padding-right: 8px;
-    scrollbar-width: thin;
-    scrollbar-color: rgba(112, 193, 114, 0.3) transparent;
-}
-
-.drone-positions::-webkit-scrollbar {
-    width: 4px;
-}
-
-.drone-positions::-webkit-scrollbar-track {
-    background: transparent;
-}
-
-.drone-positions::-webkit-scrollbar-thumb {
-    background-color: rgba(112, 193, 114, 0.3);
-    border-radius: 2px;
-}
-
-.drone-position {
-    background: rgba(0, 0, 0, 0.2);
-    border-radius: 6px;
-    padding: 8px 10px;
-    display: grid;
-    grid-template-columns: auto 1fr auto;
-    gap: 10px;
-    align-items: center;
-    transition: all 0.2s ease;
-}
-
-.drone-position:hover {
-    background: rgba(112, 193, 114, 0.1);
-}
-
-.drone-position .drone-id {
-    color: #70c172;
-    font-weight: 600;
-    font-size: 12px;
-    min-width: 40px;
-}
-
-.drone-position .position {
-    color: #ffffff;
-    font-size: 12px;
-    font-family: 'IBM Plex Mono', monospace;
-}
-
-.drone-position .heading {
-    color: #9ca3af;
-    font-size: 12px;
-    font-family: 'IBM Plex Mono', monospace;
-    text-align: right;
-    min-width: 50px;
-}
-
-/* Control section styles */
-.available-drones,
-.waypoint-settings,
-.playback-controls {
-    background: rgba(0, 0, 0, 0.2);
-    border-radius: 6px;
-    padding: 15px;
-}
-
-/* Input styles */
-.waypoint-inputs {
-    display: grid;
-    grid-template-columns: repeat(2, 1fr);
-    gap: 10px;
-}
-
-.input-group {
-    display: flex;
-    flex-direction: column;
-    gap: 5px;
-}
-
-/* Footer styles */
 .mission-planner-footer {
     padding: 15px 20px;
     border-top: 1px solid rgba(255, 255, 255, 0.1);
@@ -4819,4 +4631,14 @@ input[type="range"]::-webkit-slider-thumb:hover {
     font-size: 11px;
     color: #9ca3af;
     text-align: center;
+}
+
+/* Add color for CD5 in relevant places */
+.drone-position[data-drone="CD5"] {
+    border-color: #00bcd4;
+}
+
+.drone-marker[data-drone="CD5"] .drone-heading-indicator {
+    background: #00bcd4;
+    box-shadow: 0 0 10px rgba(0, 188, 212, 0.5);
 }
