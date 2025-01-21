@@ -3614,12 +3614,19 @@ async function fetchSerialData() {
         
         const data = await response.json();
         const terminal = document.querySelector('.esp-terminal-content');
+
+        if (data && data.length > 0) {
+            console.log('Received serial data:', data);
+            displaySerialData(data);
+            data.forEach(line => handleEspTerminalData(line)); // Handle each line of data
+        }
         
         if (terminal && data.length > 0) {
             // Add new messages with formatting
             data.forEach(message => {
                 terminal.innerHTML += formatTerminalMessage(message);
             });
+
             
             // Auto-scroll to bottom
             terminal.scrollTop = terminal.scrollHeight;
@@ -5454,4 +5461,60 @@ function formatTerminalMessage(message) {
         return `<div class="terminal-line">${message}</div>`;
     }
 }
+
+// Function to handle data from the ESP terminal
+function handleESPTerminalData(data) {
+    console.log('Received ESP terminal data:', data); // Debug log
+
+    try {
+        data.forEach(message => {
+            // Manually parse the custom format
+            const parsedMsg = parseCustomMessageFormat(message);
+            console.log('Parsed message:', parsedMsg); // Debug log
+
+            // Process the message based on its type
+            if (parsedMsg.C === 'HB') {
+                // Handle heartbeat message
+                handleHeartbeat(parsedMsg);
+            } else if (parsedMsg.C === 'ATTITUDE') {
+                // Handle attitude message
+                handleAttitude(parsedMsg);
+            }
+            // Add more cases as needed
+        });
+    } catch (error) {
+        console.error('Error processing ESP terminal data:', error);
+    }
+}
+
+// Function to parse custom message format
+function parseCustomMessageFormat(message) {
+    // Remove curly braces and split by semicolon
+    const parts = message.replace(/[{}]/g, '').split(';');
+    const parsedMsg = {};
+
+    parts.forEach(part => {
+        const [key, value] = part.split(':');
+        parsedMsg[key] = value;
+    });
+
+    return parsedMsg;
+}
+
+// Function to fetch and process ESP terminal data
+async function fetchESPTerminalData() {
+    try {
+        const response = await fetch('http://127.0.0.1:5000/esp-terminal');
+        if (!response.ok) {
+            throw new Error('Failed to fetch ESP terminal data');
+        }
+        const data = await response.json();
+        handleESPTerminalData(data);
+    } catch (error) {
+        console.error('Error fetching ESP terminal data:', error);
+    }
+}
+
+// Call the function periodically to update the UI
+setInterval(fetchESPTerminalData, 1000); // Adjust the interval as needed
 
