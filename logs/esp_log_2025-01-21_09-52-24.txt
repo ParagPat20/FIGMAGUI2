@@ -1,0 +1,51 @@
+=== ESP Terminal Log Started at 2025-01-21_09-52-24 ===
+[2025-01-21 09:52:40.736] {T:MCU;C:MTL;P:0.00,2.00,0.0}
+[2025-01-21 09:52:40.759] Last Packet Send Status: Delivery Fail
+[2025-01-21 09:52:40.849] {T:CD1;C:MTL;P:0.00,2.00,0.0}
+[2025-01-21 09:52:40.875] Last Packet Send Status: Delivery Fail
+[2025-01-21 09:52:40.958] {T:CD2;C:MTL;P:0.00,2.00,0.0}
+[2025-01-21 09:52:40.976] Last Packet Send Status: Delivery Fail
+[2025-01-21 09:52:41.066] {T:CD3;C:MTL;P:0.00,2.00,0.0}
+[2025-01-21 09:52:41.080] Last Packet Send Status: Delivery Fail
+[2025-01-21 09:52:41.171] {T:CD4;C:MTL;P:0.00,2.00,0.0}
+[2025-01-21 09:52:41.192] Last Packet Send Status: Delivery Fail
+[2025-01-21 09:52:42.283] {T:MCU;C:MTL;P:0.00,2.00,0.0}
+[2025-01-21 09:52:42.301] Last Packet Send Status: Delivery Fail
+[2025-01-21 09:52:42.395] {T:CD1;C:MTL;P:0.00,2.00,0.0}
+[2025-01-21 09:52:42.413] Last Packet Send Status: Delivery Fail
+[2025-01-21 09:52:42.499] {T:CD2;C:MTL;P:0.00,2.00,0.0}
+[2025-01-21 09:52:42.518] Last Packet Send Status: Delivery Fail
+[2025-01-21 09:52:42.661] {T:CD3;C:MTL;P:0.00,2.00,0.0}
+[2025-01-21 09:52:42.686] Last Packet Send Status: Delivery Fail
+[2025-01-21 09:52:42.766] {T:CD4;C:MTL;P:0.00,2.00,0.0}
+[2025-01-21 09:52:42.801] Last Packet Send Status: Delivery Fail
+[2025-01-21 09:52:43.929] {T:MCU;C:MTL;P:0.00,2.00,0.0}
+[2025-01-21 09:52:43.943] Last Packet Send Status: Delivery Fail
+[2025-01-21 09:52:44.032] {T:CD1;C:MTL;P:0.00,2.00,0.0}
+[2025-01-21 09:52:44.050] Last Packet Send Status: Delivery Fail
+[2025-01-21 09:52:44.136] {T:CD2;C:MTL;P:0.00,2.00,0.0}
+[2025-01-21 09:52:44.155] Last Packet Send Status: Delivery Fail
+[2025-01-21 09:52:44.242] {T:CD3;C:MTL;P:0.00,2.00,0.0}
+[2025-01-21 09:52:44.270] Last Packet Send Status: Delivery Fail
+[2025-01-21 09:52:44.348] {T:CD4;C:MTL;P:0.00,2.00,0.0}
+[2025-01-21 09:52:44.372] Last Packet Send Status: Delivery Fail
+[2025-01-21 09:52:45.465] {T:MCU;C:MTL;P:0.00,2.00,0.0}
+[2025-01-21 09:52:45.483] Last Packet Send Status: Delivery Fail
+[2025-01-21 09:52:45.576] {T:CD1;C:MTL;P:0.00,2.00,0.0}
+[2025-01-21 09:52:45.633] Last Packet Send Status: Delivery Fail
+[2025-01-21 09:52:45.680] {T:CD2;C:MTL;P:0.00,2.00,0.0}
+[2025-01-21 09:52:45.704] Last Packet Send Status: Delivery Fail
+[2025-01-21 09:52:45.786] {T:CD3;C:MTL;P:0.00,2.00,0.0}
+[2025-01-21 09:52:45.818] Last Packet Send Status: Delivery Fail
+[2025-01-21 09:52:45.896] {T:CD4;C:MTL;P:0.00,2.00,0.0}
+[2025-01-21 09:52:45.916] Last Packet Send Status: Delivery Fail
+[2025-01-21 09:52:47.010] {T:MCU;C:SET_MODE;P:GUIDED}
+[2025-01-21 09:52:47.025] Last Packet Send Status: Delivery Fail
+[2025-01-21 09:52:47.115] {T:CD1;C:SET_MODE;P:GUIDED}
+[2025-01-21 09:52:47.142] Last Packet Send Status: Delivery Fail
+[2025-01-21 09:52:47.274] {T:CD2;C:SET_MODE;P:GUIDED}
+[2025-01-21 09:52:47.294] Last Packet Send Status: Delivery Fail
+[2025-01-21 09:52:47.373] {T:CD3;C:SET_MODE;P:GUIDED}
+[2025-01-21 09:52:47.394] Last Packet Send Status: Delivery Fail
+[2025-01-21 09:52:47.537] {T:CD4;C:SET_MODE;P:GUIDED}
+[2025-01-21 09:52:47.555] Last Packet Send Status: Delivery Fail

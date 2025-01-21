@@ -202,7 +202,6 @@ class SerialConnection {
             return;
         }
         
-        console.log('Updating port list UI...');
         this.portSelect.innerHTML = '<option value="" disabled selected>Select Port</option>';
         ports.forEach(port => {
             const option = document.createElement('option');
@@ -210,13 +209,11 @@ class SerialConnection {
             option.textContent = `${port.port} - ${port.description}`;
             if (port.is_esp32) {
                 option.setAttribute('data-is-esp32', 'true');
-                console.log('Found ESP32 port:', port.port);
             }
             this.portSelect.appendChild(option);
         });
 
         if (this.currentPort) {
-            console.log('Restoring previous port selection:', this.currentPort);
             this.portSelect.value = this.currentPort;
         }
     }
@@ -327,29 +324,53 @@ let missionDecoder = null;
 let isExecutingMission = false;
 let isPausedMission = false;
 
-// Function to load available missions
+// Add a cache for missions at the top level
+let cachedMissions = null;
+
+// Update the loadAvailableMissions function to use caching
 async function loadAvailableMissions() {
     try {
+        // Return cached missions if available
+        if (cachedMissions) {
+            updateProgramSelect(cachedMissions);
+            return;
+        }
+
         const response = await fetch('http://127.0.0.1:5000/list_missions');
         if (!response.ok) {
             throw new Error(`Failed to fetch missions: ${response.statusText}`);
         }
         const missions = await response.json();
         
-        // Update program select dropdown
-        const programSelect = document.querySelector('.program-select');
-        programSelect.innerHTML = '<option value="">Select Mission</option>';
+        // Cache the missions
+        cachedMissions = missions;
         
-        missions.forEach(mission => {
-            const option = document.createElement('option');
-            option.value = mission.path;  // Store just the path
-            option.textContent = mission.name;
-            programSelect.appendChild(option);
-        });
+        // Update program select dropdown
+        updateProgramSelect(missions);
     } catch (error) {
         console.error('Error loading missions:', error);
         customAlert.error('Failed to load missions: ' + error.message);
     }
+}
+
+// Separate function to update the program select dropdown
+function updateProgramSelect(missions) {
+    const programSelect = document.querySelector('.program-select');
+    if (!programSelect) return;
+
+    programSelect.innerHTML = '<option value="">Select Mission</option>';
+    
+    missions.forEach(mission => {
+        const option = document.createElement('option');
+        option.value = mission.path;  // Store just the path
+        option.textContent = mission.name;
+        programSelect.appendChild(option);
+    });
+}
+
+// Add a function to clear the cache if needed
+function clearMissionCache() {
+    cachedMissions = null;
 }
 
 // Function to execute mission commands
@@ -758,11 +779,21 @@ function handlePause() {
 
 // Initialize event listeners
 document.addEventListener('DOMContentLoaded', () => {
+    // Initial load of missions
     loadAvailableMissions();
     
     // Add event listeners for mission control buttons
-    document.querySelector('.start').addEventListener('click', handleStart);
-    document.querySelector('.pause').addEventListener('click', handlePause);
+    document.querySelector('.start')?.addEventListener('click', handleStart);
+    document.querySelector('.pause')?.addEventListener('click', handlePause);
+
+    // Add refresh button if needed
+    const refreshBtn = document.querySelector('.refresh-missions');
+    if (refreshBtn) {
+        refreshBtn.addEventListener('click', () => {
+            clearMissionCache();
+            loadAvailableMissions();
+        });
+    }
 });
 
 // Sidebar Menu Functions
@@ -1312,7 +1343,8 @@ function showDroneSettings() {
 }
 
 function showMissions() {
-    // Implementation for missions view
+    loadAvailableMissions();
+    // ... rest of showMissions implementation
 }
 
 function showLogbook() {
@@ -1566,11 +1598,9 @@ class DroneCard {
             this.attitudeInterval = setInterval(() => {
                 this.handleAttitude(droneId);
             }, 800);
-            console.log(`Starting to send attitude requests for ${droneId}`);
         } else {
             clearInterval(this.attitudeInterval);
             this.attitudeInterval = null;
-            console.log(`Stopping to send attitude requests for ${droneId}`);
         }
     }
 
@@ -2132,7 +2162,7 @@ class MissionPlanner {
         }
 
         // Waypoint input handlers
-        ['wp-x', 'wp-y', 'wp-alt', 'wp-heading'].forEach(inputId => {
+        ['wp-x', 'wp-y', 'wp-alt'].forEach(inputId => {  // Removed wp-heading
             const input = document.getElementById(inputId);
             if (input) {
                 input.addEventListener('change', () => {
@@ -2154,9 +2184,6 @@ class MissionPlanner {
                                 break;
                             case 'wp-alt':
                                 frame.position.z = value;
-                                break;
-                            case 'wp-heading':
-                                frame.heading = value * Math.PI / 180;
                                 break;
                         }
                         
@@ -2233,6 +2260,14 @@ class MissionPlanner {
 
         // Window resize handler
         window.addEventListener('resize', () => this.resizeCanvases());
+
+        // Add mission dropdown listener
+        const missionDropdown = document.querySelector('.program-select');
+        if (missionDropdown) {
+            missionDropdown.addEventListener('click', async () => {
+                await loadMissionsFromFolder();
+            });
+        }
     }
 
     resizeCanvases() {
@@ -2666,50 +2701,73 @@ class MissionPlanner {
             // Create new keyframe
             let keyframe;
             if (currentDroneId === droneId) {
-                // For the selected drone, use the new position and heading
+                // For the selected drone, calculate new position and relative values
+                const newX = position.x !== undefined ? parseFloat(position.x) : prevFrame.position.x;
+                const newY = position.y !== undefined ? parseFloat(position.y) : prevFrame.position.y;
+                const newZ = position.z !== undefined ? parseFloat(position.z) : prevFrame.position.z;
+                
+                // Calculate dx and dy from previous position
+                const dx = newX - prevFrame.position.x;
+                const dy = newY - prevFrame.position.y;
+                
+                // Calculate heading based on movement direction
+                let calculatedHeading = 0;
+                if (dx !== 0 || dy !== 0) {
+                    calculatedHeading = ((Math.atan2(dy, dx) * 180 / Math.PI) + 360) % 360;
+                } else {
+                    calculatedHeading = prevFrame.heading || 0;
+                }
+
                 keyframe = {
                     position: { 
-                        x: position.x !== undefined ? parseFloat(position.x) : prevFrame.position.x,
-                        y: position.y !== undefined ? parseFloat(position.y) : prevFrame.position.y,
-                        z: position.z !== undefined ? parseFloat(position.z) : prevFrame.position.z
+                        x: newX,
+                        y: newY,
+                        z: newZ
                     },
-                    heading: heading !== undefined ? parseFloat(heading) : prevFrame.heading,
-                    delay: prevFrame.delay || 1000, // Default delay of 1 second
-                    timestamp: Date.now()
+                    dx: parseFloat(dx.toFixed(2)),
+                    dy: parseFloat(dy.toFixed(2)),
+                    heading: parseFloat(calculatedHeading.toFixed(1)),
+                    delay: prevFrame.delay || 1000
                 };
 
                 // Ensure all values are numbers and not NaN
-                keyframe.position.x = isNaN(keyframe.position.x) ? prevFrame.position.x : keyframe.position.x;
-                keyframe.position.y = isNaN(keyframe.position.y) ? prevFrame.position.y : keyframe.position.y;
-                keyframe.position.z = isNaN(keyframe.position.z) ? prevFrame.position.z : keyframe.position.z;
+                Object.entries(keyframe.position).forEach(([key, value]) => {
+                    keyframe.position[key] = isNaN(value) ? prevFrame.position[key] : value;
+                });
+                keyframe.dx = isNaN(keyframe.dx) ? 0 : keyframe.dx;
+                keyframe.dy = isNaN(keyframe.dy) ? 0 : keyframe.dy;
                 keyframe.heading = isNaN(keyframe.heading) ? prevFrame.heading : keyframe.heading;
                 keyframe.delay = isNaN(keyframe.delay) ? 1000 : keyframe.delay;
             } else {
                 // For other drones, copy the previous keyframe exactly
                 keyframe = {
                     position: { ...prevFrame.position },
-                    heading: prevFrame.heading,
-                    delay: prevFrame.delay || 1000,
-                    timestamp: Date.now()
+                    dx: 0,
+                    dy: 0,
+                    heading: prevFrame.heading || 0,
+                    delay: prevFrame.delay || 1000
                 };
             }
 
             // Insert keyframe after current position
             frames.splice(this.currentKeyframe + 1, 0, keyframe);
 
-            // Update drone marker position for 2D view
-            const marker = this.droneMarkers.get(currentDroneId);
-            if (marker) {
-                marker.position.x = keyframe.position.x;
-                marker.position.y = keyframe.position.y;
-                marker.heading = keyframe.heading;
-            }
+            // Update visual representations
+            if (currentDroneId === droneId) {
+                // Update drone marker position for 2D view
+                const marker = this.droneMarkers.get(currentDroneId);
+                if (marker) {
+                    marker.position.x = keyframe.position.x;
+                    marker.position.y = keyframe.position.y;
+                    marker.heading = keyframe.heading;
+                }
 
-            // Update drone model position for 3D view
-            const model = this.droneModels.get(currentDroneId);
-            if (model) {
-                model.position.set(keyframe.position.x, keyframe.position.z, -keyframe.position.y);
-                model.rotation.y = -keyframe.heading;
+                // Update drone model position for 3D view
+                const model = this.droneModels.get(currentDroneId);
+                if (model) {
+                    model.position.set(keyframe.position.x, keyframe.position.z, -keyframe.position.y);
+                    model.rotation.y = -keyframe.heading * (Math.PI / 180);
+                }
             }
         });
 
@@ -2733,8 +2791,7 @@ class MissionPlanner {
         const inputs = {
             'wp-x': keyframe.position.x,
             'wp-y': keyframe.position.y,
-            'wp-alt': keyframe.position.z,
-            'wp-heading': (keyframe.heading * 180 / Math.PI)
+            'wp-alt': keyframe.position.z
         };
 
         Object.entries(inputs).forEach(([id, value]) => {
@@ -3129,7 +3186,7 @@ class MissionPlanner {
                 gridSpacing: this.gridSpacing
             },
             drones: {},
-            frameDelays: [] // New array to store delays per frame
+            frameDelays: []
         };
 
         // Get maximum number of frames
@@ -3144,15 +3201,42 @@ class MissionPlanner {
             missionData.frameDelays[i] = delayInput ? parseInt(delayInput.value) : 1000;
         }
 
-        // Save drone keyframes
+        // Save drone keyframes with calculated dx, dy
         this.keyframes.forEach((frames, droneId) => {
             missionData.drones[droneId] = {
                 color: this.getDroneColor(droneId),
-                frames: frames.map(frame => ({
-                    position: { ...frame.position },
-                    heading: frame.heading
-                    // Removed delay from here
-                }))
+                frames: frames.map((frame, index, frames) => {
+                    // Calculate dx and dy from previous frame
+                    let dx = 0, dy = 0;
+                    if (index > 0) {
+                        // Get position difference from previous frame
+                        const prevFrame = frames[index - 1];
+                        dx = frame.position.x - prevFrame.position.x;
+                        dy = frame.position.y - prevFrame.position.y;
+                    } else {
+                        // For first frame, use absolute position
+                        dx = frame.position.x;
+                        dy = frame.position.y;
+                    }
+
+                    // Calculate heading based on movement direction
+                    let heading = 0;
+                    if (dx !== 0 || dy !== 0) {
+                        heading = ((Math.atan2(dy, dx) * 180 / Math.PI) + 360) % 360;
+                    }
+
+                    return {
+                        position: {
+                            x: parseFloat(frame.position.x.toFixed(2)),
+                            y: parseFloat(frame.position.y.toFixed(2)),
+                            z: parseFloat(frame.position.z.toFixed(2))
+                        },
+                        dx: parseFloat(dx.toFixed(2)),
+                        dy: parseFloat(dy.toFixed(2)),
+                        heading: parseFloat(heading.toFixed(1)),
+                        delay: frame.delay || 1000
+                    };
+                })
             };
         });
 
@@ -3191,7 +3275,41 @@ class MissionPlanner {
                 
                 // Load drone keyframes
                 Object.entries(missionData.drones).forEach(([droneId, data]) => {
-                    this.keyframes.set(droneId, data.frames);
+                    const frames = data.frames.map((frame, index, frames) => {
+                        // Get previous frame for dx/dy calculation
+                        const prevFrame = index > 0 ? frames[index - 1] : null;
+                        
+                        // Calculate dx and dy from position differences
+                        let dx = 0, dy = 0;
+                        if (prevFrame) {
+                            dx = frame.position.x - prevFrame.position.x;
+                            dy = frame.position.y - prevFrame.position.y;
+                        } else {
+                            // For first frame, use absolute position as displacement
+                            dx = frame.position.x;
+                            dy = frame.position.y;
+                        }
+
+                        // Calculate heading based on movement direction
+                        let heading = 0;
+                        if (dx !== 0 || dy !== 0) {
+                            heading = ((Math.atan2(dy, dx) * 180 / Math.PI) + 360) % 360;
+                        }
+
+                        return {
+                            position: {
+                                x: frame.position.x,
+                                y: frame.position.y,
+                                z: frame.position.z
+                            },
+                            dx: parseFloat(dx.toFixed(2)),
+                            dy: parseFloat(dy.toFixed(2)),
+                            heading: parseFloat(heading.toFixed(1)),
+                            delay: frame.delay || 1000
+                        };
+                    });
+                    
+                    this.keyframes.set(droneId, frames);
                 });
                 
                 // Load custom commands if they exist
@@ -4745,6 +4863,20 @@ class MissionDecoder {
         this.isPaused = false;
     }
 
+    // Utility function to calculate displacement and angle from x,y coordinates
+    calculateDisplacementAndAngle(dx, dy) {
+        // Calculate displacement (distance)
+        const displacement = Math.sqrt(dx * dx + dy * dy);
+        
+        // Calculate angle in radians (-π to π)
+        let angle = Math.atan2(dy, dx);
+        
+        // Convert to degrees and normalize to 0-360
+        angle = ((angle * 180 / Math.PI) + 360) % 360;
+        
+        return { displacement, angle };
+    }
+
     async load_mission(missionData) {
         try {
             // Reset arrays
@@ -4766,42 +4898,15 @@ class MissionDecoder {
                 Object.entries(missionData.drones).forEach(([droneId, droneData]) => {
                     if (frameIndex < droneData.frames.length) {
                         const frame = droneData.frames[frameIndex];
-                        const prevFrame = frameIndex > 0 ? droneData.frames[frameIndex - 1] : null;
+                        
+                        // Calculate displacement from dx and dy
+                        const displacement = Math.sqrt(frame.dx * frame.dx + frame.dy * frame.dy);
 
-                        // Calculate relative position differences for x and y
-                        let dx = 0, dy = 0;
-                        if (prevFrame) {
-                            dx = frame.position.x - prevFrame.position.x;
-                            dy = frame.position.y - prevFrame.position.y;
-                        } else {
-                            dx = frame.position.x;
-                            dy = frame.position.y;
-                        }
-
-                        // Calculate relative heading difference
-                        let dheading = 0;
-                        if (prevFrame) {
-                            // Normalize both headings to [0, 2π]
-                            const prevHeading = (prevFrame.heading + 2 * Math.PI) % (2 * Math.PI);
-                            const currentHeading = (frame.heading + 2 * Math.PI) % (2 * Math.PI);
-                            
-                            // Calculate the smallest angle difference
-                            dheading = Math.atan2(
-                                Math.sin(currentHeading - prevHeading),
-                                Math.cos(currentHeading - prevHeading)
-                            );
-                        } else {
-                            dheading = frame.heading;
-                        }
-
-                        // Use absolute z value directly from frame
-                        const z = frame.position.z;
-
-                        // Create POS command with relative x, y, heading and absolute z
+                        // Create MTL command with displacement, z, and heading
                         frameCommands.push({
                             target: droneId,
-                            command: 'POS',
-                            payload: `${dx.toFixed(2)},${dy.toFixed(2)},${z.toFixed(2)},${dheading.toFixed(4)}`
+                            command: 'MTL',
+                            payload: `${displacement.toFixed(2)},${frame.position.z.toFixed(2)},${frame.heading.toFixed(1)}`
                         });
                     }
                 });
@@ -5082,4 +5187,81 @@ function addMTLMenuItem() {
 document.addEventListener('DOMContentLoaded', () => {
     addMTLMenuItem();
 });
+
+// Add these utility functions
+function calculateDistance(x1, y1, x2, y2) {
+    return Math.sqrt(Math.pow(x2 - x1, 2) + Math.pow(y2 - y1, 2));
+}
+
+function calculateBearing(x1, y1, x2, y2) {
+    const deltaX = x2 - x1;
+    const deltaY = y2 - y1;
+    let bearing = Math.atan2(deltaY, deltaX) * 180 / Math.PI;
+    
+    // Convert to 0-360 range
+    bearing = ((bearing % 360) + 360) % 360;
+    return bearing;
+}
+
+function getQuadrant(bearing) {
+    if (bearing >= 0 && bearing < 90) return 1;
+    if (bearing >= 90 && bearing < 180) return 2;
+    if (bearing >= 180 && bearing < 270) return 3;
+    return 4;
+}
+
+// Add a function to load missions from folder
+async function loadMissionsFromFolder() {
+    try {
+        const response = await fetch('http://127.0.0.1:5000/list_missions');
+        if (!response.ok) {
+            throw new Error(`Failed to fetch missions: ${response.statusText}`);
+        }
+        const missions = await response.json();
+        
+        // Process missions to ensure they have dx and dy
+        const processedMissions = missions.map(mission => {
+            if (mission.drones) {
+                Object.values(mission.drones).forEach(drone => {
+                    drone.frames = drone.frames.map((frame, index, frames) => {
+                        if (frame.dx === undefined || frame.dy === undefined) {
+                            // Calculate dx and dy if not present
+                            if (index > 0) {
+                                frame.dx = frame.position.x - frames[index - 1].position.x;
+                                frame.dy = frame.position.y - frames[index - 1].position.y;
+                            } else {
+                                frame.dx = frame.position.x;
+                                frame.dy = frame.position.y;
+                            }
+                        }
+                        return frame;
+                    });
+                });
+            }
+            return mission;
+        });
+
+        updateMissionDropdown(processedMissions);
+    } catch (error) {
+        console.error('Error loading missions:', error);
+        customAlert.error('Failed to load missions: ' + error.message);
+    }
+}
+
+// Function to update the mission dropdown
+function updateMissionDropdown(missions) {
+    const dropdown = document.querySelector('.program-select');
+    if (!dropdown) return;
+
+    // Clear existing options
+    dropdown.innerHTML = '<option value="">Select Mission</option>';
+    
+    // Add new options
+    missions.forEach(mission => {
+        const option = document.createElement('option');
+        option.value = mission.path;
+        option.textContent = mission.name;
+        dropdown.appendChild(option);
+    });
+}
 
