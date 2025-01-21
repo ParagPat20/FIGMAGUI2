@@ -4042,7 +4042,7 @@ function setupDroneCardEventListeners(droneId) {
 
     if (launchBtn) {
         launchBtn.addEventListener('click', () => {
-            const defaultAltitude = '2'; // Default altitude value
+            const defaultAltitude = '5'; // Default altitude value
             send_command(droneId, 'LAUNCH', defaultAltitude);
             console.log(`LAUNCH command sent for ${droneId} with altitude ${defaultAltitude}`);
         });
