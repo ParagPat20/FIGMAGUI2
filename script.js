@@ -1771,7 +1771,9 @@ const droneManager = {
     
     addDrone(droneId, name) {
         if (!this.drones.has(droneId)) {
-            const droneCard = new DroneCard(droneId, name);
+            // Set the name to "CD5" if the droneId is for CD5
+            const droneName = droneId === "CD5" ? "CD5" : name; // Change this line
+            const droneCard = new DroneCard(droneId, droneName);
             const container = document.querySelector('.drone-cards-container');
             container.appendChild(droneCard.element); // Changed from prepend to appendChild
             this.drones.set(droneId, droneCard);
@@ -3606,6 +3608,37 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 });
 
+// Function to handle data from the ESP terminal
+async function handleESPTerminalData(data) {
+    console.log('Received ESP terminal data:', data); // Debug log
+
+    try {
+        // Check if data is an array
+        if (Array.isArray(data)) {
+            data.forEach(message => {
+                // Manually parse the custom format
+                const parsedMsg = parseCustomMessageFormat(message);
+                console.log('Parsed message:', parsedMsg); // Debug log
+
+                // Process the message based on its type
+                if (parsedMsg.C === 'HB') {
+                    // Handle heartbeat message
+                    handleHeartbeat(parsedMsg);
+                } else if (parsedMsg.C === 'ATTITUDE') {
+                    // Handle attitude message
+                    handleAttitude(parsedMsg);
+                }
+                handleDroneMessage(parsedMsg); // Add this line to handle drone messages
+                // Add more cases as needed
+            });
+        } else {
+            console.error('Expected an array but received:', data);
+        }
+    } catch (error) {
+        console.error('Error processing ESP terminal data:', error);
+    }
+}
+
 // Function to fetch data from /esp-terminal
 async function fetchSerialData() {
     try {
@@ -3618,7 +3651,10 @@ async function fetchSerialData() {
         if (data && data.length > 0) {
             console.log('Received serial data:', data);
             displaySerialData(data);
-            data.forEach(line => handleEspTerminalData(line)); // Handle each line of data
+            data.forEach(line => {
+                handleESPTerminalData(line); // Handle each line of data
+                handleDroneMessage(line); // Add this line to handle drone messages
+            });
         }
         
         if (terminal && data.length > 0) {
@@ -3753,7 +3789,6 @@ function initializeDroneState(droneId) {
 }
 
 
-// Update handleDroneMessage to handle any drone
 function handleDroneMessage(parsedMsg) {
     console.log('Received message:', parsedMsg);
     const { S: source, C: command, P: payload } = parsedMsg;
@@ -4029,17 +4064,6 @@ function initializeTerminalDrag() {
     }
 }
 
-function handleEspTerminalData(data) {
-    const parsedMsg = parseMessage(data);
-    if (parsedMsg && parsedMsg.C === 'HB' && parsedMsg.P === '1') {
-        // Add drone card using source ID from message
-        const droneId = parsedMsg.S;
-        if (!droneManager.drones.has(droneId)) {
-            droneManager.addDrone(droneId, droneId);
-            setupDroneCardEventListeners(droneId); // Setup event listeners for the new drone card
-        }
-    }
-}
 
 function setupDroneCardEventListeners(droneId) {
     const armBtn = document.querySelector(`.drone-control-btn.arm-btn[data-drone="${droneId}"]`);
@@ -5440,7 +5464,7 @@ async function loadMissionsFromFolder() {
 
 // Function to update the mission dropdown
 function updateMissionDropdown(missions) {
-    const dropdown = document.querySelector('.program-select');
+    const dropdown = document.querySelector('.programselect');
     if (!dropdown) return;
 
     // Clear existing options
@@ -5471,30 +5495,7 @@ function formatTerminalMessage(message) {
     }
 }
 
-// Function to handle data from the ESP terminal
-function handleESPTerminalData(data) {
-    console.log('Received ESP terminal data:', data); // Debug log
 
-    try {
-        data.forEach(message => {
-            // Manually parse the custom format
-            const parsedMsg = parseCustomMessageFormat(message);
-            console.log('Parsed message:', parsedMsg); // Debug log
-
-            // Process the message based on its type
-            if (parsedMsg.C === 'HB') {
-                // Handle heartbeat message
-                handleHeartbeat(parsedMsg);
-            } else if (parsedMsg.C === 'ATTITUDE') {
-                // Handle attitude message
-                handleAttitude(parsedMsg);
-            }
-            // Add more cases as needed
-        });
-    } catch (error) {
-        console.error('Error processing ESP terminal data:', error);
-    }
-}
 
 // Function to parse custom message format
 function parseCustomMessageFormat(message) {
@@ -5510,20 +5511,40 @@ function parseCustomMessageFormat(message) {
     return parsedMsg;
 }
 
-// Function to fetch and process ESP terminal data
-async function fetchESPTerminalData() {
+// Call the function periodically to update the UI
+setInterval(fetchESPTerminalData, 1000); // Adjust the interval as needed
+
+// Define the handleHeartbeat function
+function handleHeartbeat(data) {
+    // Process the heartbeat data
+    console.log("Heartbeat received:", data);
+    // Add any additional logic you need for handling heartbeat data
+}
+
+
+async function loadMissions() {
     try {
-        const response = await fetch('http://127.0.0.1:5000/esp-terminal');
-        if (!response.ok) {
-            throw new Error('Failed to fetch ESP terminal data');
-        }
-        const data = await response.json();
-        handleESPTerminalData(data);
+        const response = await fetch('/list_missions');
+        if (!response.ok) throw new Error('Failed to fetch missions');
+
+        const missions = await response.json();
+        const programSelect = document.querySelector('.program-select');
+
+        // Clear existing options
+        programSelect.innerHTML = '<option value="">Select Mission</option>';
+
+        // Populate the dropdown with missions
+        missions.forEach(mission => {
+            const option = document.createElement('option');
+            option.value = mission; // Assuming mission is just the filename
+            option.textContent = mission; // Display the mission name
+            programSelect.appendChild(option);
+        });
     } catch (error) {
-        console.error('Error fetching ESP terminal data:', error);
+        console.error('Error loading missions:', error);
     }
 }
 
-// Call the function periodically to update the UI
-setInterval(fetchESPTerminalData, 1000); // Adjust the interval as needed
+// Call loadMissions when the page loads
+document.addEventListener('DOMContentLoaded', loadMissions);
 

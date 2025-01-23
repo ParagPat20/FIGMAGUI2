@@ -1,0 +1,26 @@
+=== ESP Terminal Log Started at 2025-01-21_19-51-22 ===
+[2025-01-21 19:51:32.024] {S:MCU;C:HB;P:1}
+[2025-01-21 19:51:33.036] {S:MCU;C:HB;P:1}
+[2025-01-21 19:51:34.044] {S:MCU;C:HB;P:1}
+[2025-01-21 19:51:35.041] {S:MCU;C:HB;P:1}
+[2025-01-21 19:51:36.067] {S:MCU;C:HB;P:1}
+[2025-01-21 19:51:37.083] {S:MCU;C:HB;P:1}
+[2025-01-21 19:51:37.465] {T:MCU;C:LAND;P:1}
+[2025-01-21 19:51:37.480] Last Packet Send Status: Delivery Success
+[2025-01-21 19:51:37.530] {S:MCU;C:RES;P:Landing initiated}
+[2025-01-21 19:51:38.107] {S:MCU;C:HB;P:1}
+[2025-01-21 19:51:38.125] {T:MCU;C:LAND;P:1}
+[2025-01-21 19:51:38.126] Last Packet Send Status: Delivery Success
+[2025-01-21 19:51:38.152] {S:MCU;C:RES;P:Landing initiated}
+[2025-01-21 19:51:38.396] {T:MCU;C:LAND;P:1}
+[2025-01-21 19:51:38.401] Last Packet Send Status: Delivery Success
+[2025-01-21 19:51:38.426] {S:MCU;C:RES;P:Landing initiated}
+[2025-01-21 19:51:38.611] {T:MCU;C:LAND;P:1}
+[2025-01-21 19:51:38.618] Last Packet Send Status: Delivery Success
+[2025-01-21 19:51:38.743] {S:MCU;C:RES;P:Landing initiated}
+[2025-01-21 19:51:39.121] {S:MCU;C:HB;P:1}
+[2025-01-21 19:51:40.146] {S:MCU;C:HB;P:1}
+[2025-01-21 19:51:41.154] {S:MCU;C:HB;P:1}
+[2025-01-21 19:51:42.203] {S:MCU;C:HB;P:1}
+[2025-01-21 19:51:43.247] {S:MCU;C:HB;P:1}
+[2025-01-21 19:51:44.280] {S:MCU;C:HB;P:1}

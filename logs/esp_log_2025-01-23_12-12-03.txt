@@ -1,0 +1,113 @@
+=== ESP Terminal Log Started at 2025-01-23_12-12-03 ===
+[2025-01-23 12:12:17.469] {S:CD1;C:HB;P:1}
+[2025-01-23 12:12:18.476] {S:CD1;C:HB;P:1}
+[2025-01-23 12:12:18.976] {T:MCU;C:MTL;P:0.00,8.00,0.0}
+[2025-01-23 12:12:19.009] Last Packet Send Status: Delivery Fail
+[2025-01-23 12:12:19.105] {T:CD1;C:MTL;P:1.00,8.00,0.0}
+[2025-01-23 12:12:19.119] Last Packet Send Status: Delivery Success
+[2025-01-23 12:12:19.281] {T:CD2;C:MTL;P:2.00,8.00,0.0}
+[2025-01-23 12:12:19.320] Last Packet Send Status: Delivery Fail
+[2025-01-23 12:12:19.397] {T:CD3;C:MTL;P:3.00,2.00,0.0}
+[2025-01-23 12:12:19.426] Last Packet Send Status: Delivery Fail
+[2025-01-23 12:12:19.517] {T:CD4;C:MTL;P:4.00,2.00,0.0}
+[2025-01-23 12:12:19.527] {S:CD1;C:HB;P:1}
+[2025-01-23 12:12:19.557] Last Packet Send Status: Delivery Fail
+[2025-01-23 12:12:19.632] {T:CD5;C:MTL;P:5.00,8.00,0.0}
+[2025-01-23 12:12:19.652] Last Packet Send Status: Delivery Fail
+[2025-01-23 12:12:19.747] {T:MCU;C:LIGHT;P:0008ff}
+[2025-01-23 12:12:19.774] Last Packet Send Status: Delivery Fail
+[2025-01-23 12:12:19.863] {T:CD1;C:LIGHT;P:0008ff}
+[2025-01-23 12:12:19.867] Last Packet Send Status: Delivery Success
+[2025-01-23 12:12:19.874] {S:CD1;C:RES;P:Unknown command: LIGHT}
+[2025-01-23 12:12:19.984] {T:CD2;C:LIGHT;P:0008ff}
+[2025-01-23 12:12:20.012] Last Packet Send Status: Delivery Fail
+[2025-01-23 12:12:20.099] {T:CD5;C:LIGHT;P:0008ff}
+[2025-01-23 12:12:20.134] Last Packet Send Status: Delivery Fail
+[2025-01-23 12:12:20.498] {S:CD1;C:HB;P:1}
+[2025-01-23 12:12:21.225] {T:MCU;C:MTL;P:5.00,8.00,90.0}
+[2025-01-23 12:12:21.251] Last Packet Send Status: Delivery Fail
+[2025-01-23 12:12:21.417] {T:CD1;C:MTL;P:5.00,8.00,90.0}
+[2025-01-23 12:12:21.423] Last Packet Send Status: Delivery Success
+[2025-01-23 12:12:21.542] {S:CD1;C:HB;P:1}
+[2025-01-23 12:12:21.550] {T:CD2;C:MTL;P:2.00,8.00,180.0}
+[2025-01-23 12:12:21.644] Last Packet Send Status: Delivery Fail
+[2025-01-23 12:12:21.675] {T:CD3;C:MTL;P:0.00,2.00,0.0}
+[2025-01-23 12:12:21.697] Last Packet Send Status: Delivery Fail
+[2025-01-23 12:12:21.797] {T:CD4;C:MTL;P:0.00,2.00,0.0}
+[2025-01-23 12:12:21.840] Last Packet Send Status: Delivery Fail
+[2025-01-23 12:12:21.913] {T:CD5;C:MTL;P:2.00,8.00,180.0}
+[2025-01-23 12:12:21.958] Last Packet Send Status: Delivery Fail
+[2025-01-23 12:12:22.033] {T:CD5;C:LIGHT;P:8c1cfd}
+[2025-01-23 12:12:22.057] Last Packet Send Status: Delivery Fail
+[2025-01-23 12:12:22.158] {T:MCU;C:LIGHT;P:8c1cfd}
+[2025-01-23 12:12:22.191] Last Packet Send Status: Delivery Fail
+[2025-01-23 12:12:22.284] {T:CD1;C:LIGHT;P:8c1cfd}
+[2025-01-23 12:12:22.291] Last Packet Send Status: Delivery Success
+[2025-01-23 12:12:22.403] {T:CD2;C:LIGHT;P:8c1cfd}
+[2025-01-23 12:12:22.450] {S:CD1;C:RES;P:Unknown command: LIGHT}
+[2025-01-23 12:12:22.456] Last Packet Send Status: Delivery Fail
+[2025-01-23 12:12:22.537] {S:CD1;C:HB;P:1}
+[2025-01-23 12:12:23.523] {T:MCU;C:MTL;P:5.00,8.00,270.0}
+[2025-01-23 12:12:23.566] {S:CD1;C:HB;P:1}
+[2025-01-23 12:12:23.573] Last Packet Send Status: Delivery Fail
+[2025-01-23 12:12:23.651] {T:CD1;C:MTL;P:5.00,8.00,270.0}
+[2025-01-23 12:12:23.659] Last Packet Send Status: Delivery Success
+[2025-01-23 12:12:23.780] {T:CD2;C:MTL;P:2.00,8.00,0.0}
+[2025-01-23 12:12:23.821] Last Packet Send Status: Delivery Fail
+[2025-01-23 12:12:23.891] {T:CD3;C:MTL;P:0.00,2.00,0.0}
+[2025-01-23 12:12:23.932] Last Packet Send Status: Delivery Fail
+[2025-01-23 12:12:24.013] {T:CD4;C:MTL;P:0.00,2.00,0.0}
+[2025-01-23 12:12:24.034] Last Packet Send Status: Delivery Fail
+[2025-01-23 12:12:24.134] {T:CD5;C:MTL;P:2.00,8.00,0.0}
+[2025-01-23 12:12:24.175] Last Packet Send Status: Delivery Fail
+[2025-01-23 12:12:24.263] {T:MCU;C:LIGHT;P:1cfd72}
+[2025-01-23 12:12:24.294] Last Packet Send Status: Delivery Fail
+[2025-01-23 12:12:24.452] {T:CD1;C:LIGHT;P:1cfd72}
+[2025-01-23 12:12:24.454] Last Packet Send Status: Delivery Success
+[2025-01-23 12:12:24.489] {S:CD1;C:RES;P:Unknown command: LIGHT}
+[2025-01-23 12:12:24.578] {T:CD5;C:LIGHT;P:1cfd72}
+[2025-01-23 12:12:24.582] {S:CD1;C:HB;P:1}
+[2025-01-23 12:12:24.624] Last Packet Send Status: Delivery Fail
+[2025-01-23 12:12:24.690] {T:CD2;C:LIGHT;P:1cfd72}
+[2025-01-23 12:12:24.725] Last Packet Send Status: Delivery Fail
+[2025-01-23 12:12:25.596] {S:CD1;C:HB;P:1}
+[2025-01-23 12:12:25.813] {T:MCU;C:SET_MODE;P:GUIDED}
+[2025-01-23 12:12:25.857] Last Packet Send Status: Delivery Fail
+[2025-01-23 12:12:25.900] {T:MCU;C:SET_MODE;P:GUIDED}
+[2025-01-23 12:12:25.927] Last Packet Send Status: Delivery Fail
+[2025-01-23 12:12:25.929] {T:CD1;C:SET_MODE;P:GUIDED}
+[2025-01-23 12:12:25.937] Last Packet Send Status: Delivery Success
+[2025-01-23 12:12:26.027] {T:CD1;C:SET_MODE;P:GUIDED}
+[2025-01-23 12:12:26.032] Last Packet Send Status: Delivery Success
+[2025-01-23 12:12:26.049] {T:CD2;C:SET_MODE;P:GUIDED}
+[2025-01-23 12:12:26.086] Last Packet Send Status: Delivery Fail
+[2025-01-23 12:12:26.118] {S:CD1;C:RES;P:Mode set to GUIDED}
+[2025-01-23 12:12:26.158] {T:CD2;C:SET_MODE;P:GUIDED}
+[2025-01-23 12:12:26.178] {T:CD3;C:SET_MODE;P:GUIDED}
+[2025-01-23 12:12:26.188] Last Packet Send Status: Delivery Fail
+[2025-01-23 12:12:26.209] Last Packet Send Status: Delivery Fail
+[2025-01-23 12:12:26.278] {T:CD3;C:SET_MODE;P:GUIDED}
+[2025-01-23 12:12:26.294] {T:CD4;C:SET_MODE;P:GUIDED}
+[2025-01-23 12:12:26.336] Last Packet Send Status: Delivery Fail
+[2025-01-23 12:12:26.358] Last Packet Send Status: Delivery Fail
+[2025-01-23 12:12:26.401] {T:CD4;C:SET_MODE;P:GUIDED}
+[2025-01-23 12:12:26.412] {T:CD5;C:SET_MODE;P:GUIDED}
+[2025-01-23 12:12:26.442] Last Packet Send Status: Delivery Fail
+[2025-01-23 12:12:26.470] Last Packet Send Status: Delivery Fail
+[2025-01-23 12:12:26.523] {T:CD5;C:SET_MODE;P:GUIDED}
+[2025-01-23 12:12:26.555] Last Packet Send Status: Delivery Fail
+[2025-01-23 12:12:26.639] {S:CD1;C:HB;P:1}
+[2025-01-23 12:12:27.662] {S:CD1;C:HB;P:1}
+[2025-01-23 12:12:28.666] {S:CD1;C:HB;P:1}
+[2025-01-23 12:12:29.682] {S:CD1;C:HB;P:1}
+[2025-01-23 12:12:30.815] {S:CD1;C:HB;P:1}
+[2025-01-23 12:12:31.741] {S:CD1;C:HB;P:1}
+[2025-01-23 12:12:32.761] {S:CD1;C:HB;P:1}
+[2025-01-23 12:12:33.778] {S:CD1;C:HB;P:1}
+[2025-01-23 12:12:34.787] {S:CD1;C:HB;P:1}
+[2025-01-23 12:12:35.807] {S:CD1;C:HB;P:1}
+[2025-01-23 12:12:36.848] {S:CD1;C:HB;P:1}
+[2025-01-23 12:12:37.850] {S:CD1;C:HB;P:1}
+[2025-01-23 12:12:38.856] {S:CD1;C:HB;P:1}
+[2025-01-23 12:12:39.875] {S:CD1;C:HB;P:1}
+[2025-01-23 12:12:40.970] {S:CD1;C:HB;P:1}

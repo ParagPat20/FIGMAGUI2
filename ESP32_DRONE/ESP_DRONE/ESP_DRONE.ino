@@ -44,7 +44,8 @@ uint8_t cd1MAC[] = { 0x94, 0x54, 0xC5, 0x4D, 0xBC, 0xEC };  // CD1 MAC address
 uint8_t cd2MAC[] = { 0xC0, 0x5D, 0x89, 0xB0, 0x18, 0xBC };  // CD2 MAC address
 uint8_t cd3MAC[] = { 0xA0, 0xB7, 0x65, 0x07, 0x63, 0x74 };  // CD3 MAC address
 uint8_t cd4MAC[] = { 0x14, 0x2B, 0x2F, 0xD9, 0xFD, 0xB4 };  // CD4 MAC address
-uint8_t cd5MAC[] = { 0x14, 0x2B, 0x2F, 0xD9, 0xFD, 0xB5 };  // CD5 MAC address
+uint8_t cd5MAC[] = { 0x14, 0x2B, 0x2F, 0xDB, 0x1E, 0x14 };  // CD5 MAC address
+
 
 // Array to store multiple peers
 uint8_t *peerMACs[] = {
@@ -336,11 +337,6 @@ void setup() {
   strip.setBrightness(128);  // Set to 50% brightness for better visibility
   strip.show();
 
-  // Attach the servo object to the servo pin
-  myServo.attach(servoPin);
-  myServo.write(40); // Start with the servo open
-  delay(500); // Allow time for the servo to move
-
   if (esp_now_init() != ESP_OK) {
     Serial.println("Error initializing ESP-NOW");
     return;
@@ -359,6 +355,11 @@ void setup() {
 
   // Start rainbow effect
   isRainbowActive = true;
+  
+  // Attach the servo object to the servo pin
+  myServo.attach(servoPin); // Attach the servo pin
+  myServo.write(40); // Start with the servo open
+  delay(5000); // Wait for 5 seconds
 }
 
 void loop() {
@@ -427,8 +428,11 @@ void OnDataRecv(const uint8_t *mac, const uint8_t *incomingData, int len) {
   } else if (packet.C == "DISARM") {
     setSolidColorTemporary(strip.Color(255, 255, 0));  // Yellow for DISARM
   } else if (packet.C == "SERVO") {  // Handle servo commands
-    myServo.write(packet.P == "CLOSE" ? 115 : 40);  // Directly set position based on command
-    delay(stepDelay);
+    if (packet.P == "CLOSE") {
+      myServo.write(115); // Close the grip
+    } else if (packet.P == "OPEN") {
+      myServo.write(40); // Open the grip
+    }
   } else if (packet.C == "NED") {
     // Set first 10 and last 10 LEDs to Orange for NED temporarily
     uint32_t color = strip.Color(255, 165, 0);  // Orange

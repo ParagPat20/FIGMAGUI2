@@ -9,6 +9,7 @@ uint8_t cd1MAC[] = { 0x94, 0x54, 0xC5, 0x4D, 0xBC, 0xEC };  // CD1 MAC address
 uint8_t cd2MAC[] = { 0xC0, 0x5D, 0x89, 0xB0, 0x18, 0xBC };  // CD2 MAC address
 uint8_t cd3MAC[] = { 0xA0, 0xB7, 0x65, 0x07, 0x63, 0x74 };  // CD3 MAC address
 uint8_t cd4MAC[] = { 0x14, 0x2B, 0x2F, 0xD9, 0xFD, 0xB4 };  // CD4 MAC address
+uint8_t cd5MAC[] = { 0x14, 0x2B, 0x2F, 0xDB, 0x1E, 0x14 };  // CD5 MAC address
 
 // Array to store multiple peers
 uint8_t *peerMACs[] = {
@@ -17,7 +18,8 @@ uint8_t *peerMACs[] = {
   cd1MAC,  // CD1 MAC address
   cd2MAC,  // CD2 MAC address
   cd3MAC,  // CD3 MAC address
-  cd4MAC
+  cd4MAC,  // CD4 MAC address
+  cd5MAC   // CD5 MAC address
 };
 
 esp_now_peer_info_t peerInfo;
@@ -47,6 +49,8 @@ uint8_t *getTargetMAC(const String &target) {
     return cd3MAC;
   } else if (target == "CD4") {
     return cd4MAC;
+  } else if (target == "CD5") {
+    return cd5MAC;
   } else {
     return nullptr;  // Invalid target
   }
@@ -89,6 +93,8 @@ String getSenderBasedOnMAC() {
     return "CD3";
   } else if (memcmp(mac, cd4MAC, 6) == 0) {
     return "CD4";
+  } else if (memcmp(mac, cd5MAC, 6) == 0) {
+    return "CD5";
   } else {
     return "UNKNOWN";  // In case the MAC address doesn't match any predefined ones
   }
