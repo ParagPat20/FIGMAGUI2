@@ -2940,14 +2940,24 @@ class MissionPlanner {
         // Add CSS for frame wrapper and delay container
         const style = document.createElement('style');
         style.textContent = `
+            .keyframe-list {
+                display: flex;
+                flex-direction: column;
+                gap: 10px;
+                max-height: 400px; /* Set maximum height */
+                overflow-y: auto; /* Enable vertical scrolling */
+                padding-right: 10px; /* Add padding for scrollbar */
+            }
+            
             .frame-wrapper {
                 display: flex;
-                align-items: center;
+                align-items: flex-start;
                 gap: 10px;
                 margin-bottom: 10px;
             }
             .keyframe-container {
                 flex: 1;
+                min-width: 0; /* Allow container to shrink */
             }
             .frame-delay-container {
                 min-width: 120px;
@@ -3613,27 +3623,21 @@ async function handleESPTerminalData(data) {
     console.log('Received ESP terminal data:', data); // Debug log
 
     try {
-        // Check if data is an array
-        if (Array.isArray(data)) {
-            data.forEach(message => {
-                // Manually parse the custom format
-                const parsedMsg = parseCustomMessageFormat(message);
-                console.log('Parsed message:', parsedMsg); // Debug log
+        // Handle single message
+        const parsedMsg = parseCustomMessageFormat(data);
+        console.log('Parsed message:', parsedMsg); // Debug log
 
-                // Process the message based on its type
-                if (parsedMsg.C === 'HB') {
-                    // Handle heartbeat message
-                    handleHeartbeat(parsedMsg);
-                } else if (parsedMsg.C === 'ATTITUDE') {
-                    // Handle attitude message
-                    handleAttitude(parsedMsg);
-                }
-                handleDroneMessage(parsedMsg); // Add this line to handle drone messages
-                // Add more cases as needed
-            });
-        } else {
-            console.error('Expected an array but received:', data);
+        // Process the message based on its type
+        if (parsedMsg.C === 'HB') {
+            // Handle heartbeat message
+            handleHeartbeat(parsedMsg);
+        } else if (parsedMsg.C === 'RES') {
+            // Handle response messages
+            handleDroneMessage(parsedMsg);
         }
+        
+        // Always try to handle the message
+        handleDroneMessage(parsedMsg);
     } catch (error) {
         console.error('Error processing ESP terminal data:', error);
     }
@@ -3653,7 +3657,6 @@ async function fetchSerialData() {
             displaySerialData(data);
             data.forEach(line => {
                 handleESPTerminalData(line); // Handle each line of data
-                handleDroneMessage(line); // Add this line to handle drone messages
             });
         }
         
@@ -3695,14 +3698,6 @@ function displaySerialData(data) {
                 lineElement.className = 'terminal-line';
                 lineElement.textContent = line;
                 terminal.appendChild(lineElement);
-
-                // Process message if it's in the correct format
-                if (line.startsWith('{') && line.endsWith('}')) {
-                    const parsedMsg = parseMessage(line);
-                    if (parsedMsg) {
-                        handleDroneMessage(parsedMsg);
-                    }
-                }
             }
         });
     } else if (typeof data === 'string') {
@@ -3715,13 +3710,7 @@ function displaySerialData(data) {
                 lineElement.textContent = line;
                 terminal.appendChild(lineElement);
 
-                // Process message if it's in the correct format
-                if (line.startsWith('{') && line.endsWith('}')) {
-                    const parsedMsg = parseMessage(line);
-                    if (parsedMsg) {
-                        handleDroneMessage(parsedMsg);
-                    }
-                }
+                
             }
         });
     }
@@ -3920,6 +3909,34 @@ function handleDroneMessage(parsedMsg) {
 
             case 'HB':
                 handleDroneHeartbeat(source);
+                break;
+
+            case 'RES':
+                // Handle response messages
+                if (fullPayload && fullPayload.includes(',')) {
+                    // This might be attitude data (pitch,roll,yaw,heading)
+                    const attParts = fullPayload.split(',');
+                    if (attParts.length >= 4) {
+                        const [pitch, roll, yaw, heading] = attParts.map(Number);
+                        
+                        // Update the drone state
+                        if (state) {
+                            state.pitch = (pitch * 180/Math.PI).toFixed(1);
+                            state.roll = (roll * 180/Math.PI).toFixed(1);
+                            state.yaw = (yaw * 180/Math.PI).toFixed(1);
+                            state.heading = heading;
+                            
+                            console.log('Updated attitude:', {
+                                pitch: state.pitch,
+                                roll: state.roll,
+                                yaw: state.yaw,
+                                heading: state.heading
+                            });
+                            
+                            updateDroneUI(parsedMsg.S || parsedMsg.T);
+                        }
+                    }
+                }
                 break;
         }
     } catch (error) {
@@ -5511,9 +5528,6 @@ function parseCustomMessageFormat(message) {
     return parsedMsg;
 }
 
-// Call the function periodically to update the UI
-setInterval(fetchESPTerminalData, 1000); // Adjust the interval as needed
-
 // Define the handleHeartbeat function
 function handleHeartbeat(data) {
     // Process the heartbeat data
@@ -5522,29 +5536,5 @@ function handleHeartbeat(data) {
 }
 
 
-async function loadMissions() {
-    try {
-        const response = await fetch('/list_missions');
-        if (!response.ok) throw new Error('Failed to fetch missions');
 
-        const missions = await response.json();
-        const programSelect = document.querySelector('.program-select');
-
-        // Clear existing options
-        programSelect.innerHTML = '<option value="">Select Mission</option>';
-
-        // Populate the dropdown with missions
-        missions.forEach(mission => {
-            const option = document.createElement('option');
-            option.value = mission; // Assuming mission is just the filename
-            option.textContent = mission; // Display the mission name
-            programSelect.appendChild(option);
-        });
-    } catch (error) {
-        console.error('Error loading missions:', error);
-    }
-}
-
-// Call loadMissions when the page loads
-document.addEventListener('DOMContentLoaded', loadMissions);
 
