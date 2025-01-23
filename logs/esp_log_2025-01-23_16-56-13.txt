@@ -1,0 +1,2 @@
+=== ESP Terminal Log Started at 2025-01-23_16-56-13 ===
+[2025-01-23 16:57:46.433] {S:MCU;C:HB;P:1}

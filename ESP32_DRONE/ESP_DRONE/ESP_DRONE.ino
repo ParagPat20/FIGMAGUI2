@@ -23,7 +23,7 @@ uint32_t flashColor1 = strip.Color(255, 0, 0);  // Default first color (red)
 uint32_t flashColor2 = strip.Color(0, 0, 0);    // Default second color (off)
 bool flashState = false;
 unsigned long flashEndTime = 0;
-const unsigned long FLASH_DURATION = 10000; // 10 seconds in milliseconds
+const unsigned long FLASH_DURATION = 10000;  // 10 seconds in milliseconds
 int colorIndex = 0;
 
 // Add this array near the top with other global variables
@@ -81,8 +81,8 @@ Servo myServo;
 const int servoPin = 18;
 
 // Servo position variables
-int pos = 0; // Position in degrees
-int stepDelay = 20; // Delay between steps in milliseconds
+int pos = 0;         // Position in degrees
+int stepDelay = 20;  // Delay between steps in milliseconds
 
 // Function to get target MAC address
 uint8_t *getTargetMAC(const String &target) {
@@ -202,11 +202,11 @@ String serializeCommandPacket(const CommandPacket &packet) {
 // Function to update rainbow effect without delays
 void updateRainbow() {
   if (!isRainbowActive) return;
-  
+
   unsigned long currentMillis = millis();
   if (currentMillis - previousMillis >= 10) {  // Update every 10ms for smoother animation
     previousMillis = currentMillis;
-    
+
     // Create a more vibrant rainbow with better color distribution
     for (int i = 0; i < strip.numPixels(); i++) {
       // Calculate hue based on position and time
@@ -216,56 +216,46 @@ void updateRainbow() {
       strip.setPixelColor(i, strip.gamma32(strip.ColorHSV(pixelHue, 255, brightness)));
     }
     strip.show();
-    rainbowIndex += 128; // Slower rotation for smoother transition
+    rainbowIndex += 128;  // Slower rotation for smoother transition
   }
 }
 
-// Function to update chase effect without delays
 void updateChase() {
-  if (!isChaseActive) return;
-  
-  unsigned long currentMillis = millis();
-  if (currentMillis - previousMillis >= 20) {  // Update every 20ms
-    previousMillis = currentMillis;
-    strip.clear();
-    
-    // Create a smoother chase effect with fading tail
-    const int tailLength = 20; // Longer tail for more dramatic effect
-    for (int i = 0; i < tailLength; i++) {
-      int pixelPos = (chaseIndex - i + strip.numPixels()) % strip.numPixels();
-      // Calculate brightness using sine wave for smooth fade
-      float brightness = sin((float)(tailLength - i) / tailLength * PI/2);
-      uint32_t color = strip.Color(
-        0,                    // Red
-        0,                    // Green
-        255 * brightness      // Blue with fading
-      );
-      strip.setPixelColor(pixelPos, color);
+    if (!isChaseActive) return;
+
+    unsigned long currentMillis = millis();
+    if (currentMillis - previousMillis >= 50) {  // Slightly slower for better visibility
+        previousMillis = currentMillis;
+        strip.clear();
+
+        // Create a smoother chase effect with fading tail
+        const int tailLength = 15;  // Shorter tail
+        for (int i = 0; i < tailLength; i++) {
+            int pixelPos = (chaseIndex - i + strip.numPixels()) % strip.numPixels();
+            float brightness = sin((float)(tailLength - i) / tailLength * PI / 2);
+            uint32_t color = strip.Color(
+                0,                // Red
+                255 * brightness, // Green (changed from blue for better visibility)
+                255 * brightness  // Blue
+            );
+            strip.setPixelColor(pixelPos, color);
+        }
+
+        strip.show();
+        chaseIndex = (chaseIndex + 1) % strip.numPixels();
     }
-    
-    // Add secondary pulse effect
-    int pulsePos = (chaseIndex + strip.numPixels()/2) % strip.numPixels();
-    for (int i = 0; i < tailLength/2; i++) {
-      int pixelPos = (pulsePos - i + strip.numPixels()) % strip.numPixels();
-      float brightness = sin((float)(tailLength/2 - i) / (tailLength/2) * PI/2) * 0.5; // Half brightness
-      uint32_t color = strip.Color(0, 0, 255 * brightness);
-      strip.setPixelColor(pixelPos, color);
-    }
-    
-    strip.show();
-    chaseIndex = (chaseIndex + 1) % strip.numPixels();
-  }
 }
 
 // Function to update flashing effect without delays
 void updateFlashing() {
   if (!isFlashingActive) return;
-  
+
   unsigned long currentMillis = millis();
-  
+
   // Check if flash duration has expired
   if (flashEndTime > 0 && currentMillis > flashEndTime) {
     isFlashingActive = false;
+    isRainbowActive = true;
     if (isRainbowActive) {
       updateRainbow();
     } else {
@@ -277,7 +267,7 @@ void updateFlashing() {
   // Update flash every 100ms for faster color changes
   if (currentMillis - previousMillis >= 100) {
     previousMillis = currentMillis;
-    
+
     // Cycle through colors
     colorIndex = (colorIndex + 1) % NUM_FLASH_COLORS;
     for (int i = 0; i < strip.numPixels(); i++) {
@@ -334,7 +324,7 @@ void setup() {
 
   // Initialize LED strip
   strip.begin();
-  strip.setBrightness(128);  // Set to 50% brightness for better visibility
+  strip.setBrightness(50);  // Set to 50% brightness for better visibility
   strip.show();
 
   if (esp_now_init() != ESP_OK) {
@@ -355,11 +345,11 @@ void setup() {
 
   // Start rainbow effect
   isRainbowActive = true;
-  
+
   // Attach the servo object to the servo pin
-  myServo.attach(servoPin); // Attach the servo pin
-  myServo.write(40); // Start with the servo open
-  delay(5000); // Wait for 5 seconds
+  myServo.attach(servoPin);  // Attach the servo pin
+  myServo.write(40);         // Start with the servo open
+  delay(5000);               // Wait for 5 seconds
 }
 
 void loop() {
@@ -396,11 +386,11 @@ void loop() {
 void OnDataSent(const uint8_t *mac_addr, esp_now_send_status_t status) {
   if (status == ESP_NOW_SEND_SUCCESS) {
     Serial.println("DLOK");
-    failedTransmissionCount = 0; // Reset counter on successful transmission
+    failedTransmissionCount = 0;  // Reset counter on successful transmission
   } else {
     Serial.println("DLFAIL");
     failedTransmissionCount++;
-    
+
     if (failedTransmissionCount >= 25) {
       CommandPacket landPacket;
       landPacket.S = senderIdentity;
@@ -408,7 +398,7 @@ void OnDataSent(const uint8_t *mac_addr, esp_now_send_status_t status) {
       landPacket.P = "1";
       String serializedData = serializeCommandPacket(landPacket);
       Serial.println(serializedData);
-      failedTransmissionCount = 0; // Reset counter after sending LAND command
+      failedTransmissionCount = 0;  // Reset counter after sending LAND command
     }
   }
 }
@@ -427,11 +417,11 @@ void OnDataRecv(const uint8_t *mac, const uint8_t *incomingData, int len) {
     setSolidColorTemporary(strip.Color(0, 0, 255));  // Blue for LAUNCH
   } else if (packet.C == "DISARM") {
     setSolidColorTemporary(strip.Color(255, 255, 0));  // Yellow for DISARM
-  } else if (packet.C == "SERVO") {  // Handle servo commands
+  } else if (packet.C == "SERVO") {                    // Handle servo commands
     if (packet.P == "CLOSE") {
-      myServo.write(115); // Close the grip
+      myServo.write(115);  // Close the grip
     } else if (packet.P == "OPEN") {
-      myServo.write(40); // Open the grip
+      myServo.write(40);  // Open the grip
     }
   } else if (packet.C == "NED") {
     // Set first 10 and last 10 LEDs to Orange for NED temporarily
@@ -443,7 +433,7 @@ void OnDataRecv(const uint8_t *mac, const uint8_t *incomingData, int len) {
       strip.setPixelColor(i, color);
     }
     strip.show();
-    
+
     // Set a timer for 2 seconds
     isModeChangeActive = true;
     modeChangeMillis = millis();
@@ -455,57 +445,30 @@ void OnDataRecv(const uint8_t *mac, const uint8_t *incomingData, int len) {
     } else {
       setSolidColorTemporary(strip.Color(0, 255, 255));  // Cyan for other modes
     }
-  }   else if (packet.C == "LED") {
-    if (packet.P == "FLASH") {
-      isFlashingActive = true;
-      isRainbowActive = false;
-      isChaseActive = false;
-      colorIndex = 0;
-      flashEndTime = millis() + FLASH_DURATION;
-    } else if (packet.P == "rnbw") {
-      isRainbowActive = true;
-      isChaseActive = false;
-      isFlashingActive = false;
-    } else if (packet.P == "chase") {
-      // Make chase temporary
-      isChaseActive = true;
-      isRainbowActive = false;
-      isFlashingActive = false;
-      isModeChangeActive = true;
-      modeChangeMillis = millis();
-    } else if (packet.P.startsWith("flash:")) {  // Add flash command handling
-      // Format: "flash:RRGGBB-RRGGBB" for two colors
-      String colors = packet.P.substring(6);  // Remove "flash:" prefix
-      int separatorIndex = colors.indexOf('-');
-      if (separatorIndex != -1) {
-        String color1Hex = colors.substring(0, separatorIndex);
-        String color2Hex = colors.substring(separatorIndex + 1);
-        
-        // Convert first color
-        long number1 = strtol(color1Hex.c_str(), NULL, 16);
-        uint8_t r1 = (number1 >> 16) & 0xFF;
-        uint8_t g1 = (number1 >> 8) & 0xFF;
-        uint8_t b1 = number1 & 0xFF;
-        flashColor1 = strip.Color(r1, g1, b1);
-        
-        // Convert second color
-        long number2 = strtol(color2Hex.c_str(), NULL, 16);
-        uint8_t r2 = (number2 >> 16) & 0xFF;
-        uint8_t g2 = (number2 >> 8) & 0xFF;
-        uint8_t b2 = number2 & 0xFF;
-        flashColor2 = strip.Color(r2, g2, b2);
-        
+  } else if (packet.C == "LIGHT") {  // Change from LED to LIGHT to match the command
+    if (packet.P == "flash") {
         isFlashingActive = true;
         isRainbowActive = false;
         isChaseActive = false;
-      }
+        colorIndex = 0;
+        flashEndTime = millis() + FLASH_DURATION;
+    } else if (packet.P == "rnbw") {
+        isRainbowActive = true;
+        isChaseActive = false;
+        isFlashingActive = false;
+    } else if (packet.P == "chase") {
+        // Remove temporary mode for chase
+        isChaseActive = true;
+        isRainbowActive = false;
+        isFlashingActive = false;
+        chaseIndex = 0;  // Reset chase position
     } else {
-      // Convert hex color code to RGB
-      long number = strtol(packet.P.c_str(), NULL, 16);
-      uint8_t r = (number >> 16) & 0xFF;
-      uint8_t g = (number >> 8) & 0xFF;
-      uint8_t b = number & 0xFF;
-      setSolidColor(strip.Color(r, g, b));
+        // Convert hex color code to RGB
+        long number = strtol(packet.P.c_str(), NULL, 16);
+        uint8_t r = (number >> 16) & 0xFF;
+        uint8_t g = (number >> 8) & 0xFF;
+        uint8_t b = number & 0xFF;
+        setSolidColor(strip.Color(r, g, b));
     }
   }
 

@@ -1,0 +1,337 @@
+{
+  "version": "1.0",
+  "timestamp": 1737634359397,
+  "settings": {
+    "gridSize": 100,
+    "gridSpacing": 1
+  },
+  "drones": {
+    "MCU": {
+      "color": "#70c172",
+      "frames": [
+        {
+          "position": {
+            "x": 0,
+            "y": 0,
+            "z": 5
+          },
+          "dx": 0,
+          "dy": 0,
+          "heading": 0,
+          "delay": 1000
+        },
+        {
+          "position": {
+            "x": -1,
+            "y": 0,
+            "z": 6
+          },
+          "dx": -1,
+          "dy": 0,
+          "heading": 180,
+          "delay": 1000
+        },
+        {
+          "position": {
+            "x": 0,
+            "y": 0,
+            "z": 2
+          },
+          "dx": 1,
+          "dy": 0,
+          "heading": 0,
+          "delay": 1000
+        },
+        {
+          "position": {
+            "x": 0,
+            "y": 0,
+            "z": 2
+          },
+          "dx": 0,
+          "dy": 0,
+          "heading": 0,
+          "delay": 1000
+        }
+      ]
+    },
+    "CD1": {
+      "color": "#2c7bf2",
+      "frames": [
+        {
+          "position": {
+            "x": 1,
+            "y": 0,
+            "z": 5
+          },
+          "dx": 1,
+          "dy": 0,
+          "heading": 0,
+          "delay": 1000
+        },
+        {
+          "position": {
+            "x": 0,
+            "y": 0,
+            "z": 4
+          },
+          "dx": -1,
+          "dy": 0,
+          "heading": 180,
+          "delay": 1000
+        },
+        {
+          "position": {
+            "x": 1,
+            "y": 0,
+            "z": 2
+          },
+          "dx": 1,
+          "dy": 0,
+          "heading": 0,
+          "delay": 1000
+        },
+        {
+          "position": {
+            "x": 1,
+            "y": 0,
+            "z": 2
+          },
+          "dx": 0,
+          "dy": 0,
+          "heading": 0,
+          "delay": 1000
+        }
+      ]
+    },
+    "CD2": {
+      "color": "#f05151",
+      "frames": [
+        {
+          "position": {
+            "x": 2,
+            "y": 0,
+            "z": 5
+          },
+          "dx": 2,
+          "dy": 0,
+          "heading": 0,
+          "delay": 1000
+        },
+        {
+          "position": {
+            "x": 1,
+            "y": 0,
+            "z": 6
+          },
+          "dx": -1,
+          "dy": 0,
+          "heading": 180,
+          "delay": 1000
+        },
+        {
+          "position": {
+            "x": 2,
+            "y": 0,
+            "z": 2
+          },
+          "dx": 1,
+          "dy": 0,
+          "heading": 0,
+          "delay": 1000
+        },
+        {
+          "position": {
+            "x": 2,
+            "y": 0,
+            "z": 2
+          },
+          "dx": 0,
+          "dy": 0,
+          "heading": 0,
+          "delay": 1000
+        }
+      ]
+    },
+    "CD3": {
+      "color": "#ffab49",
+      "frames": [
+        {
+          "position": {
+            "x": 3,
+            "y": 0,
+            "z": 2
+          },
+          "dx": 3,
+          "dy": 0,
+          "heading": 0,
+          "delay": 1000
+        },
+        {
+          "position": {
+            "x": 3,
+            "y": 0,
+            "z": 2
+          },
+          "dx": 0,
+          "dy": 0,
+          "heading": 0,
+          "delay": 1000
+        },
+        {
+          "position": {
+            "x": 3,
+            "y": 0,
+            "z": 2
+          },
+          "dx": 0,
+          "dy": 0,
+          "heading": 0,
+          "delay": 1000
+        },
+        {
+          "position": {
+            "x": 3,
+            "y": 0,
+            "z": 2
+          },
+          "dx": 0,
+          "dy": 0,
+          "heading": 0,
+          "delay": 1000
+        }
+      ]
+    },
+    "CD4": {
+      "color": "#9c27b0",
+      "frames": [
+        {
+          "position": {
+            "x": 4,
+            "y": 0,
+            "z": 2
+          },
+          "dx": 4,
+          "dy": 0,
+          "heading": 0,
+          "delay": 1000
+        },
+        {
+          "position": {
+            "x": 4,
+            "y": 0,
+            "z": 2
+          },
+          "dx": 0,
+          "dy": 0,
+          "heading": 0,
+          "delay": 1000
+        },
+        {
+          "position": {
+            "x": 4,
+            "y": 0,
+            "z": 2
+          },
+          "dx": 0,
+          "dy": 0,
+          "heading": 0,
+          "delay": 1000
+        },
+        {
+          "position": {
+            "x": 4,
+            "y": 0,
+            "z": 2
+          },
+          "dx": 0,
+          "dy": 0,
+          "heading": 0,
+          "delay": 1000
+        }
+      ]
+    },
+    "CD5": {
+      "color": "#00bcd4",
+      "frames": [
+        {
+          "position": {
+            "x": 5,
+            "y": 0,
+            "z": 5
+          },
+          "dx": 5,
+          "dy": 0,
+          "heading": 0,
+          "delay": 1000
+        },
+        {
+          "position": {
+            "x": 4,
+            "y": 0,
+            "z": 4
+          },
+          "dx": -1,
+          "dy": 0,
+          "heading": 180,
+          "delay": 1000
+        },
+        {
+          "position": {
+            "x": 5,
+            "y": 0,
+            "z": 2
+          },
+          "dx": 1,
+          "dy": 0,
+          "heading": 0,
+          "delay": 1000
+        },
+        {
+          "position": {
+            "x": 5,
+            "y": 0,
+            "z": 2
+          },
+          "dx": 0,
+          "dy": 0,
+          "heading": 0,
+          "delay": 1000
+        }
+      ]
+    }
+  },
+  "frameDelays": [
+    4500,
+    3800,
+    3500,
+    4300
+  ],
+  "customCommands": [
+    [
+      3,
+      [
+        {
+          "droneId": "MCU",
+          "command": "LAND",
+          "payload": "1"
+        },
+        {
+          "droneId": "CD1",
+          "command": "LAND",
+          "payload": "1"
+        },
+        {
+          "droneId": "CD2",
+          "command": "LAND",
+          "payload": "1"
+        },
+        {
+          "droneId": "CD5",
+          "command": "LAND",
+          "payload": "1"
+        }
+      ]
+    ]
+  ]
+}

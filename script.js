@@ -3626,18 +3626,14 @@ async function handleESPTerminalData(data) {
         // Handle single message
         const parsedMsg = parseCustomMessageFormat(data);
         console.log('Parsed message:', parsedMsg); // Debug log
-
+        handleDroneMessage(parsedMsg);
         // Process the message based on its type
         if (parsedMsg.C === 'HB') {
             // Handle heartbeat message
             handleHeartbeat(parsedMsg);
-        } else if (parsedMsg.C === 'RES') {
-            // Handle response messages
-            handleDroneMessage(parsedMsg);
         }
         
-        // Always try to handle the message
-        handleDroneMessage(parsedMsg);
+        
     } catch (error) {
         console.error('Error processing ESP terminal data:', error);
     }
